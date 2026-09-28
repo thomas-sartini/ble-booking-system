@@ -1,0 +1,27 @@
+title: BLE Booking System with Secure User Management
+subtitle: Project Report - Draft
+author: Thomas Sartini, Nicola Anghileri, Julian Hoffer, Oguzhan Akyol
+date: 28 September 2026
+lang: en-GB
+toc-title: Table of Contents
+reference-section-title: References
+documentclass: scrreprt
+classoption:
+  - a4paper
+  - 11pt
+  - oneside
+mainfont: TeX Gyre Termes
+sansfont: TeX Gyre Heros
+geometry:
+  - left=30mm
+  - right=25mm
+  - top=27mm
+  - bottom=27mm
+linestretch: 1.15
+colorlinks: true
+linkcolor: blue
+urlcolor: blue
+toccolor: black
+abstract: |
+  **Draft.** Once the work is complete, summarise the problem, method,
+  principal findings, and conclusion here.

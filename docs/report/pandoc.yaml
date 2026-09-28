@@ -1,0 +1,26 @@
+from: markdown+smart
+to: pdf
+standalone: true
+fail-if-warnings: true
+pdf-engine: xelatex
+metadata-file: ${.}/metadata.yaml
+bibliography: ${.}/references.bib
+citeproc: true
+toc: true
+toc-depth: 2
+number-sections: true
+top-level-division: chapter
+resource-path:
+  - ${.}
+  - ${.}/assets
+output-file: ${.}/../output/IIP_BLE_Booking_System.pdf
+input-files:
+  - ${.}/chapters/01-problem-vision.md
+  - ${.}/chapters/02-state-of-the-art.md
+  - ${.}/chapters/03-ideas-and-concepts.md
+  - ${.}/chapters/04-methods.md
+  - ${.}/chapters/05-implementation.md
+  - ${.}/chapters/06-validation-evaluation.md
+  - ${.}/chapters/07-outlook.md
+  - ${.}/chapters/08-appendices.md
+  - ${.}/chapters/09-lists.md
