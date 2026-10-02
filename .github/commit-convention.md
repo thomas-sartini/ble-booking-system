@@ -41,41 +41,6 @@ feat(api)!: change booking response format
 BREAKING CHANGE: clients must read resourceId from booking.resource.
 ```
 
-## Planning changes
-
-Changes to project planning files use the `docs` type with the `planning` scope.
-
-Use:
-
-```text
-docs(planning): <short imperative description>
-```
-
-This applies to files such as:
-
-- `planning/requirements.md`
-- `planning/expected-results.md`
-- `planning/product-backlog.md`
-- other planning documentation maintained under `planning/`
-
-Examples:
-
-```text
-docs(planning): update requirements
-docs(planning): align backlog structure
-```
-
-If one logical planning change affects several planning files, keep it in one commit.
-If the changes represent separate logical updates, split them into separate commits.
-
-Repository workflow and convention files under `.github/` use the `repo` scope instead:
-
-```text
-docs(repo): define issue convention
-docs(repo): update contribution workflow
-```
-
-
 ## Subject examples
 
 | Good | Why |
