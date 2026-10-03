@@ -46,8 +46,13 @@ This document describes the initial relational database schema for the NFC-based
 
 ## 2. Key Relationships & Cardinalities
 
-* **User $\rightarrow$ Booking ($1 : n$):** A single user can create multiple bookings over time.
-* **Resource $\rightarrow$ Booking ($1 : n$):** A resource holds multiple scheduled bookings.
-* **Terminal $\rightarrow$ Resource ($1 : 1$):** Each terminal is assigned to exactly one physical resource.
-* **Booking $\rightarrow$ AccessEvent ($1 : n$):** A booking typically contains a check-in and a check-out access event.
-* **Booking $\rightarrow$ Invoice ($1 : 1$):** Every completed booking links to exactly one billing invoice.
+* **User $\rightarrow$ Booking ($1 : n$):** A user can place multiple bookings over time.
+* **User $\rightarrow$ Invoice ($1 : n$):** A user is assigned to all invoices generated for their bookings.
+* **User $\rightarrow$ Invitation ($1 : n$):** A user (typically an Admin) can create multiple invitation/reset tokens (`created_by_user_id`).
+* **User $\rightarrow$ AuditLog ($1 : n$):** A user triggers multiple logged system actions (`actor_user_id`).
+* **Resource $\rightarrow$ Booking ($1 : n$):** A bookable resource can have multiple scheduled bookings.
+* **Resource $\rightarrow$ Availability ($1 : n$):** A resource defines multiple time-window access rules across days of the week.
+* **Terminal $\rightarrow$ Resource ($1 : 1$):** Each hardware terminal is strictly assigned to exactly one physical resource (`UNIQUE` constraint on `terminal_id`).
+* **Terminal $\rightarrow$ AccessEvent ($1 : n$):** A physical terminal registers and syncs multiple access log events.
+* **Booking $\rightarrow$ AccessEvent ($1 : n$):** A single booking session tracks check-in and check-out events.
+* **Booking $\rightarrow$ Invoice ($1 : 1$):** Every completed/billable booking correlates to exactly one billing invoice (`UNIQUE` constraint on `booking_id`).
