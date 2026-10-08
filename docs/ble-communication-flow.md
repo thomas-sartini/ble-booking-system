@@ -273,10 +273,3 @@ If recovery is unavailable **within the agreed retention period**, the app may r
 
 If these conditions are not met or no confirmed result is available, keep the result unresolved and retain the original details for reconciliation or Admin assistance. An operation outside the retention period must be resolved before execution is retried. Never create a new operation ID to bypass uncertainty. Execution retries are separate authorization exchanges; read-only recovery follows its own policy and does not need a new action ticket.
 
-## References
-
-- [Issue #3 and its expected outcomes](https://github.com/thomas-sartini/ble-booking-system/issues/3)
-- [Requirements baseline](https://github.com/thomas-sartini/ble-booking-system/blob/8daa17c7d385a88aa5723a78f0b911ac6bf31ca4/planning/requirements.md)
-- [Backend signed-ticket proposal](https://github.com/thomas-sartini/ble-booking-system/blob/33d27decd026d4631dfa22d6f69fe00728a251f0/backend/docs/check-in-concept.md)
-- [Mobile architecture proposal](https://github.com/thomas-sartini/ble-booking-system/blob/d8e3c2cb88411f20e8427e544db0c49e25b55eb3/docs/report/assets/mobile-arc.md)
-- [Database schema proposal](https://github.com/thomas-sartini/ble-booking-system/blob/37118573105214dd493901a597c8171d8532d6bd/docs/report/assets/database-concept.md)
