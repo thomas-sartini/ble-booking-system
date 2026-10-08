@@ -87,7 +87,7 @@ sequenceDiagram
     participant T as ESP32 Terminal
     App->>T: Connect and negotiate
     alt Connection or negotiation fails
-        App->>App: Display failure; offer bounded retry
+        App->>App: Display failure and offer bounded retry
     else Connection ready and terminal authenticated
         App->>T: Authorization request
         alt Ticket rejected
@@ -104,7 +104,7 @@ sequenceDiagram
                 else Transition allowed
                     T->>T: Attempt atomic durable recording
                     alt Recording cannot be committed
-                        T-->>App: Storage error; no success confirmation
+                        T-->>App: Storage error without success confirmation
                     else Recording committed
                         T-->>App: Stored signed receipt
                     end
