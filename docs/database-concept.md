@@ -44,7 +44,7 @@ This document describes the initial relational database schema for the NFC-based
 
 ---
 
-## 2. Key Relationships & Cardinalities
+## 2. Relationships & Cardinalities
 
 * **User $\rightarrow$ Booking ($1 : n$):** A user can place multiple bookings over time.
 * **User $\rightarrow$ Invoice ($1 : n$):** A user is assigned to all invoices generated for their bookings.
