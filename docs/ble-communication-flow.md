@@ -1,304 +1,282 @@
 # BLE Communication Flow
 
-Status: Sprint 1 design proposal for issue #3 (T-003), ready for team review. This document defines the communication contract at a conceptual level; it does not specify a final wire format or cryptographic implementation. Requirements and existing team proposals are distinguished from the additional BLE design decisions proposed here.
+Status: Sprint 1 design proposal for [issue #3 (T-003)](https://github.com/thomas-sartini/ble-booking-system/issues/3), ready for team review.
 
-## Purpose and scope
+## 1. Purpose and scope
 
-Define how the mobile application and resource terminal establish BLE communication, verify authorization and device possession, and record check-in and check-out. Included are actors, messages, successful flows, rejection outcomes, initial recovery, security considerations, and offline assumptions. Mobile classes, firmware, final formats, final cryptographic algorithms, detailed synchronization, and performance optimization are excluded.
+This document proposes how the mobile app and resource terminal communicate over BLE to identify an authorized device and record check-in and check-out. It builds on the backend's signed-ticket proposal.
 
-## Actors and prerequisites
+### The idea in short
+
+Before check-in, the app gets a signed ticket from the backend. The terminal can check this ticket without an internet connection. The app also answers a fresh challenge to prove that it holds the private key of the device named in the ticket, so copying the ticket to another phone is not enough. After accepting the action, the terminal saves the event and returns a signed receipt, which the app uploads to the backend. Check-out follows the same steps with a separate ticket. Terminal trust, offline limits, synchronization, and the other questions in section 7 still need team agreement.
+
+The spike covers the actors, BLE connection, identification, check-in/check-out, messages, success and failure cases, initial security rules, and design decisions. It does not cover BLE implementation, mobile classes, terminal firmware implementation, final message formats, final cryptographic choices, detailed synchronization implementation, or performance optimization.
+
+## 2. Actors and prerequisites
 
 | Actor | Responsibility |
 |---|---|
-| Mobile application | Discover the terminal, establish BLE communication, submit an authorization ticket, prove possession of the device key, retain receipts, and display the result. |
-| ESP32 resource terminal | Advertise the BLE service, validate tickets and device proofs offline, enforce local state transitions, durably record events, and return signed receipts. |
-| Backend (outside the BLE sequence) | Bind an enrolled device to a user, issue authorization tickets, and reconcile signed events. |
+| Mobile application | BLE central / GATT client. Find and verify the terminal, send a ticket, prove possession of the device key, and save and upload receipts. |
+| ESP32 resource terminal | BLE peripheral / GATT server. Check authorization offline, track local resource use, save events so they survive a restart, and return signed receipts. |
+| Backend | Register devices and link them to users, issue tickets, and check uploaded events. It takes no part in the BLE exchange. |
 
-The terminal is the BLE peripheral and GATT server; the mobile application is the central and GATT client. Advertising identifiers are discovery hints, not proof of identity.
+Before an action:
 
-Before the exchange, the application has a backend-signed ticket bound to its device public key, booking, resource, action, and bounded validity interval. Enrollment and ticket acquisition happen outside this diagram. The private device key stays in platform-protected storage. The terminal is provisioned with its resource and terminal identifiers, trusted backend verification key, protected signing key, and a sufficiently trustworthy clock. The application needs a trusted way to validate terminal identity and receipts; its provisioning mechanism remains a team decision.
+- The device has a registered key pair. Its private key stays in platform-protected storage; the backend links its public key to the user.
+- The app has a backend-signed ticket for this device key, booking, resource, action, and time window.
+- The terminal knows its terminal/resource IDs and the trusted backend verification key. It also needs a protected signing key, a reliable clock, and storage that survives a restart.
+- The app has trusted information to verify the terminal. How it receives that information is still open.
 
-User identification is indirect: the backend associates the user with the booking and enrolled device. The terminal verifies that authorization and possession of the corresponding device key; it need not receive a user's name or email.
+The backend links the user to the booking and device. The terminal checks that permission and the device's proof of key possession. It does not need a name or email. BLE advertising and addresses help find the terminal; they do not prove identity.
 
-### Backend prerequisites and application integration
+**Backend dependency:** the current proposal issues `CHECK_IN` tickets for `BOOKED` bookings and `CHECK_OUT` tickets only for `CHECKED_IN` bookings. After a local check-in, the app must upload the receipt and wait for backend acceptance before it can get a check-out ticket. If the upload fails, the app keeps the receipt and shows synchronization pending. A check-in ticket cannot be used for check-out. A phone without connectivity needs a suitable ticket already available or a different agreed policy. Physical exit behavior is outside this design.
 
-The existing backend proposal issues a CHECK_IN ticket while the booking is BOOKED and a CHECK_OUT ticket only after the booking becomes CHECKED_IN. Therefore a locally confirmed check-in must be reconciled with the backend before the app can obtain a check-out ticket. BLE success and backend confirmation are separate application states.
+Mobile integration must connect ticket requests, native BLE, receipt storage/upload, and recovery of missing results. This spike adds no mobile classes or REST endpoints.
 
-| Application state | Behavior |
-|---|---|
-| Check-in recorded at terminal, upload pending | Display check-in confirmed at terminal and synchronization pending. Retain the receipt. Do not perform another check-in. |
-| User requests check-out with a pending check-in receipt | Recover a missing receipt if needed, upload the check-in receipt, and wait for backend acceptance before requesting a CHECK_OUT ticket. |
-| Check-in upload temporarily fails | Retry when connectivity returns. Under the current backend proposal, no new check-out ticket can be obtained meanwhile. Explain this limitation to the user. |
-| Backend rejects the receipt or reports a state conflict | Keep the evidence and surface the conflict for review. Do not claim central confirmation or silently undo a terminal event. |
-| Backend confirms check-in | Obtain a fresh CHECK_OUT ticket and execute the check-out BLE flow. |
-| Check-out recorded at terminal, upload pending | Retain and upload its receipt later. Do not repeat the check-out action. |
+## 3. Successful connection, identification, check-in, and check-out
 
-Fully offline check-out on a phone that has no CHECK_OUT ticket is not supported by this baseline. Providing such a fallback requires a separate, agreed authorization policy, not reuse of a CHECK_IN ticket. Inability to record an app check-out must not be interpreted as a rule preventing a person from leaving a resource; physical exit behavior is outside this communication design.
-
-The mobile integration must provide conceptual operations for ticket acquisition, BLE execution, receipt persistence/upload, and result recovery. Thomas's mobile architecture leaves the BLE contract open. The concrete mapping into its interfaces remains a joint integration decision; this spike does not add BLE-specific mobile classes or redefine REST endpoints.
-
-## Successful check-in and check-out
+Both actions use the same BLE exchange, but each needs its own ticket.
 
 ```mermaid
 sequenceDiagram
     participant App as Mobile Application
     participant T as ESP32 Terminal
-    Note over App: Valid action-specific ticket and enrolled device key
-    Note over T: Trusted keys, resource mapping, clock and durable storage
+    Note over App: Registered device key and valid action ticket
     T-->>App: Advertise BLE service
-    App->>T: Connect and discover GATT service
-    App->>T: Enable response notifications or indications
-    App->>T: Start handshake with supported version and fresh app nonce
-    T-->>App: Selected version and terminal identity proof
-    App->>App: Verify trusted terminal and resource binding
+    App->>T: Connect, discover GATT service and enable responses
+    App->>T: Start handshake with version and fresh app nonce
+    T-->>App: Selected version and fresh terminal identity proof
+    App->>App: Verify trusted terminal and matching resource
     App->>T: Complete authenticated protected-channel handshake
     T-->>App: Protected channel established
-    App->>T: Submit ticket and stable operation ID
-    T->>T: Verify backend signature, resource, time and action
-    T-->>App: Fresh challenge bound to ticket and operation
-    App->>App: Sign bound challenge with device key
-    App->>T: Device proof
+    App->>T: Signed ticket and stable operation ID
+    T->>T: Verify backend signature, resource, action and time
+    T-->>App: Fresh challenge bound to request and session
+    App->>T: Challenge proof signed with device key
     T->>T: Verify proof and consume challenge
-    alt Operation already completed with matching context
-        T-->>App: Return original stored signed receipt
-    else New operation
+    T->>T: Recheck validity, operation and state, one request at a time
+    alt Operation already saved with matching details
+        T-->>App: Original stored signed receipt
+    else New eligible operation
         alt CHECK_IN
             T->>T: Verify eligible start and local availability
         else CHECK_OUT
             T->>T: Verify matching active use
         end
-        T->>T: Recheck ticket validity and state inside serialized commit
-        T->>T: Atomically persist state change, event and signed receipt
+        T->>T: Save usage state, event and signed receipt together
         T-->>App: Success and signed receipt
     end
-    App->>App: Verify receipt signature and expected operation context
-    App->>App: Persist receipt for reconciliation
-    App->>App: Display terminal-confirmed result
-    Note over App,T: Backend reconciliation happens separately
+    App->>App: Verify receipt signature and expected details
+    App->>App: Save receipt and display terminal-confirmed result
+    Note over App,T: Backend reconciliation follows separately
 ```
 
-Check-in requires a CHECK_IN ticket and creates a start-of-use event. Check-out requires a new CHECK_OUT ticket and creates an end-of-use event for the matching active use. A terminal receipt confirms local recording, not backend reconciliation. Any physical access signal is issued only after successful durable recording; physical actuator behavior is outside this spike.
-
-The design assumes the same terminal handles both actions. Multiple terminals for one resource require an agreed coordination mechanism before this assumption can be relaxed.
-
-### Local state transitions
-
-| Action | Required local state | Successful local outcome |
+| Action | Required local state | Successful outcome |
 |---|---|---|
-| CHECK_IN | A valid start authorization and no conflicting active use | Record active use for the booking and create one check-in event. |
-| CHECK_OUT | Matching booking is actively in use | End that use and create one check-out event. |
-| Repeat of a committed operation | Same recorded operation and authenticated device/context | Return its existing receipt without changing state or creating an event. |
+| `CHECK_IN` | The authorized booking may start. There is no conflicting use and this booking has not already been started. | Save one start event and mark the booking in use. Signal access only after saving succeeds. |
+| `CHECK_OUT` | The same booking is currently in use. | Save one end event and end that use. |
+| Authenticated duplicate | The operation, device, and request details match the saved record. | Return the original receipt without another event or access action. |
 
-The terminal serializes state-changing requests and rechecks ticket validity, duplicate records, and local state before committing. Its locally known active-use state does not prove that no future reservation exists. The backend remains responsible for central availability and booking eligibility when issuing the ticket; later changes are subject to the bounded offline window.
+The terminal processes requests one at a time. It saves the usage state, event, and receipt together, so a restart cannot leave only part of the update saved. Its records must also prevent duplicate actions after a restart. A different operation ID or replacement ticket must not allow the same booking action twice.
 
-### Protected-channel prerequisite
+If a reset or storage loss makes the terminal's saved state unreliable, it blocks all new actions until that state is restored. Normal expiry of one recovery record does not block unrelated actions if the remaining usage and replay-protection records are reliable; section 5 explains that case.
 
-Terminal authentication and channel protection are required before ticket submission. The proof must demonstrate current possession of the trusted terminal key and bind the expected terminal/resource, fresh app nonce, selected version, and handshake context. A static terminal identifier or certificate alone is insufficient to prove that the connected peer possesses the key.
+The backend checks booking eligibility when issuing a ticket. A terminal showing a resource as free does not prove it is free in the backend. This proposal assumes the same terminal handles check-in and check-out.
 
-The chosen handshake must establish confidentiality and integrity, reject tampering or downgrade, and bind subsequent device proofs to the resulting session. If terminal trust, resource binding, or channel establishment fails, abort without sending the ticket. This is a required protocol property and proposed sequence; choosing authenticated BLE pairing, an application-layer secure channel, or both is left to implementation review. No custom cryptographic algorithm is specified here.
+## 4. Conceptual communication contract
 
-## Conceptual message contract
+The table describes what the messages do and which details they must link together. It does not define their final names or format.
 
-Names below describe message purposes, not final serialized message names or fields.
-
-| Message | Direction | Purpose |
+| Message | Direction | Meaning |
 |---|---|---|
-| Protocol / channel handshake | Both | Select and authenticate a supported version, verify terminal trust and establish confidentiality and integrity before ticket submission. |
-| Terminal identity proof | Terminal to app | Prove possession of a trusted terminal key with fresh context bound to the resource and session. |
-| Authorization request | App to terminal | Carry the signed ticket and stable operation identifier. |
-| Challenge | Terminal to app | Fresh nonce associated with this session, ticket, operation, resource, terminal, and action. |
-| Device proof | App to terminal | Prove possession of the device private key over the bound challenge context. |
-| Result / signed receipt | Terminal to app | Confirm a durably recorded event or return the original result of an authenticated duplicate. |
-| Error result | Terminal to app | Describe a rejected or failed request without exposing secrets. |
-| Outcome query | App to terminal | Identify the original operation for a read-only recovery attempt. |
-| Recovery challenge / proof | Both | Prove possession of the original device key with a fresh challenge bound to recovery, operation and session. |
-| Recovery result | Terminal to app | Return the original signed receipt after successful proof, or a generic unavailable result. Never create or modify a usage event. |
+| Handshake / terminal proof | Both | Choose a supported version, verify the terminal and resource using fresh handshake data, and set up a connection that prevents reading or changing messages in transit. |
+| Authorization request | App → terminal | Send the signed action ticket and the operation ID, which stays the same on retries. |
+| Challenge / device proof | Both | Send a fresh challenge that can be used once and answer it with the ticket's device key. The proof covers the ticket, operation, action, terminal, resource, and protected session. |
+| Success / signed receipt | Terminal → app | Confirm a saved event, with its event ID and the details of the operation. |
+| Error result | Terminal → app | Explain a rejection or failure without exposing sensitive details. An unknown result is different from a confirmed rejection. |
+| Outcome query / recovery proof | Both | Ask for the original result using the original device key and a fresh proof. This only reads a saved record. See Appendix A. |
+| Recovery result | Terminal → app | Return the original signed receipt or a generic outcome unavailable response. Do not create a new event. |
+| Reconciliation acknowledgment (proposed) | App → terminal | Relay the backend's signed result for a saved event and terminal. After checking the signature, the terminal marks only accepted or already accepted events as reconciled. Keep evidence of conflicts/rejections for review. |
 
-Identifiers include protocol version, operation ID, ticket ID, booking ID, resource ID, terminal ID, and event/receipt ID. Operation IDs remain stable across retries. Reuse of an operation ID with different context is rejected. The terminal also checks booking/action state and ticket use so a new operation ID cannot bypass duplicate protection.
+The exchange uses a protocol version and IDs for the operation, ticket, booking, resource, terminal, and event/receipt. The app saves the operation ID and intended action before sending the request. It keeps that ID when retrying. The same ID cannot be used with a different booking, resource, action, terminal, or device key. A permitted replacement ticket keeps these details and the operation ID, although its ticket ID and validity period may change (section 7).
 
-The app persists the operation ID and intended action before submitting a request. Committed terminal records retain the operation ID, booking, resource, action, original device verification key or an equivalent durable binding, and signed receipt. A receipt must bind the event to these identifiers and the terminal identity. The app checks both the trusted signature and the expected context, not merely that some terminal signed it. These are logical bindings; final field names and serialization remain out of scope.
+The terminal saves the original device key and request details with the completed operation. A duplicate returns the original receipt with the original ticket ID and event time. The app keeps the original request details and checks both the trusted signature and that the receipt matches that operation. A replacement ticket must not cause it to reject a matching original receipt just because the ticket ID differs.
 
-Large tickets may need application-level reassembly across multiple BLE writes. Exact characteristics, UUIDs, framing, size limits, and MTU behavior are implementation decisions. Incomplete or oversized messages must not produce usage events.
+GATT characteristics, UUIDs, message framing, packet sizes, and cryptographic formats are left for implementation. Incomplete, malformed, or oversized messages must not create usage events.
 
-## Rejection and recovery flow
+### Reconciliation boundary
+
+Reconciliation means checking the terminal's events and updating the central backend state. The phone carries the signed receipts. The acknowledgment below is an additional proposal for FR-05.04/05.05:
+
+1. The terminal and app keep events/receipts until reconciliation. When connected, the app uploads the original receipt over an authenticated, encrypted connection.
+2. The backend checks terminal trust, signature, event details, and the order of check-in/check-out. It uses the event/receipt ID to process each event once, without duplicate usage records or charges.
+3. The backend signs its result: accepted, already accepted, or conflict/rejection. The result identifies the event and terminal. The app carries it back; the terminal checks the backend signature itself. Signing format and how trusted keys are installed remain open.
+4. Only accepted or already accepted marks an event as reconciled. Keep conflicting events for Admin review. A rejected upload does not delete the terminal event or undo access already granted.
+
+If no phone or other relay is available, events stay queued. The team must decide who brings back check-out acknowledgments after the phone has left. If the queue is full, reject new actions that cannot be saved; never delete pending evidence to make room. Queue capacity, acknowledgment format, retry timing, retention periods, and other relay paths are still open. This defines responsibilities, not the detailed synchronization implementation.
+
+## 5. Failure and initial recovery
 
 ```mermaid
 sequenceDiagram
     participant App as Mobile Application
     participant T as ESP32 Terminal
     App->>T: Connect and establish authenticated protected channel
-    alt Connection, trust or channel establishment fails
-        App->>App: Display failure and offer bounded retry
-    else Protected channel ready and terminal authenticated
+    alt Temporary connection failure
+        App->>App: Explain connection issue and offer limited retries
+    else Unsupported version, untrusted terminal or failed protection
+        App->>App: Abort session without sending authorization data
+    else Protected channel ready
         App->>T: Authorization request
-        alt Ticket rejected
-            T-->>App: Invalid, expired or wrong-resource authorization
+        alt Ticket invalid or expired
+            T-->>App: Authorization rejected
         else Ticket accepted
             T-->>App: Fresh bound challenge
+            Note over App,T: No action can be saved before a valid device proof
             App->>T: Device proof
             alt Proof invalid or timed out
                 T->>T: Discard challenge
                 T-->>App: Authentication failed
             else Proof valid
-                alt Completed operation with matching context
-                    T-->>App: Original stored receipt
-                else New operation
-                    T->>T: Recheck authorization and local state
-                    alt Authorization expired or state conflicts
-                        T-->>App: Authorization or state rejection
-                    else Still valid and allowed
-                        T->>T: Attempt atomic durable recording
-                        alt Recording cannot be committed
-                            T-->>App: Storage error without success confirmation
-                        else Recording committed
-                            T-->>App: Stored signed receipt
-                        end
+                T->>T: Recheck validity, operation and state, one request at a time
+                alt Saved operation with matching details
+                    T-->>App: Original receipt
+                else Expired authorization or conflicting state
+                    T-->>App: Rejected without a new event
+                else New valid operation
+                    T->>T: Try saving state, event and receipt together
+                    alt Saving fails
+                        T-->>App: Storage failure without success confirmation
+                    else Saving succeeds
+                        T-->>App: Stored signed receipt
                     end
                 end
             end
         end
     end
-    opt Response lost or connection interrupted
-        App->>App: Display outcome unknown
-        App->>T: Reconnect and authenticate outcome query
-        T-->>App: Original receipt or explicit recovery status
+    opt Event may be saved, no verified result
+        App->>App: Keep original operation ID and show result unknown
+        App->>T: Read-only recovery (Appendix A)
+        App->>App: If unavailable: same-ID retry (Appendix A conditions)
     end
 ```
 
-| Situation | Outcome and initial handling |
+| Situation | Initial handling |
 |---|---|
-| No terminal, unavailable Bluetooth, or connection failure | Explain the local issue and allow a bounded retry. |
-| Unsupported protocol or untrusted terminal | Abort before transmitting sensitive authorization data. |
-| Invalid signature, wrong resource/action, unknown authorization | Reject; create no usage event. |
-| Expired ticket | Reject; acquire a replacement through the backend when possible. |
-| Untrustworthy terminal clock | Reject time-dependent authorization until trustworthy time is restored. |
-| Invalid or late device proof | Discard the challenge; any new attempt uses a new challenge. |
-| Active-use conflict or check-out without matching check-in | Reject and display a state conflict. |
-| Identical authenticated duplicate | Return the original receipt without a second event. |
-| Durable commit failure | Do not signal success or grant physical access. |
-| Connection loss or ambiguous storage outcome | Show outcome unknown and recover the stored result; never assume failure and blindly repeat the action. |
-| Receipt validation fails | Do not display confirmed success; retain diagnostics without secrets and recover through a trusted channel. |
-| Receipt upload fails | Retain the receipt and retry reconciliation later without repeating the BLE action. |
-| Check-in upload pending when check-out is requested | Reconcile check-in first. If it cannot be reconciled, explain that the baseline cannot obtain a CHECK_OUT ticket. |
+| Bluetooth unavailable, no terminal, or temporary connection failure before an action | Explain the problem and allow a limited number of retries when the connection can be restored. |
+| Unsupported version, untrusted terminal, or failed channel protection | Stop before sending the ticket or other authorization data. Resolve the problem first; do not retry automatically or switch to an unprotected connection. |
+| Invalid/unknown ticket, wrong resource/action, or unreliable clock | Reject the new action without an event. |
+| Expired ticket or late/invalid device proof | Reject. Request a valid replacement ticket if needed and always use a fresh challenge for a new proof. |
+| Conflicting use, mismatched request details, or check-out without active use | Reject without overwriting the saved state. |
+| Storage failure or full event queue | Do not confirm success or signal access. If saving may have succeeded, recover the result. |
+| Connection lost before this attempt could save an event | Report this attempt as unsuccessful. Keep any earlier unknown result unresolved. |
+| Missing response or invalid receipt after an event may have been saved | Keep the original operation ID and follow the recovery steps below. |
+| Saved terminal history lost or unreliable | Block all new actions until the terminal's state is restored (section 3). |
+| Operation record outside the retention period | Only this operation stays unresolved. A missing record does not prove it never happened. Resolve it through reconciliation or Admin assistance before retrying. Unrelated actions may continue if usage and replay-protection records are reliable. |
+| Receipt upload fails, or check-in upload is still pending at check-out | Keep and retry the upload. Getting a check-out ticket waits for accepted check-in reconciliation. |
+| Backend conflict/rejection | Keep the evidence, show synchronization pending/conflicted, and flag it for Admin review. |
 
-### Read-only recovery after a lost result
+**Unknown result:** the terminal can save an action only after checking the device proof. If the attempt stops before the app starts sending that proof, this attempt is unsuccessful. After sending starts, its result stays unknown until a verified receipt or an authenticated final rejection arrives. Rejecting a retry before checking saved history does not resolve a previous attempt.
 
-Outcome recovery is a separate operation from check-in/check-out. For a committed operation, the terminal authenticates the requester against the original device key retained with the event. An expired action ticket is therefore not needed to read that original receipt, and recovery never authorizes a new action.
+**Initial recovery:** keep the original operation ID and request details, reconnect securely, and ask for the saved receipt. This read-only query cannot perform check-in or check-out. An unavailable result does not prove that no event exists. Do not create a new operation ID to bypass the uncertainty. If the result cannot be resolved, retain the evidence for reconciliation or Admin assistance.
+
+A terminal receipt confirms the local event; backend acceptance separately confirms the central update. Appendix A proposes the detailed recovery and limited retry rules for later implementation. Those rules need team agreement before an unknown action can be retried.
+
+## 6. Security and offline policy
+
+- **Terminal trust and protected connection:** before sending a ticket, verify fresh proof that the terminal holds its trusted private key. The proof must cover the expected terminal/resource, a fresh app nonce (random value), protocol version, and handshake/session. A static ID or certificate alone is not enough. The connection must prevent disclosure, tampering, and a forced switch to weaker protection. Whether to use authenticated BLE pairing, an application-layer protected connection, or both is still open.
+- **Authorization and replay:** the backend signature grants permission for a limited time; the device proof shows key possession. Challenges must be unpredictable, short-lived, usable once, and linked to the request/session. Saved operation/ticket and booking records prevent duplicate actions even with a valid new proof.
+- **Keys, receipts, and data:** protect private keys, check receipt signatures and request details, and avoid unnecessary personal data or secrets in logs. Limit message size, waiting time, and retries. BLE authentication does not prove physical distance; forwarding the signal from far away (a relay attack) remains a known limit to address or accept.
+- **Offline boundary:** the terminal checks tickets and saves actions without Wi-Fi or backend access. The phone still needs connectivity to get new tickets under the backend proposal. Reject unknown/expired permission or an unreliable clock for new actions. Read-only recovery has separate rules.
+- **Validity and revocation:** five-minute ticket validity is a backend proposal, not an agreed limit. The team must set maximum validity, allowed clock error, key rotation, and how long an offline terminal may remain unaware of a blocked device or cancelled booking. A ticket issued earlier may still work until expiry. Later backend rejection cannot undo access already granted.
+- **Storage:** keep pending events and receipts across restarts, preserve action order, and agree how long replay-protection and recovery records stay available. Multiple terminals and concurrent booking changes need a coordination policy.
+
+## 7. Decisions and assumptions to confirm
+
+The proposed flow uses a ticket, a device challenge/proof, and a saved event with a signed receipt. It also needs a protected BLE connection, separate backend reconciliation, and read-only recovery. We assume one terminal manages local resource use and ESP32 is the terminal hardware. Both assumptions need team confirmation.
+
+### Proposed design decisions and reasons
+
+| Decision | Reason |
+|---|---|
+| Action-specific tickets | A check-in ticket must not allow check-out. This follows the backend's booking-status rules. |
+| Save state, event, and receipt together before success | Keep all three consistent after a restart. Confirm success or signal access only once they are safely saved. |
+| Keep the operation ID on retries | Retrying the same action must not create duplicate events or access actions. Keep the same request details with retries and permitted replacement tickets. |
+| Recover with the original device key | Retrieve the old receipt after ticket expiry without allowing a new action or giving it to another device. Lost or revoked keys need separate rules. |
+| Protect the connection before sending a ticket | Verify the expected terminal and protect tickets and proofs from being read or changed. The exact mechanism is open. |
+| Same terminal for check-in and check-out | An offline terminal can check the order using its own saved state. Several terminals need coordination first. |
+
+### Open team decisions
+
+| Decision | Contributors / required agreement |
+|---|---|
+| Terminal trust and connection protection | Mobile and terminal: how the app gets trusted terminal information, which handshake is supported, and which protocol versions are allowed. |
+| Offline authorization policy | Backend and terminal: maximum ticket validity, clock error, revocation delay, key rotation, and what happens if reliable time is lost. |
+| Reliable reconciliation | Backend, mobile, and terminal: signed acknowledgments and trusted keys, who carries check-out acknowledgments, queue capacity and recovery when full, retention, and conflicts. |
+| Recovery policy | Backend, mobile, and terminal: original device-key mapping, retention period, lost/revoked devices and keys, and restoring terminal state after a reset or storage loss. |
+| Replacement tickets for unresolved operations | Backend, mobile, and terminal: confirm when a replacement can be issued before the original receipt is uploaded. Booking, time, and device must still be eligible. Agree unchanged request details, history retention, and handling of booking changes. Replacement is not guaranteed after NO_SHOW, COMPLETED, cancellation, or device revocation. |
+| Late receipts and backend time rules | Backend: the proposal sets NO_SHOW 15 minutes after start and COMPLETED at booking end. New check-in receipts require BOOKED; new check-out receipts require CHECKED_IN. Decide whether a reliable terminal timestamp showing an earlier event can correct an automatic status change, including conflicts and billing, or whether Admin review is needed. A valid signature does not prove the clock was correct. |
+| Check-out without phone connectivity or with check-in upload pending | Backend, mobile, and terminal: accept this limitation or agree another authorization flow. |
+| Resource coordination | Backend and terminal: coordinate several terminals and simultaneous central booking changes. Local state must not override central booking eligibility. |
+| Walk-in access without prior booking (FR-03.05) | Backend and mobile: propose creating an immediate booking after checking user eligibility, availability, and other reservations. Confirm the duration and ticket issuance. If supported, the BLE exchange stays the same. This is not yet agreed. |
+| Data-model alignment | Backend and database: agree how registered devices link to users, where public verification keys are stored, and how stable operation/event/receipt IDs map to AccessEvent or receipts to prevent duplicates. These device/key and receipt mappings are not yet described in the database proposal. |
+
+## 8. Requirement coverage
+
+| Requirement | Design coverage / remaining decision |
+|---|---|
+| FR-03.05 (integration dependency) | Proposed immediate booking could reuse the existing BLE flow. Eligibility, availability, duration, and ticket issuance still need backend/mobile agreement. Walk-in is not finalized. |
+| FR-05.01 | Link the user through device registration and a ticket for the booking, resource, and device. |
+| FR-05.02 | Separate start/end events and valid local state changes; update central status after reconciliation. |
+| FR-05.03 | Check permission offline and save events across restarts. Reject unknown/expired permission. |
+| FR-05.04 | Keep pending events, define relay and acknowledgment responsibilities, prevent duplicates, preserve order, and use Admin conflict review. Transport details remain open. |
+| FR-05.05 | Define enrollment (device registration) prerequisites, actors, versions, IDs, messages, outcomes, errors, handshake, and the synchronization boundary. |
+| NFR-01.03 | Verify device/terminal identity, protect messages, link proofs to requests, check receipts, and prevent duplicate/replayed actions. The concrete mechanisms still need review. |
+| NFR-01.04 | Limit offline permission and explain revocation delays. The numerical limits are still open. |
+
+## Appendix A. Additional recovery proposal
+
+This appendix details the read-only recovery used in section 5 and adds a proposal for limited retries. Retention, revocation, and replacement-ticket policies still need team agreement (section 7).
+
+### Read-only outcome recovery
+
+Recovery asks for a saved receipt using the original device key linked to the event. It can work after the action ticket expires. It does not extend permission, create an event, or grant access.
 
 ```mermaid
 sequenceDiagram
     participant App as Mobile Application
     participant T as ESP32 Terminal
-    Note over App: Original operation ID and device key retained
     App->>T: Reconnect and establish authenticated protected channel
-    App->>T: Query original operation
-    T->>T: Look up durable operation record
-    T-->>App: Fresh challenge bound to recovery and operation
-    App->>App: Sign recovery context with original device key
-    App->>T: Recovery proof
-    alt Record exists and proof matches its stored device key
+    App->>T: Query original operation ID
+    T->>T: Look up saved operation record
+    T-->>App: Fresh recovery challenge
+    App->>T: Proof using original device key
+    alt Record exists and proof matches saved key and details
         T-->>App: Original signed receipt
-        App->>App: Validate context and persist receipt
-        App->>App: Show original result and continue reconciliation
+        App->>App: Verify and save receipt, then continue reconciliation
     else Missing record or failed proof
         T-->>App: Outcome unavailable
-        App->>App: Keep outcome unresolved and do not repeat blindly
+        App->>App: Keep original ID and see retry rules below
     end
-    Note over App,T: Recovery creates no usage event and grants no access
+    Note over App,T: No usage-state change, new event or access grant
 ```
 
-Use the same generic unavailable outcome for a missing record or a failed proof, avoid exposing receipt details before authentication, and bound attempts. The original device proof must bind a fresh nonce, recovery purpose, operation ID, terminal identity, and protected session. Device-key loss requires a separate authorized recovery path; another device is not automatically entitled to this receipt.
+The recovery proof must cover a fresh nonce, its recovery purpose, operation ID, terminal identity, and protected session. Check the device proof before showing receipt details. Return the same generic unavailable result if the record is missing or the proof fails, and limit attempts.
 
-Ticket expiry and loss of action eligibility do not erase a committed event. Read-only receipt retrieval is allowed under this proposed policy only during the agreed recovery retention window and while the terminal remains trusted and in service. This does not bypass any new-action revocation rule. Retention duration and handling of centrally revoked or lost devices require an explicit team policy before deployment.
+Recovery is allowed only under the retention and revocation rules agreed by the team. Losing the device key needs another authorized recovery path; a different device does not automatically get the receipt. Keep events awaiting reconciliation even after their tickets expire.
 
-An unavailable result is not proof that no commit occurred. The app retains the original operation ID, blocks blind repetition, and uses backend reconciliation or administrator assistance. A new attempt is permitted only after an authoritative check establishes that the action was not committed, and requires valid current authorization. An identical retry with a still-valid ticket may return the original receipt as shown in the success flow. Recovery across reboot depends on the durable operation record.
+### Final rejection and limited execution retries
 
-## Initial security considerations
+A rejection resolves the whole operation only after the terminal has checked its complete, reliable history within the retention period, one request at a time. It must confirm that the operation was not saved and that no earlier attempt can still succeed. A rejection before that check, such as an invalid ticket or failed proof, says nothing about a previous attempt. Failure to reconnect also leaves a previous unknown result unresolved.
 
-- Backend signatures establish authorization; device proofs establish possession of the ticket-bound private key. BLE address, proximity, and advertising alone never grant access.
-- Each challenge is unpredictable, short-lived, consumed once, and bound to the ticket, action, operation, terminal, resource, and session. A signature over an unbound random number is insufficient as a complete protocol contract.
-- Fresh challenges prevent reuse of old proofs. Persistent operation/ticket records and state checks separately prevent repeated valid requests from producing duplicate events.
-- Authenticate terminal identity and establish confidentiality and integrity before any ticket or recovery data is submitted. The handshake binds fresh context and protocol version to the selected terminal/resource. Whether authenticated BLE pairing, an application-layer protected channel, or both are used remains open. Ticket signatures alone do not provide confidentiality.
-- Protect private keys at the device and terminal. Validate both trusted receipt signatures and the expected booking, action, resource, terminal and operation context. Never treat a replayed receipt for a different operation as the current result.
-- Minimize personal information and exclude tickets, private keys, and sensitive proofs from logs. Apply message limits, timeouts, and bounded retries to limit misuse.
-- BLE cryptographic authentication does not prove physical distance. Relay attacks remain a documented limitation requiring team acceptance or additional mitigation.
+If recovery is unavailable **within the agreed retention period**, the app may retry the original action a limited number of times under the agreed policy. Use the **same operation ID**, a valid ticket, and a fresh device proof at the original terminal. Any replacement ticket must keep the details listed in section 4 and meet current backend eligibility and the policy in section 7. The terminal needs reliable saved history and must check requests one at a time. It returns the original receipt if already completed, or saves the action once if still allowed and not already applied.
 
-## Offline policy and persistence
-
-The terminal validates access without Wi-Fi or a backend request using provisioned trust and the signed ticket received over BLE. Missing, unknown, or expired authorization is rejected. The backend concept currently assumes the phone is online to obtain short-lived tickets; this is distinct from an offline terminal.
-
-This rejection rule applies to new usage actions. Reading an already committed receipt uses the separate recovery proof and changes no access or usage state. Backend-dependent ticket issuance, including the check-in upload prerequisite for check-out, limits what the phone can do offline.
-
-The backend proposal suggests five-minute ticket validity. This document treats that as a candidate value, not an agreed policy. The team must define the maximum validity, clock tolerance, and maximum delay before user/device/booking revocation takes effect offline. Cancellation after ticket issuance may remain invisible to the terminal until ticket expiry; backend rejection later cannot undo physical access already granted.
-
-The terminal durably retains events and receipts until acknowledged reconciliation under the agreed retention policy. The phone also retains receipts pending backend upload. Synchronization must deduplicate by stable event identity and flag conflicts for administrator review rather than silently overwrite them. Ordering must preserve check-in/check-out relationships.
-
-The backend proposal uses the phone as a messenger and describes no regular terminal/backend connection. FR-05.04 requires durable terminal queuing and synchronization on reconnection. The team must agree whether reconciliation uses a phone relay or another reconnection path and how acknowledgment reaches the terminal. Detailed synchronization implementation is outside this spike.
-
-## Design decisions and open assumptions
-
-| Decision / assumption | Rationale or unresolved point |
-|---|---|
-| Two primary BLE actors | Backend enrollment, ticket issuance, and reconciliation remain outside the BLE diagram. |
-| Ticket–challenge–receipt baseline | Aligns with the existing backend proposal; remains subject to team review. |
-| Action-specific tickets | Check-in permission must not implicitly authorize check-out. |
-| Atomic persistence before success | Prevents a success response without a recoverable event record. |
-| Stable operation identity and authenticated recovery | Resolves lost responses without duplicate usage events. |
-| Read-only recovery uses the event's original device key | Allows retrieval after action-ticket expiry without extending action authorization. |
-| Check-in reconciliation precedes CHECK_OUT ticket acquisition | Matches the backend proposal's BOOKED / CHECKED_IN ticket rules. |
-| Same-terminal local state | Multi-terminal resource coordination remains unresolved. |
-| Bounded offline authorization | Requires agreed validity, clock policy, and revocation delay. |
-| Protected channel before ticket submission | Sequence and required security properties are specified. Trust enrollment and concrete handshake mechanisms need implementation review. |
-| Concurrent use requests | Terminal serializes local decisions; coordination with backend/web changes requires an explicit conflict policy. |
-
-### Team decisions before implementation
-
-| Decision | Proposed coordination |
-|---|---|
-| Terminal trust enrollment and secure-channel mechanism | Mobile and terminal contributors agree how the app obtains a trusted terminal identity and establishes the channel. |
-| Offline validity, clock error, revocation delay and key rotation | Backend and terminal contributors define numerical limits and failure policy. Five-minute ticket validity remains a candidate. |
-| Receipt acknowledgment and durable queue reconciliation | Backend, mobile and terminal contributors agree the relay/reconnection path, conflict handling and authenticated acknowledgment. |
-| Recovery retention and device revocation | Agree the read-only receipt policy and recovery path for a lost device/key. |
-| Check-out without phone connectivity or pending check-in reconciliation | Decide whether the baseline limitation is acceptable or requires an alternative authorization design. |
-| Multiple terminals and concurrent central changes | Agree resource coordination before relaxing the same-terminal assumption. |
-
-## Requirement coverage
-
-| Requirement | Coverage |
-|---|---|
-| FR-05.01 | Ticket binds booking/resource/device; backend enrollment provides user linkage. |
-| FR-05.02 | Separate check-in/check-out events and valid local state transitions; central status changes after reconciliation. |
-| FR-05.03 | Offline signature and validity checks; fail closed for unknown/expired authorization. |
-| FR-05.04 | Durable queue, stable event identities, deduplication and conflict escalation; reconciliation path remains open. |
-| FR-05.05 | Actors, enrollment prerequisites, conceptual messages, versions, identifiers, outcomes, errors, and handshake; synchronization boundary documented. |
-| NFR-01.03 | Device authentication, bound proofs, replay controls, protected-channel setup, terminal trust and receipt-context validation; final mechanism remains open. |
-| NFR-01.04 | Bounded validity and revocation limitations documented; numerical policy requires team agreement. |
-
-## Design walkthrough
-
-The following cases were checked against the proposed sequences. This is a documentation consistency review, not an implementation test or security certification.
-
-| Case | Expected result |
-|---|---|
-| Valid CHECK_IN and available local state | One durable check-in event and a matching receipt. |
-| Valid CHECK_OUT after backend-confirmed check-in | One durable check-out event for the active booking. |
-| Expired, forged or wrong-resource ticket | No new usage event. |
-| Copied ticket without the original device key | Fresh device proof fails. |
-| Untrusted terminal or failed protected-channel setup | No ticket submission. |
-| Concurrent or repeated requests | Serialized validation and duplicate checks prevent another event for an already applied action. |
-| Receipt response lost, then ticket expires | Original device can recover the existing receipt through read-only proof while its record is retained. |
-| Recovery record missing or key proof fails | Generic unavailable result and no new action. |
-| Storage failure or authorization expiry before commit | No successful commit or access confirmation. |
-| Pending check-in upload at check-out | Reconcile first or report that CHECK_OUT ticket acquisition is blocked under the baseline. |
-
-These outcomes cover the issue's expected actors, connection/identification, check-in/check-out, message exchanges, success/failure, initial error handling, security considerations, and documented assumptions. Team decisions above remain explicit rather than being presented as agreed implementation details.
+If these conditions are not met or no confirmed result is available, keep the result unresolved and retain the original details for reconciliation or Admin assistance. An operation outside the retention period must be resolved before execution is retried. Never create a new operation ID to bypass uncertainty. Execution retries are separate authorization exchanges; read-only recovery follows its own policy and does not need a new action ticket.
 
 ## References
 
-- [Issue #3: T-003 Define BLE communication flow](https://github.com/thomas-sartini/ble-booking-system/issues/3)
-- [Sprint 1](https://github.com/thomas-sartini/ble-booking-system/milestone/1)
+- [Issue #3 and its expected outcomes](https://github.com/thomas-sartini/ble-booking-system/issues/3)
 - [Requirements baseline](https://github.com/thomas-sartini/ble-booking-system/blob/8daa17c7d385a88aa5723a78f0b911ac6bf31ca4/planning/requirements.md)
 - [Backend signed-ticket proposal](https://github.com/thomas-sartini/ble-booking-system/blob/33d27decd026d4631dfa22d6f69fe00728a251f0/backend/docs/check-in-concept.md)
 - [Mobile architecture proposal](https://github.com/thomas-sartini/ble-booking-system/blob/d8e3c2cb88411f20e8427e544db0c49e25b55eb3/docs/report/assets/mobile-arc.md)
-
-This document proposes a communication design and identifies integration decisions. It does not claim that the protocol is implemented or that unresolved security mechanisms have been validated.
+- [Database schema proposal](https://github.com/thomas-sartini/ble-booking-system/blob/37118573105214dd493901a597c8171d8532d6bd/docs/report/assets/database-concept.md)
