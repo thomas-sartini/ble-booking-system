@@ -184,12 +184,40 @@ A terminal receipt confirms the local event; backend acceptance separately confi
 
 ## 6. Security and offline policy
 
-- **Terminal trust and protected connection:** before sending a ticket, verify fresh proof that the terminal holds its trusted private key. The proof must cover the expected terminal/resource, a fresh app nonce (random value), protocol version, and handshake/session. A static ID or certificate alone is not enough. The connection must prevent disclosure, tampering, and a forced switch to weaker protection. Whether to use authenticated BLE pairing, an application-layer protected connection, or both is still open.
-- **Authorization and replay:** the backend signature grants permission for a limited time; the device proof shows key possession. Challenges must be unpredictable, short-lived, usable once, and linked to the request/session. Saved operation/ticket and booking records prevent duplicate actions even with a valid new proof.
-- **Keys, receipts, and data:** protect private keys, check receipt signatures and request details, and avoid unnecessary personal data or secrets in logs. Limit message size, waiting time, and retries. BLE authentication does not prove physical distance; forwarding the signal from far away (a relay attack) remains a known limit to address or accept.
-- **Offline boundary:** the terminal checks tickets and saves actions without Wi-Fi or backend access. The phone still needs connectivity to get new tickets under the backend proposal. Reject unknown/expired permission or an unreliable clock for new actions. Read-only recovery has separate rules.
-- **Validity and revocation:** five-minute ticket validity is a backend proposal, not an agreed limit. The team must set maximum validity, allowed clock error, key rotation, and how long an offline terminal may remain unaware of a blocked device or cancelled booking. A ticket issued earlier may still work until expiry. Later backend rejection cannot undo access already granted.
-- **Storage:** keep pending events and receipts across restarts, preserve action order, and agree how long replay-protection and recovery records stay available. Multiple terminals and concurrent booking changes need a coordination policy.
+### 6.1 Terminal authentication and transport security
+
+- **Key proof:** before sending a ticket, verify fresh proof of possession of the trusted terminal private key. It must cover the expected terminal/resource, a fresh app nonce (random value), protocol version, and handshake/session. A static ID or certificate alone is insufficient.
+- **Protected connection:** authenticate the terminal and protect message confidentiality and integrity against interception, tampering, and downgrade. Encryption alone is insufficient.
+- **Open decision:** agree how terminal trust is provided and whether authenticated BLE pairing, an application-layer protected connection, or both establish the required protection.
+
+### 6.2 Authorization and replay protection
+
+- **Separate checks:** the backend signature grants permission for a limited time; the device proof shows possession of the ticket's device key.
+- **Challenges:** use unpredictable, short-lived, single-use challenges. Bind each proof to the ticket, operation, action, terminal, resource, and protected session.
+- **Duplicate protection:** keep operation/ticket records and booking state across restarts. A fresh proof or new operation ID must not allow the same booking action twice.
+
+### 6.3 Keys, logging, and remaining risks
+
+- **Keys and receipts:** protect private keys. Verify trusted receipt signatures and the expected operation details. Keep secrets out of logs and avoid unnecessary personal data.
+- **Protocol limits:** agree maximum message sizes, timeouts, and retry limits before implementation.
+- **Relay risk:** BLE authentication and signal strength do not prove physical distance. An attacker may forward the exchange from another location. The team must accept this limitation or assess additional protection against the selected hardware and protocol.
+
+### 6.4 Offline boundary
+
+- **Terminal:** verify tickets and save actions without Wi-Fi or backend access, using trusted keys, reliable time, and saved local state.
+- **Phone:** under the backend proposal, getting a new ticket requires connectivity. Check-out ticket acquisition also requires accepted check-in reconciliation (section 2).
+- **Rejection and recovery:** reject new actions with invalid/expired authorization, conflicting local state, or time outside the agreed trust/tolerance rules. Read-only recovery follows Appendix A and grants no new access.
+
+### 6.5 Validity, clock tolerance, and revocation
+
+- **Validity policy:** five-minute ticket validity is a backend proposal, not an agreed limit. Set maximum validity, allowed clock error, key rotation, and maximum offline revocation delay.
+- **Revocation delay:** an offline terminal may remain unaware of a blocked device or cancelled booking. A previously issued ticket may still be accepted until expiry if all other checks pass. Later backend rejection cannot undo access already granted.
+
+### 6.6 Data retention and synchronization
+
+- **Storage:** keep pending events and receipts across restarts and preserve check-in/check-out order. Ticket expiry must not erase events awaiting reconciliation.
+- **Synchronization and retention:** section 4 proposes the relay and acknowledgment flow. Use stable event IDs to prevent duplicate records or charges, retain conflicts for Admin review, and agree retention periods for replay-protection and recovery records.
+- **Coordination:** this flow assumes the same terminal handles both actions. Several terminals and concurrent central booking changes need an agreed coordination policy before that assumption can be relaxed.
 
 ## 7. Decisions and assumptions to confirm
 
