@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant App as Smartphone App
+    participant T as Door Terminal
+    Note over App,T: 1. Connect and verify the terminal
+    T->>App: Advertise BLE service
+    App->>T: Connect and start handshake (version, fresh nonce)
+    T-->>App: Terminal identity proof
+    App->>App: Verify terminal and resource
+    App->>T: Complete handshake, connection is protected
+    Note over App,T: 2. Send the ticket
+    App->>T: Signed ticket and operation ID
+    T->>T: Check backend signature, resource, action and time
+    Note over App,T: 3. Prove the device key
+    T-->>App: Fresh challenge
+    App->>T: Proof signed with device key
+    T->>T: Check proof
+    Note over App,T: 4. Save and confirm
+    T->>T: Check local state, save state, event and receipt together
+    T-->>App: Signed receipt
+    Note over App,T: 5. Upload the receipt
+    App->>App: Check signature and details, save receipt
+    App->>App: Upload to backend when online
