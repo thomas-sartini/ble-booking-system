@@ -25,3 +25,7 @@ toccolor: black
 abstract: |
   **Draft.** Once the work is complete, summarise the problem, method,
   principal findings, and conclusion here.
+header-includes:
+  - |
+      \usepackage{float}
+      \floatplacement{figure}{H}

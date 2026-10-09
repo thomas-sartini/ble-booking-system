@@ -1,0 +1,77 @@
+classDiagram
+    direction TB
+
+    namespace communication {
+        class CommunicationGateway {
+            <<interface>>
+            +login(identifier: String, password: String)
+            +logout()
+            +getActiveBookings() List~Booking~
+            +requestAccess(request: ResourceAccessRequest) ResourceAccessResponse
+            +confirmAccess(confirmation: AccessConfirmation)
+            +checkOut(resourceId: String)
+        }
+
+        class BackendCommunication {
+            -apiClient: BackendApiClient
+            -tokenManager: TokenManager
+            +login(identifier: String, password: String)
+            +logout()
+            +getActiveBookings() List~Booking~
+            +requestAccess(request: ResourceAccessRequest) ResourceAccessResponse
+            +confirmAccess(confirmation: AccessConfirmation)
+            +checkOut(resourceId: String)
+            -refreshAccessToken() String
+        }
+
+        class BackendApiClient {
+            -httpClient: HttpClient
+            +login(request: LoginRequestDto) LoginResponseDto
+            +refresh(request: RefreshTokenRequestDto) RefreshTokenResponseDto
+            +logout(refreshToken: String)
+            +getActiveBookings(token: String) List~BookingDto~
+            +requestAccess(token: String, request: ResourceAccessRequestDto) ResourceAccessResponseDto
+            +confirmAccess(token: String, request: AccessConfirmationRequestDto)
+            +checkOut(token: String, request: CheckOutRequestDto)
+        }
+    }
+
+    namespace dto {
+        class LoginRequestDto
+        class LoginResponseDto
+        class RefreshTokenRequestDto
+        class RefreshTokenResponseDto
+        class BookingDto
+        class ResourceAccessRequestDto
+        class ResourceAccessResponseDto
+        class AccessConfirmationRequestDto
+        class CheckOutRequestDto
+    }
+
+    namespace model {
+        class Booking
+        class ResourceAccessRequest
+        class ResourceAccessResponse
+        class AccessConfirmation
+    }
+
+    CommunicationGateway <|.. BackendCommunication
+    BackendCommunication --> BackendApiClient
+
+    class TokenManager
+    class HttpClient
+    BackendCommunication --> TokenManager
+    BackendApiClient --> HttpClient
+    BackendCommunication ..> Booking : exposes
+    BackendCommunication ..> ResourceAccessRequest : accepts
+    BackendCommunication ..> ResourceAccessResponse : returns
+    BackendCommunication ..> AccessConfirmation : accepts
+    BackendCommunication ..> BookingDto : maps
+    BackendCommunication ..> ResourceAccessRequestDto : maps
+    BackendCommunication ..> ResourceAccessResponseDto : maps
+    BackendCommunication ..> AccessConfirmationRequestDto : maps
+    BackendApiClient ..> LoginRequestDto
+    BackendApiClient ..> LoginResponseDto
+    BackendApiClient ..> RefreshTokenRequestDto
+    BackendApiClient ..> RefreshTokenResponseDto
+    BackendApiClient ..> CheckOutRequestDto

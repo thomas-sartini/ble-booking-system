@@ -1,0 +1,22 @@
+classDiagram
+    direction TB
+
+    namespace token {
+        class TokenManager {
+            -secureStorage: SecureStorage
+            -accessToken: String?
+            +getAccessToken() String?
+            +getRefreshToken() String?
+            +storeTokens(accessToken: String, refreshToken: String)
+            +clearTokens()
+        }
+
+        class SecureStorage {
+            <<interface>>
+            +save(key: String, value: String)
+            +get(key: String) String?
+            +remove(key: String)
+        }
+    }
+
+    TokenManager --> SecureStorage
