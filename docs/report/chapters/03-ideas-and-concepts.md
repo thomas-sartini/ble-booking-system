@@ -271,7 +271,7 @@ The check-in and check-out process with tickets, receipts and the offline termin
 
 ## Database Design
 
-![ER Diagram](erd.png)
+![ER Diagram](docs/report/assets/erd.png)
 
 ### 1. Core Entities
 
