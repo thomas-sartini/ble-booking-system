@@ -271,9 +271,57 @@ The check-in and check-out process with tickets, receipts and the offline termin
 
 ## Database Design
 
-- *Include the proposed ER Diagram with tables/entities, main fields, primary and foreign keys, relationships, and cardinalities.*
-- *Explain how users, roles, resources, terminals, bookings, usage events, invoices, payments, and audit records are connected, including important integrity constraints.*
+![ER Diagram](docs/report/assets/erd.png)
 
+### 1. Core Entities
+
+#### User
+`id`, `email`, `password_hash`, `role` (VARCHAR), `status` (VARCHAR), `created_at` (TIMESTAMPTZ), `first_name`, `last_name`, `start_semester`, `field_of_study`, `failed_attempts`, `locked_until` (TIMESTAMPTZ)
+
+#### Device
+`id`, `user_id` (FK), `name`, `public_key`, `created_at` (TIMESTAMPTZ), `revoked_at` (TIMESTAMPTZ)
+
+#### RefreshToken
+`id`, `user_id` (FK), `token_hash`, `expires_at` (TIMESTAMPTZ), `revoked_at` (TIMESTAMPTZ)
+
+#### OneTimeToken
+`id`, `user_id` (FK), `token_hash`, `purpose` (VARCHAR), `expires_at` (TIMESTAMPTZ), `used_at` (TIMESTAMPTZ), `created_by_user_id` (FK)
+
+#### Resource
+`id`, `name`, `description`, `price_per_hour` (DECIMAL), `status` (VARCHAR), `type` (VARCHAR), `position` (VARCHAR)
+
+#### Terminal
+`id`, `public_key`, `status` (VARCHAR), `resource_id` (FK, UNIQUE)
+
+#### Booking
+`id`, `user_id` (FK), `resource_id` (FK), `start_time` (TIMESTAMPTZ), `end_time` (TIMESTAMPTZ), `status` (VARCHAR), `locked_price` (DECIMAL)
+
+#### Receipt
+`id` (UUID), `booking_id` (FK), `terminal_id` (FK), `ticket_id`, `type` (VARCHAR), `receipt_time` (TIMESTAMPTZ), `signature`, `received_at` (TIMESTAMPTZ)
+
+#### Invoice
+`id`, `invoice_number`, `booking_id` (FK, UNIQUE), `user_id` (FK), `final_price` (DECIMAL), `pdf_file_path`, `status` (VARCHAR), `created_at` (TIMESTAMPTZ), `type` (VARCHAR), `qr_reference`, `due_date`, `paid_at` (TIMESTAMPTZ), `currency` (VARCHAR)
+
+#### Availability
+`id`, `resource_id` (FK), `day_of_week` (SMALLINT), `start_time`, `end_time`, `permitted_role` (VARCHAR)
+
+#### AuditLog
+`id`, `actor_user_id` (FK), `action` (VARCHAR), `target_entity` (VARCHAR), `timestamp` (TIMESTAMPTZ), `details` (JSONB), `target_id`, `outcome` (VARCHAR), `ip_address` (VARCHAR)
+
+### 2. Relationships & Cardinalities
+
+- **User -> Booking ($1 : n$):** A user can place multiple bookings over time.
+- **User -> Device ($1 : n$):** A user can register multiple authentication devices.
+- **User -> RefreshToken ($1 : n$):** A user can maintain multiple active authentication sessions.
+- **User -> OneTimeToken ($1 : n$):** A user can have multiple tokens issued for or by them (`created_by_user_id`).
+- **User -> Invoice ($1 : n$):** A user is assigned to all invoices generated for their bookings.
+- **User -> AuditLog ($1 : n$):** A user triggers multiple logged system actions (`actor_user_id`).
+- **Resource -> Booking ($1 : n$):** A bookable resource can have multiple scheduled bookings.
+- **Resource -> Availability ($1 : n$):** A resource defines multiple time-window access rules across days of the week.
+- **Terminal -> Resource ($1 : 1$):** Each hardware terminal is assigned to exactly one physical resource (`resource_id` in `terminal`).
+- **Terminal -> Receipt ($1 : n$):** A physical terminal generates and signs multiple access receipts.
+- **Booking -> Receipt ($1 : n$):** A single booking session tracks check-in and check-out receipts.
+- **Booking -> Invoice ($1 : 1$):** Every completed/billable booking correlates to exactly one invoice (`UNIQUE` constraint on `booking_id`).
 ## Booking and Usage Lifecycle
 
 - *Show the proposed states and transitions for bookings and resource usage.*
