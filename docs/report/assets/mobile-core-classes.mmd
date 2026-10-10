@@ -1,0 +1,61 @@
+classDiagram
+    direction TB
+
+    namespace MobileCoreApplication {
+        class MobileCoreApi {
+            <<interface>>
+            +login(identifier: String, password: String)
+            +logout()
+            +getActiveBookings() List~Booking~
+            +requestAccess(request: ResourceAccessRequest) ResourceAccessResponse
+            +confirmAccess(confirmation: AccessConfirmation)
+            +checkOut(resourceId: String)
+        }
+
+        class ServiceFacade {
+            -authService: AuthService
+            -bookingService: BookingService
+            -accessService: AccessService
+
+            +login(identifier: String, password: String)
+            +logout()
+            +getActiveBookings() List~Booking~
+            +requestAccess(request: ResourceAccessRequest) ResourceAccessResponse
+            +confirmAccess(confirmation: AccessConfirmation)
+            +checkOut(resourceId: String)
+        }
+
+        class AuthService {
+            -communicationGateway: CommunicationGateway
+
+            +login(identifier: String, password: String)
+            +logout()
+        }
+
+        class BookingService {
+            -communicationGateway: CommunicationGateway
+
+            +getActiveBookings() List~Booking~
+        }
+
+        class AccessService {
+            -communicationGateway: CommunicationGateway
+
+            +requestAccess(request: ResourceAccessRequest) ResourceAccessResponse
+            +confirmAccess(confirmation: AccessConfirmation)
+            +checkOut(resourceId: String)
+        }
+    }
+
+    MobileCoreApi <|.. ServiceFacade
+
+    ServiceFacade --> AuthService
+    ServiceFacade --> BookingService
+    ServiceFacade --> AccessService
+
+    class CommunicationGateway {
+        <<interface>>
+    }
+    AuthService --> CommunicationGateway
+    BookingService --> CommunicationGateway
+    AccessService --> CommunicationGateway
