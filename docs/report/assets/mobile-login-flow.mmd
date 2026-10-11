@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant Native as Android / iOS
+    participant App as MobileCoreApplication
+    participant Comm as BackendCommunication
+    participant Backend
+    participant Tokens as TokenManager
+
+    Native->>App: login(identifier, password)
+    App->>Comm: login(identifier, password)
+    Comm->>Backend: HTTPS login via BackendApiClient
+    Backend-->>Comm: LoginResponseDto with access and refresh tokens
+    Comm->>Tokens: storeTokens(accessToken, refreshToken)
+    Comm-->>App: Success
+    App-->>Native: Success

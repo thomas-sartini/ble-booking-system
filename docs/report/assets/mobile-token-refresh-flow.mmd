@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant Comm as BackendCommunication
+    participant Tokens as TokenManager
+    participant Api as BackendApiClient
+    participant Backend
+
+    Comm->>Tokens: getAccessToken()
+    Comm->>Api: Protected request(accessToken)
+    Api->>Backend: Protected request
+
+    alt Access token accepted
+        Backend-->>Api: Response
+        Api-->>Comm: Response
+    else Access token expired or unavailable
+        Comm->>Tokens: getRefreshToken()
+        Tokens-->>Comm: refreshToken
+        Comm->>Api: refresh(RefreshTokenRequestDto)
+        Api->>Backend: Refresh request
+        Backend-->>Api: New credentials
+        Api-->>Comm: RefreshTokenResponseDto
+        Comm->>Tokens: storeTokens(newAccessToken, newRefreshToken)
+        Comm->>Api: Retry protected request(newAccessToken)
+        Api->>Backend: Protected request
+        Backend-->>Api: Response
+        Api-->>Comm: Response
+    end

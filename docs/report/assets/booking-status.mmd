@@ -1,0 +1,9 @@
+stateDiagram-v2
+    [*] --> BOOKED
+    BOOKED --> CANCELLED: user cancels
+    BOOKED --> CHECKED_IN: check-in receipt uploaded
+    BOOKED --> NO_SHOW: no check-in 15 min after start
+    CHECKED_IN --> COMPLETED: check-out receipt or end of booking
+    CANCELLED --> [*]
+    NO_SHOW --> [*]
+    COMPLETED --> [*]

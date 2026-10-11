@@ -1,0 +1,32 @@
+flowchart TB
+    App["Mobile App (Android)"]
+    Web["Web Frontend"]
+    Terminal["Terminal (offline)"]
+    DB[("PostgreSQL")]
+
+    subgraph Backend["Backend (Spring Boot)"]
+        Auth
+        Users
+        Resources
+        Bookings
+        Devices
+        Tickets
+        Invoices
+        Audit["Audit Logs<br/>(receives events from all modules)"]
+    end
+
+    App -->|"REST over HTTPS"| Backend
+    Web -->|"REST over HTTPS"| Backend
+    App -.-|"BLE (ticket, challenge, receipt)"| Terminal
+    Backend --> DB
+
+    Auth --> Users
+    Bookings --> Users
+    Bookings --> Resources
+    Devices --> Users
+    Tickets --> Bookings
+    Tickets --> Devices
+    Invoices --> Bookings
+    Invoices --> Users
+    Invoices --> Resources
+    Bookings -.->|"event: booking ended"| Invoices
