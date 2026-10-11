@@ -26,8 +26,43 @@
 
 ## Database and Persistence
 
-- *Show the final database schema with tables, keys, relationships, and important constraints, explaining relevant changes from the design.*
-- *Describe transactions, migrations, duplicate prevention, and how booking, usage, and invoice history remain traceable.*
+### Database Container Setup (Spike T-014)
+
+To ensure a consistent, isolated, and reproducible database environment across all developer machines, the database infrastructure is defined using Docker Compose.
+
+#### Technical Configuration
+The technical prototype uses PostgreSQL 16 Alpine as the lightweight relational database container. The container setup is declared in `docker-compose.yml` at the project root:
+
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ble_booking_db_container
+    environment:
+      POSTGRES_DB: ble_booking_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+```
+### Key Architecture & Configuration Decisions
+
+* **Container Image:** `postgres:16-alpine` was chosen to minimize resource consumption and speed up local initialization time.
+* **Port Mapping:** The container exposes port `5432` internally, mapped to host port `5433` (`5433:5432`) to prevent conflicts with pre-existing local PostgreSQL services on developers' machines.
+* **Persistence:** A named Docker volume (`postgres_data`) is mapped to `/var/lib/postgresql/data` inside the container, ensuring data persists across container restarts and updates.
+* **Development Environment:** Standard developer credentials (`postgres` / `postgrespassword`) are pre-configured for seamless local integration before external configuration or environment files are introduced in later stages.
+
+### Execution & Management
+
+Developers can manage the database lifecycle locally via Docker CLI:
+
+* **Start Database:** `docker compose up -d`
+* **Stop Database:** `docker compose down`
 
 ## Mobile Application
 
