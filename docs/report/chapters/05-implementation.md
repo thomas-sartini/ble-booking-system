@@ -26,8 +26,18 @@
 
 ## Database and Persistence
 
-- *Show the final database schema with tables, keys, relationships, and important constraints, explaining relevant changes from the design.*
-- *Describe transactions, migrations, duplicate prevention, and how booking, usage, and invoice history remain traceable.*
+### Database Trigger Evaluation (Spike T-013)
+
+During the architectural design phase of the persistence layer, the application of database triggers was evaluated to determine whether system responsibilities (e.g., integrity checks, audit logging, or state transitions) should be delegated to the database level.
+
+#### Evaluation & Trade-offs
+* **Database Triggers (Pros & Cons):** While triggers guarantee data-level consistency regardless of the accessing client and reduce network overhead, they introduce significant architectural drawbacks. They hide core business logic within the database schema, complicate unit and integration testing, obscure debugging workflows, and introduce risks during database migrations.
+* **Application Logic (Pros & Cons):** Handling system responsibilities within the Java/Spring Boot application layer keeps domain rules explicit, fully testable, and version-controlled within the primary codebase.
+
+#### Architectural Decision
+**Decision:** The team decided **against using database triggers** in the system architecture. All domain responsibilities, including booking availability validation, concurrent access controls, audit logging, and lifecycle timestamps, are explicitly implemented within the application service layer (Java / Spring Boot). 
+
+This decision ensures strict separation of concerns, high maintainability, and seamless end-to-end testability across the entire booking lifecycle.
 
 ## Mobile Application
 
