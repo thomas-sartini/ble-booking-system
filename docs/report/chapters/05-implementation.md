@@ -26,8 +26,46 @@
 
 ## Database and Persistence
 
-- *Show the final database schema with tables, keys, relationships, and important constraints, explaining relevant changes from the design.*
-- *Describe transactions, migrations, duplicate prevention, and how booking, usage, and invoice history remain traceable.*
+### Database Container Setup (Spike T-014)
+
+To ensure a consistent, isolated, and reproducible local development environment across all developer machines prior to cloud deployment, the local database infrastructure is provisioned using Docker Compose.
+
+#### Technical Configuration
+The local prototype utilizes PostgreSQL 16 Alpine within a container. To adhere to security best practices and prevent hardcoded credentials, sensitive configuration values are injected securely via an environment file (`.env`), which is excluded from version control via `.gitignore`.
+
+The container setup declared in `docker-compose.yml` at the project root references these environment variables:
+
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ble_booking_db_container
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+```
+### Key Architecture & Configuration Decisions
+
+* **Container Image:** `postgres:16-alpine` was chosen for local execution to minimize resource consumption and speed up container startup times.
+* **Port Mapping:** The container exposes port `5432` internally, mapped to host port `5433` (`5433:5432`) to prevent port collisions with pre-existing local PostgreSQL services on developers' workstations.
+* **Security & Environment Separation:** Database credentials and configuration parameters are externalized into a local `.env` file (based on a template `.env.example`). Hardcoded plain-text passwords within the repository are strictly avoided.
+* **Persistence:** A named Docker volume (`postgres_data`) preserves data across local container restarts, ensuring development state isn't lost.
+* **Scope (Local vs. Cloud):** While production deployment will leverage cloud-managed database services, this containerized setup bridges local developer environments with production parity.
+
+### Execution & Management
+
+Developers can manage the local database lifecycle via Docker CLI:
+
+* **Start Database:** `docker compose up -d`
+* **Stop Database:** `docker compose down`
 
 ## Mobile Application
 
