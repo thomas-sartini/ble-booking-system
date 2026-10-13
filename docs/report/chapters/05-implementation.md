@@ -67,6 +67,49 @@ Developers can manage the local database lifecycle via Docker CLI:
 * **Start Database:** `docker compose up -d`
 * **Stop Database:** `docker compose down`
 
+### Database Setup & Initialization Script (Task T-012)
+
+To ensure that the local development database can be provisioned automatically, cleanly, and in a reproducible manner from a fresh state, an automated initialization script mechanism has been implemented.
+
+#### Implementation & Structure
+- **Location:** The initial database setup script is located at `database/init.sql` in the project root.
+- **Automatic Execution:** PostgreSQL 16 Alpine automatically executes any `.sql` or `.sh` scripts placed in the container path `/docker-entrypoint-initdb.d/` upon initial database creation. This is achieved via a volume mount defined in the `docker-compose.yml`:
+  ```yaml
+  volumes:
+    - ./database:/docker-entrypoint-initdb.d
+  ```
+*   **Schema & Verification:** The `init.sql` script sets up the initial baseline schema and tables (e.g., `sample_bookings`) required for the application's starting state.
+
+### Local Execution & Clean State Verification
+
+Developers can initialize, reset, and verify the database lifecycle cleanly using Docker Compose from the project root:
+
+1. **Clean Reset (Wipe existing data and containers):**
+
+   ```bash
+   docker compose down -v
+   ```
+
+   *(The `-v` flag ensures that the persistent `postgres_data` volume is completely removed, establishing a true clean state).*
+
+2. **Start and Initialize:**
+
+   ```bash
+   docker compose up -d
+   ```
+
+   *(PostgreSQL starts up, detects `database/init.sql`, and executes it automatically against the fresh database instance).*
+
+3. **Verification:**
+   Developers can connect to the container via `psql` to verify the initialized schema:
+
+   ```bash
+   docker exec -it ble_booking_db_container psql -U postgres -d ble_booking_db
+   ```
+
+   Running `\dt` inside the psql shell confirms that the initial tables have been successfully created.
+
+
 ## Mobile Application
 
 ### Shared Mobile Core
