@@ -1011,7 +1011,7 @@ The terminal never needs a name or email. It only checks the ticket and the devi
 
 Before issuing a ticket, the backend checks the user's role, booking ownership, and account/device status. In the proposed backend flow, only the booking owner can check in or out with their registered device.
 
-Open questions are listed under BLE Design Decisions and Open Points below.
+The proposed design decisions are summarized below.
 
 ### Normal Flow: Check-in and Check-out
 
@@ -1096,7 +1096,7 @@ The terminal proof covers a fresh nonce from the app, the protocol version, the 
 **Lost or compromised equipment:** Under the backend proposal, a user or Admin can block a lost smartphone, and an Admin can remove a stolen or compromised terminal. The backend then issues no new tickets for the blocked device and rejects receipts from the removed terminal.
 
 
-### BLE Design Decisions and Open Points
+### BLE Design Decisions
 
 The proposed flow assumes that one terminal manages local resource use and that the terminal hardware is an ESP32. Both assumptions need team confirmation.
 
@@ -1110,33 +1110,6 @@ The proposed flow assumes that one terminal manages local resource use and that 
 | Recover with the original device key | The receipt can be fetched again without allowing a new action. |
 | Protect the connection before sending a ticket | Tickets and proofs cannot be read or changed. |
 | Same terminal for check-in and check-out | An offline terminal can check the order with its own saved state. |
-
-#### Open team decisions
-
-| Open point | Who | What needs to be agreed |
-|---|---|---|
-| Terminal trust and connection protection | Backend, mobile, terminal | How the app receives trusted terminal information: the proposed `/terminals` API is admin-only. Agree how trust is provisioned and how the app learns that a terminal is no longer trusted. Choose protection through BLE pairing, an application-layer connection, or both. |
-| Offline limits | Backend, terminal | Maximum ticket validity, allowed clock error, maximum revocation delay, and key rotation. |
-| Check-out without connectivity | Backend, mobile, terminal | Accept that the smartphone must upload the check-in receipt and go online to obtain a check-out ticket, or agree another flow. |
-| Walk-in access (FR-03.05) | Backend, mobile | Proposal: if the resource is available and not reserved by another user, the backend creates an immediate booking and issues the ticket. The BLE exchange stays the same. |
-| Late receipts | Backend | The backend proposal sets `NO_SHOW` 15 minutes after start and `COMPLETED` at booking end. Can a receipt with an earlier terminal timestamp correct this? |
-| Synchronization | Backend, mobile, terminal | Signed acknowledgments, who carries them back after check-out, and what happens when the queue is full. |
-| Recovery and retries | Backend, mobile, terminal | How long records are kept, when a replacement ticket may be issued, and how lost devices and a terminal reset are handled. |
-| Several terminals per resource | Backend, terminal | How terminals and concurrent booking changes are coordinated. |
-| Data model | Backend, database | The database design includes devices, public keys, and receipts. Agree how the operation ID and original device key are linked to a receipt, and how long these records are kept. |
-| Mobile integration | Mobile, backend | Agree how `requestAccess`, `confirmAccess`, and `checkOut(resourceId)` coordinate tickets, native BLE, and receipts. Device-key signing needs a native interface in addition to `SecureStorage`. |
-
-### BLE Requirement Coverage
-
-| Requirement | How this proposal covers it |
-|---|---|
-| FR-05.01 | The user is linked through device registration and a ticket for the booking, resource, and device. |
-| FR-05.02 | Separate start and end events with local state rules. The central status is updated after the receipt upload. |
-| FR-05.03 | The terminal checks tickets offline and saves events across restarts. Unknown or expired tickets are rejected. |
-| FR-05.04 | Pending events are kept and duplicates are prevented. The security appendix proposes the relay and acknowledgment flow. |
-| FR-05.05 | Enrollment (device registration), actors, versions, IDs, messages, outcomes, errors, and the handshake are defined. |
-| NFR-01.03 | Device and terminal are verified, messages are protected, and replayed or copied messages are rejected. The mechanism is open. |
-| NFR-01.04 | Offline permission is limited by ticket validity. The numerical limits are open. |
 
 ## Offline Operation and Synchronization
 
@@ -1157,7 +1130,7 @@ The smartphone carries signed receipts from the terminal to the backend. A succe
 
 The proposed return path is a backend-signed acknowledgment carried by the app. The terminal verifies that acknowledgment before marking its event as synchronized. Conflicts stay available for Admin review; a rejected upload cannot undo access already granted. Pending events survive restarts and are never overwritten to make room. If the queue is full, the terminal rejects new actions that it cannot save.
 
-The BLE synchronization proposal in Detailed Security Documentation gives the acknowledgment and retry details. Its return path after check-out, queue limits, and handling of late receipts remain team decisions listed in the BLE design section.
+The BLE synchronization proposal in Detailed Security Documentation gives the acknowledgment and retry details. Its return path after check-out, queue limits, and handling of late receipts still require team agreement.
 
 ## User Interface Design
 
