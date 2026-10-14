@@ -925,7 +925,7 @@ This section records the main architectural decisions and assumptions that defin
 ### 1. Core Entities
 
 #### User
-`id`, `email`, `password_hash`, `role` (VARCHAR), `status` (VARCHAR), `created_at` (TIMESTAMPTZ), `first_name`, `last_name`, `start_semester`, `field_of_study`, `failed_attempts`, `locked_until` (TIMESTAMPTZ)
+`id`, `email`, `password_hash` (VARCHAR, **nullable** – supports external or token-based authentication providers), `role` (VARCHAR), `status` (VARCHAR), `created_at` (TIMESTAMPTZ), `first_name`, `last_name`, `start_semester`, `field_of_study`, `failed_attempts`, `locked_until` (TIMESTAMPTZ)
 
 #### Device
 `id`, `user_id` (FK), `name`, `public_key`, `created_at` (TIMESTAMPTZ), `revoked_at` (TIMESTAMPTZ)
@@ -944,6 +944,7 @@ This section records the main architectural decisions and assumptions that defin
 
 #### Booking
 `id`, `user_id` (FK), `resource_id` (FK), `start_time` (TIMESTAMPTZ), `end_time` (TIMESTAMPTZ), `status` (VARCHAR), `locked_price` (DECIMAL)
+* **Constraints:** Enforces `CHECK (end_time > start_time)` and a PostgreSQL `EXCLUDE USING gist` constraint to prevent overlapping active bookings for the same resource.
 
 #### Receipt
 `id` (UUID), `booking_id` (FK), `terminal_id` (FK), `ticket_id`, `type` (VARCHAR), `receipt_time` (TIMESTAMPTZ), `signature`, `received_at` (TIMESTAMPTZ)
@@ -971,6 +972,7 @@ This section records the main architectural decisions and assumptions that defin
 - **Terminal -> Receipt ($1 : n$):** A physical terminal generates and signs multiple access receipts.
 - **Booking -> Receipt ($1 : n$):** A single booking session tracks check-in and check-out receipts.
 - **Booking -> Invoice ($1 : 1$):** Every completed/billable booking correlates to exactly one invoice (`UNIQUE` constraint on `booking_id`).
+
 ## Booking and Usage Lifecycle
 
 - *Show the proposed states and transitions for bookings and resource usage.*
