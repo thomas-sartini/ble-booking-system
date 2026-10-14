@@ -14,6 +14,12 @@ junit = "4.13.2"
 kotlin = "2.4.20"
 material3 = "1.12.0-alpha03"
 material3Version = "1.4.0"
+kotlinxSerializationJson = "1.9.0"
+ktorClientCore = "3.2.1"
+ktorClientOkhttp = "3.2.1"
+ktorClientDarwin = "3.2.1"
+ktorSerializationKotlinxJson = "3.2.1"
+ktorClientAuth = "3.2.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -35,6 +41,13 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3Version" }
 compose-animation = { module = "org.jetbrains.compose.animation:animation", version.ref = "composeMultiplatform" }
+
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktorClientCore" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktorClientOkhttp" }
+ktor-client-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktorClientDarwin" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
+ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktorClientAuth" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
