@@ -10,7 +10,9 @@ classDiagram
             +storeTokens(accessToken: String, refreshToken: String)
             +clearTokens()
         }
+    }
 
+    namespace api {
         class SecureStorage {
             <<interface>>
             +save(key: String, value: String)
