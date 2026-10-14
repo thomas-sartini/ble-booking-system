@@ -26,7 +26,7 @@
 
 ## Database and Persistence
 
-### Database Trigger Evaluation (Spike T-013)
+### Database Trigger Evaluation 
 
 During the architectural design phase of the persistence layer, the application of database triggers was evaluated to determine whether system responsibilities (e.g., integrity checks, audit logging, or state transitions) should be delegated to the database level.
 
