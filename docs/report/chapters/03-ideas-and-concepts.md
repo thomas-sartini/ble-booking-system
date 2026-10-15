@@ -249,678 +249,327 @@ The check-in and check-out process with tickets, receipts and the offline termin
 
 ### Purpose and Scope
 
-This document defines the current architecture of the mobile application and serves as the architectural baseline for the implementation phase.
+This section defines the architecture of the mobile application and serves as the architectural baseline for implementation.
 
-The design is based on Kotlin Multiplatform (KMP) and focuses on the shared Mobile Core, its internal modules, and the boundaries to the native Android and iOS applications and the backend.
+The design is based on Kotlin Multiplatform and focuses on the shared Mobile Core, its architectural components, and its boundaries with the native Android and iOS applications and the backend.
 
-The internal architecture of the native applications and the BLE protocol are not yet defined and remain TODO items. The backend implementation is outside the scope of this mobile architecture section.
+The component responsibilities and interaction flows describe the intended behavior of the system. The current implementation establishes its structural foundation; the implemented functionality and any deviations from this design are documented in Chapter 5.
+
+The detailed internal architecture of the native applications and the BLE protocol remain to be defined. Backend implementation is outside the scope of this section.
 
 ### Component Architecture
 
-The mobile application is structured around a shared Kotlin Multiplatform core, native Android/iOS applications, and the backend.
+The mobile architecture comprises a shared Mobile Core, native Android and iOS applications, and the backend.
 
 #### Module Structure
 
-The following diagram summarizes the module boundaries between the shared Kotlin Multiplatform core, the native applications, and the backend. It reflects the component responsibilities described below without introducing platform-specific implementation details.
+The Mobile Core contains shared application logic, backend communication, and local authentication credential management. The native applications provide the user interface, BLE interaction, and platform-specific protected storage.
 
-The shared `Mobile Core` contains application logic, backend communication, and token lifecycle management. Android and iOS consume the shared core through `MobileCoreApi` and remain responsible for native platform functionality. `SecureStorage` is defined as a shared interface and implemented by the native platforms.
+Native applications invoke shared operations through `MobileCoreApi`. They obtain a core instance through `MobileCoreFactory` and supply their platform-specific implementation of `SecureStorage`.
 
-The following diagrams summarize the component-level architecture and the module boundaries described above.
+The following component diagram shows the architectural boundaries and the interfaces connecting these elements.
 
 ![Mobile Application Component Architecture](assets/mobile-component-diagram.png){width=72%}
 
 
-
 #### Mobile Core
 
-The `Mobile Core` contains the shared Kotlin Multiplatform logic used by both Android and iOS. Its three components are summarized below.
+The Mobile Core contains the shared Kotlin Multiplatform logic used by both Android and iOS. It consists of three architectural components.
 
 | Component | Main Responsibilities | Interfaces |
-|:--|:--|:--|
-| `MobileCoreApplication` | Provide the shared application entry point; coordinate authentication, booking, and resource-access logic; keep platform-specific code separated from shared business logic. | **Provides:** `MobileCoreApi`; **Requires:** `CommunicationGateway` |
-| `BackendCommunication` | Perform REST communication; isolate HTTP and transport-specific details; convert between application models and DTOs; attach authentication credentials; coordinate login, token refresh, and logout; use `TokenManager` for locally managed credentials. | **Provides:** `CommunicationGateway`; **Requires:** `REST/API` |
-| `TokenManager` | Maintain the short-lived access token; store and retrieve the long-lived refresh token; update and clear locally managed credentials; keep storage independent from platform-specific APIs. | **Provides:** none; **Requires:** `SecureStorage` |
+|:-----------------------------|:---------------------------------------------|:-----------------------------|
+| **MobileCoreApplication** | Coordinate authentication, booking, and resource-access operations; expose shared application functionality to the native applications. | **Provides:** `MobileCoreApi`; **Requires:** `CommunicationGateway`. |
+| **BackendCommunication** | Communicate with the backend through HTTP; convert between application models and DTOs; coordinate login, token refresh, and logout using `TokenManager` to manage credentials. | **Provides:** `CommunicationGateway`; **Requires:** `REST/API`. |
+| **TokenManager** | Maintain the access token in memory; store and retrieve the refresh token through secure storage; update and clear locally managed credentials. | **Provides:** none; **Requires:** `SecureStorage`. |
 
 #### External Components
 
-The following components interact with the Mobile Core but are not part of it. Their internal architecture is not modeled in detail at this stage.
+**Backend** provides the REST API required by the mobile application. It authenticates requests, issues and renews credentials, revokes renewable sessions, supplies booking and access-related data, and processes access confirmations and check-out operations.
 
-| Component | Main Responsibilities | Interfaces |
-|:--|:--|:--|
-| `Backend` | Provide backend functionality required by the mobile application; authenticate requests; issue, renew, and revoke authentication credentials; provide booking and access-related data; process access and check-out operations. | **Provides:** `REST/API`; **Requires:** none |
-| `AndroidApp` | **TODO:** define the native Android architecture, platform-specific responsibilities, protected-storage implementation, and BLE integration. | **TODO** |
-| `IOSApp` | **TODO:** define the native iOS architecture, platform-specific responsibilities, protected-storage implementation, and BLE integration. | **TODO** |
+**AndroidApp** provides the Android user interface and native platform integration. It consumes `MobileCoreApi`, obtains the core through `MobileCoreFactory`, and provides an implementation of `SecureStorage`. BLE discovery, connection management, and terminal interaction remain native responsibilities.
 
-#### Native Platform Design — TODO
+**IOSApp** provides the iOS user interface and native platform integration. It consumes the same shared application contract and provides the iOS implementation of protected storage and BLE interaction.
 
-The internal architecture of the native Android and iOS applications has not yet been defined. The native UI structure, BLE integration, platform-specific protected storage, key management, and concrete implementations of shared interfaces will be documented in a later design step.
+#### Native Platform Design - TODO
+
+The detailed native UI structure, navigation, BLE integration, protected-storage adapters, and key management will be documented in a later design step.
 
 No native class diagram is included at this stage.
 
-
 ### Detailed Module Design
 
-This section describes the internal structure of the Mobile Core components.
+This section describes the public integration package and the three architectural modules of the Mobile Core.
 
-The class diagrams represent the current architectural design and define the main classes, dependencies, and interfaces between the modules.
+The API package is documented through individual descriptions. Within the remaining modules, interfaces retain their detailed contracts and classes are summarized through their purpose, responsibilities, and dependencies.
 
-The diagrams intentionally focus on architectural responsibilities rather than implementation details. Data fields, error models, and platform-specific implementations may be refined during implementation.
+Application models and error representations are described with the application module. DTOs and HTTP communication are described with the communication module.
 
-#### MobileCoreApplication
+The existing diagrams retain their original groupings. In the source code, `MobileCoreApi` and `SecureStorage` belong to the separate `api` package.
 
-The `MobileCoreApplication` module contains the shared application-level logic. It is the entry point used by the native Android and iOS applications and coordinates the specialized services responsible for authentication, bookings, and resource access.
+#### API Package (`api`)
 
-![Shared Mobile Core Class Structure](assets/mobile-core-classes.png){width=95%}
+The `api` package defines the public integration boundary between the Mobile Core and the native Android and iOS applications. It contains `MobileCoreApi`, `MobileCoreFactory`, and `SecureStorage`.
+
+These elements are grouped separately because they define how a native application invokes shared operations, obtains a core instance, and supplies protected storage. This separates the integration contract from the internal application services, backend communication, and token management.
+
+`SecureStorage` belongs to this package because native applications must be able to implement the storage contract independently from the internal token manager. Application models and shared error types are used by the public contract but are documented separately from the API entry points below.
 
 ##### MobileCoreApi
 
-
-###### Purpose {.unnumbered}
-
-`MobileCoreApi` defines the public contract through which the native Android and iOS applications access the shared Mobile Core.
-
-###### Responsibilities {.unnumbered}
-
-- expose the functionality required by the native applications,
-- hide the internal organization of the `MobileCoreApplication` module,
-- provide a stable boundary between platform-specific code and shared application logic.
-
-###### Dependencies {.unnumbered}
-
-The interface does not depend directly on internal services. Its implementation is provided by `ServiceFacade`.
+| Aspect | Description |
+|:----------------|:--------------------------------------------------------------------------|
+| **Purpose** | Define the public contract through which native Android and iOS applications invoke shared Mobile Core operations. |
+| **Responsibilities** | Expose authentication, booking, and resource-access operations; hide the internal application services; provide a stable boundary between native code and shared application logic. |
+| **Dependencies** | Application models and `MobileCoreException`. The interface is implemented by `ServiceFacade`. |
 
 ###### Interface Operations {.unnumbered}
 
+- `login(identifier: String, password: String)` starts authentication with the supplied credentials. Returned authentication tokens remain internal to the core.
 
-| Operation | Description |
-|---|---|
-| `login(identifier: String, password: String)` | Starts the authentication flow using the supplied user identifier and password. Authentication credentials returned by the backend remain internal to the Mobile Core. |
-| `logout()` | Ends the current session and triggers backend revocation and local credential cleanup. |
-| `getActiveBookings() List<Booking>` | Retrieves the active bookings available to the current user. |
-| `requestAccess(request: ResourceAccessRequest) ResourceAccessResponse` | Requests authorization to access a resource using an application-level access request. |
-| `confirmAccess(confirmation: AccessConfirmation)` | Confirms the result of a previously initiated resource-access operation. |
-| `checkOut(resourceId: String)` | Initiates the check-out flow for the specified resource. |
+- `logout()` ends the session and coordinates backend revocation and local credential cleanup.
 
-The interface uses application models rather than transport DTOs. This keeps HTTP-specific representations outside the public Mobile Core API.
+- `getActiveBookings()` returns the current user's active bookings as a list of `Booking` models.
 
-##### ServiceFacade
+- `requestAccess(request: ResourceAccessRequest)` requests resource-access authorization and returns a `ResourceAccessResponse`.
 
+- `confirmAccess(confirmation: AccessConfirmation)` confirms the outcome of a previously initiated resource-access operation.
 
-###### Purpose {.unnumbered}
+- `checkOut(resourceId: String)` initiates check-out for the specified resource.
 
-`ServiceFacade` is the concrete implementation of `MobileCoreApi` and acts as the single entry point to the services contained in the `MobileCoreApplication` module.
+These operations are asynchronous. Expected application and communication failures are represented by `MobileCoreException`.
 
-###### Responsibilities {.unnumbered}
+The interface uses application models rather than transport DTOs. Backend transport details and authentication credentials remain internal to the core. BLE communication is handled by the native applications.
 
-- implement the `MobileCoreApi` contract,
-- delegate authentication operations to `AuthService`,
-- delegate booking operations to `BookingService`,
-- delegate resource-access operations to `AccessService`,
-- prevent native applications from depending directly on individual application services.
+##### MobileCoreFactory
 
-###### Dependencies {.unnumbered}
+| Aspect | Description |
+|:----------------|:--------------------------------------------------------------------------|
+| **Purpose** | Provide the public creation entry point for a Mobile Core instance, receiving a native `SecureStorage` implementation and returning `MobileCoreApi`. |
+| **Responsibilities** | Construct and connect the token, communication, and application-service components; create the facade implementing `MobileCoreApi`; encapsulate component construction within the shared core. |
+| **Dependencies** | `SecureStorage`, `TokenManager`, `BackendCommunication`, `AuthService`, `BookingService`, `AccessService`, and `ServiceFacade`. |
 
-- `AuthService`
-- `BookingService`
-- `AccessService`
+###### Creation Operation {.unnumbered}
 
-##### AuthService
+`create(secureStorage: SecureStorage)` returns a `MobileCoreApi` instance backed by `ServiceFacade`.
 
+The native application is responsible for creating its concrete protected-storage adapter. The complete initialization of HTTP communication will be defined during implementation.
 
-###### Purpose {.unnumbered}
+##### SecureStorage
 
-`AuthService` contains the application-level logic related to authentication and session lifecycle.
+| Aspect | Description |
+|:----------------|:--------------------------------------------------------------------------|
+| **Purpose** | Define a platform-independent contract for protected persistence of sensitive values. |
+| **Responsibilities** | Define secure key-value storage operations; abstract platform-specific protected storage; allow Android and iOS applications to supply their respective implementations. |
+| **Dependencies** | No concrete platform dependency. The implementation is supplied by the native application. |
 
-###### Responsibilities {.unnumbered}
+###### Interface Operations {.unnumbered}
 
-- coordinate user login,
-- coordinate logout,
-- delegate authentication-related backend operations through `CommunicationGateway`,
-- remain independent from token storage and refresh implementation details.
+- `save(key: String, value: String)` stores a value under the specified key using protected storage.
 
-###### Dependencies {.unnumbered}
+- `get(key: String)` returns the value associated with the key, or no value when the key is absent.
 
-- `CommunicationGateway`
+- `remove(key: String)` removes the value associated with the key.
 
-##### BookingService
+The interface exposes generic key-value operations. Token-specific decisions, including the stored values and their keys, remain the responsibility of `TokenManager`.
 
 
-###### Purpose {.unnumbered}
+#### MobileCoreApplication
 
-`BookingService` contains the application logic required to retrieve booking information.
+The application module coordinates shared authentication, booking, and resource-access operations. `ServiceFacade` implements the contract defined by `MobileCoreApi` and delegates operations to the specialized services.
 
-###### Responsibilities {.unnumbered}
+![Shared Mobile Core Class Structure](assets/mobile-core-classes.png){width=95%}
 
-- request active booking information,
-- expose booking data as application models,
-- keep booking-related backend communication outside the native applications.
+| Element | Description |
+|:----------------------------------------|:------------------------------------------------------------|
+| **ServiceFacade** |  **Purpose:** Implement `MobileCoreApi` and provide the entry point to application services. `\par\smallskip`{=latex} **Responsibilities:** Delegate authentication to `AuthService`, booking retrieval to `BookingService`, and access operations to `AccessService`; keep individual services behind the public contract. `\par\smallskip`{=latex} **Dependencies:** `MobileCoreApi`, `AuthService`, `BookingService`, `AccessService`. |
+| **AuthService** |  **Purpose:** Coordinate application-level authentication and session operations. `\par\smallskip`{=latex} **Responsibilities:** Handle login and logout through the communication gateway; remain independent from token storage and refresh details. `\par\smallskip`{=latex} **Dependencies:** `CommunicationGateway`. |
+| **BookingService** |  **Purpose:** Retrieve booking information for the current user. `\par\smallskip`{=latex} **Responsibilities:** Request active bookings through the gateway and expose the result as application models. `\par\smallskip`{=latex} **Dependencies:** `CommunicationGateway`, `Booking`. |
+| **AccessService** |  **Purpose:** Coordinate the application-level resource-access lifecycle. `\par\smallskip`{=latex} **Responsibilities:** Request access, confirm its outcome, and initiate check-out through the gateway. `\par\smallskip`{=latex} **Dependencies:** `CommunicationGateway`, `ResourceAccessRequest`, `ResourceAccessResponse`, `AccessConfirmation`. |
 
-###### Dependencies {.unnumbered}
+##### Application Models {.unnumbered}
 
-- `CommunicationGateway`
+\leavevmode\par
 
-##### AccessService
+These models form the application-facing data contract shared by the public API, application services, and communication gateway. Their detailed attributes will be refined with the access and backend contracts.
 
+| Element | Description |
+|:----------------------------------------|:------------------------------------------------------------|
+| **Booking** |  **Purpose:** Represent a booking at application level. `\par\smallskip`{=latex} **Responsibilities:** Provide booking information independently from its REST transport representation. `\par\smallskip`{=latex} **Dependencies:** None are defined in the current design. |
+| **ResourceAccessRequest** |  **Purpose:** Represent an application-level request to access a resource. `\par\smallskip`{=latex} **Responsibilities:** Carry the information required by the access flow while keeping application services independent from the transport DTO. `\par\smallskip`{=latex} **Dependencies:** None are defined in the current design. |
+| **ResourceAccessResponse** |  **Purpose:** Represent the application-level result of an access request. `\par\smallskip`{=latex} **Responsibilities:** Expose the access outcome while hiding the backend-specific transport representation. `\par\smallskip`{=latex} **Dependencies:** None are defined in the current design. |
+| **AccessConfirmation** |  **Purpose:** Represent confirmation of a resource-access operation. `\par\smallskip`{=latex} **Responsibilities:** Carry confirmation information independently from the REST DTO. `\par\smallskip`{=latex} **Dependencies:** None are defined in the current design. |
 
-###### Purpose {.unnumbered}
+##### Error Representation {.unnumbered}
 
-`AccessService` coordinates the application-level resource access lifecycle.
+\leavevmode\par
 
-###### Responsibilities {.unnumbered}
+The shared error representation gives native applications a consistent description of application and communication failures.
 
-- request access to a resource,
-- process access confirmation,
-- initiate resource check-out,
-- delegate backend-related operations through `CommunicationGateway`.
-
-###### Dependencies {.unnumbered}
-
-- `CommunicationGateway`
-
-
-
-
+| Element | Description |
+|:----------------------------------------|:------------------------------------------------------------|
+| **MobileCoreException** |  **Purpose:** Represent an expected application or communication failure. `\par\smallskip`{=latex} **Responsibilities:** Carry an error code, an optional diagnostic message, and an optional underlying cause. `\par\smallskip`{=latex} **Dependencies:** `MobileCoreErrorCode`, `Exception`, and an optional `Throwable` cause. |
+| **MobileCoreErrorCode** | **Type:** Enumeration `\par\smallskip`{=latex} **Purpose:** Define the error categories exposed by the core. `\par\smallskip`{=latex} **Responsibilities:** Distinguish backend failures, connection errors, timeouts, and unrecognized failures. `\par\smallskip`{=latex} **Dependencies:** None. |
 
 #### BackendCommunication
 
-The `BackendCommunication` module provides the boundary between the application layer and the backend REST API.
+The communication module provides the boundary between application operations and the backend REST API. It contains the communication contract, its implementation, the REST client, transport DTOs, and HTTP communication infrastructure.
 
-It separates application-level models and operations from HTTP communication, authentication transport, and DTO-specific representations.
-
+Application models are converted to transport representations when sending requests. Received transport data is converted back into application models before it reaches the application services.
 
 ![Backend Communication Class Structure](assets/mobile-communication-classes.png){width=100%}
 
 ##### CommunicationGateway
 
-
-###### Purpose {.unnumbered}
-
-`CommunicationGateway` defines the application-facing contract for backend communication.
-
-It allows the `MobileCoreApplication` module to perform backend operations without depending on HTTP clients, REST endpoints, DTO representations, or token-management details.
-
-###### Responsibilities {.unnumbered}
-
-- expose backend-related capabilities using application-level types,
-- isolate the `MobileCoreApplication` module from transport-specific details,
-- hide authentication credential handling from application services,
-- define the boundary between application logic and backend communication.
-
-###### Dependencies {.unnumbered}
-
-The interface itself has no concrete infrastructure dependency. It is implemented by `BackendCommunication`.
+| Element | Description |
+|:----------------------------------------|:------------------------------------------------------------|
+| **CommunicationGateway** | **Purpose:** Define the application-facing contract for backend communication, independently from HTTP, endpoint formats, DTOs, and token-management details. `\par\smallskip`{=latex} **Responsibilities:** Expose backend capabilities using application-level types; isolate application services from transport details; hide authentication credential handling; define the boundary between application logic and backend communication. `\par\smallskip`{=latex} **Dependencies:** Application models, with no concrete HTTP dependency. The interface is implemented by `BackendCommunication`. |
 
 ###### Interface Operations {.unnumbered}
 
+- `login(identifier: String, password: String)` authenticates the user. Returned credentials are handled internally by the communication and token components.
 
-| Operation | Description |
-|---|---|
-| `login(identifier: String, password: String)` | Authenticates the user through the backend. Returned credentials are handled internally by `BackendCommunication` and `TokenManager`. |
-| `logout()` | Terminates the current session, requests backend-side revocation, and clears locally managed credentials. |
-| `getActiveBookings() List<Booking>` | Retrieves active bookings and exposes them as application `Booking` models. |
-| `requestAccess(request: ResourceAccessRequest) ResourceAccessResponse` | Sends a resource-access request and returns the corresponding application-level response. |
-| `confirmAccess(confirmation: AccessConfirmation)` | Sends an access confirmation to the backend. |
-| `checkOut(resourceId: String)` | Requests completion of resource usage for the specified resource. |
+- `logout()` requests backend session revocation and local credential cleanup.
 
-No DTO or token types are exposed through this interface. DTO creation, authentication headers, token refresh, and credential persistence remain internal to the communication and token-management modules.
+- `getActiveBookings()` returns active bookings as application `Booking` models.
 
-##### BackendCommunication
+- `requestAccess(request: ResourceAccessRequest)` sends an access request and returns a `ResourceAccessResponse`.
 
+- `confirmAccess(confirmation: AccessConfirmation)` sends an access confirmation to the backend.
 
-###### Purpose {.unnumbered}
+- `checkOut(resourceId: String)` requests completion of resource usage.
 
-`BackendCommunication` implements `CommunicationGateway` and acts as the adapter between application-level operations and the REST client.
+The operations are asynchronous. DTO creation, authentication headers, token refresh, and credential persistence remain internal concerns and are not exposed through the operation signatures.
 
-It also coordinates authentication-related communication without exposing token mechanics to the application layer.
+##### Classes {.unnumbered}
 
-###### Responsibilities {.unnumbered}
+\leavevmode\par
 
-- implement the `CommunicationGateway` contract,
-- coordinate calls to `BackendApiClient`,
-- convert application models to DTOs before sending requests,
-- convert received DTOs back into application models,
-- store credentials returned by a successful login through `TokenManager`,
-- obtain access and refresh tokens through `TokenManager`,
-- refresh the access token when required,
-- retry an authenticated operation after a successful refresh,
-- clear local credentials when logout completes or renewal is no longer possible.
+| Element | Description |
+|:----------------------------------------|:------------------------------------------------------------|
+| **BackendCommunication** | **Purpose:** Implement `CommunicationGateway` and adapt application operations to backend communication. `\par\smallskip`{=latex} **Responsibilities:** Convert models and DTOs; coordinate login, refresh, and logout; manage credentials through `TokenManager`; retry a protected operation once after successful refresh. `\par\smallskip`{=latex} **Dependencies:** `CommunicationGateway`, `BackendApiClient`, `TokenManager`, application models, and transport DTOs. |
+| **BackendApiClient** | **Purpose:** Provide the low-level REST communication operations. `\par\smallskip`{=latex} **Responsibilities:** Send HTTP requests, exchange DTOs, attach supplied access credentials, and perform transport operations for authentication, bookings, resource access, and check-out. `\par\smallskip`{=latex} **Dependencies:** An HTTP communication system and transport DTOs. |
 
-###### Dependencies {.unnumbered}
+##### Data Transfer Objects {.unnumbered}
 
-- `BackendApiClient`
-- `TokenManager`
+\leavevmode\par
 
-###### Authentication Behaviour {.unnumbered}
+The communication module defines DTOs for the backend contract. They remain separate from application models so that transport formats can evolve independently. Their final attributes will be defined with the backend API.
 
+| Element | Description |
+|:----------------------------------------|:------------------------------------------------------------|
+| **LoginRequestDto** | Contains the user identifier and password sent to the authentication endpoint. |
+| **LoginResponseDto** | Contains the access and refresh tokens returned after successful authentication. |
+| **RefreshTokenRequestDto** | Contains the current refresh token sent to renew authentication credentials. |
+| **RefreshTokenResponseDto** | Contains the new access token and any replacement refresh token returned after successful renewal. |
+| **BookingDto** | Contains booking information received from the backend and converted into an application `Booking` model. |
+| **ResourceAccessRequestDto** | Contains the information sent to the backend to request access to a resource. |
+| **ResourceAccessResponseDto** | Contains the backend's response to an access request, converted into an application `ResourceAccessResponse` model. |
+| **AccessConfirmationRequestDto** | Contains the information sent to confirm the outcome of a resource-access operation. |
+| **CheckOutRequestDto** | Contains the information sent to complete resource usage through check-out. |
+##### HTTP Communication {.unnumbered}
 
-###### Login {.unnumbered}
+\leavevmode\par
 
-`BackendCommunication.login()` creates a `LoginRequestDto` from the supplied identifier and password and delegates the HTTP request to `BackendApiClient`.
+The communication module will use an HTTP communication system to exchange requests and responses with the backend. This system will support request execution, authentication headers, transport-data conversion, timeouts, and communication-error handling.
 
-After successful authentication, the returned `LoginResponseDto` contains the access and refresh credentials. `BackendCommunication` passes these credentials to `TokenManager.storeTokens(...)`. The password is not persisted by the Mobile Core.
-
-###### Token Refresh {.unnumbered}
-
-Token refresh is an internal communication concern and is not exposed through `CommunicationGateway`.
-
-When an authenticated request cannot use the current access token because it is unavailable or rejected as expired, `BackendCommunication` retrieves the refresh token from `TokenManager`, creates a `RefreshTokenRequestDto`, and calls `BackendApiClient.refresh(...)`.
-
-If the refresh succeeds, the returned credentials are stored through `TokenManager` and the original operation may be retried once using the new access token.
-
-If the refresh token is rejected, expired, or revoked, the local credentials are cleared and the authentication failure is propagated to the application layer.
-
-###### Logout {.unnumbered}
-
-During logout, `BackendCommunication` obtains the refresh token and requests backend-side session revocation through `BackendApiClient.logout(...)`. Local credentials are then cleared through `TokenManager`.
-
-##### BackendApiClient
-
-
-###### Purpose {.unnumbered}
-
-`BackendApiClient` is the low-level REST communication client.
-
-###### Responsibilities {.unnumbered}
-
-- execute HTTP requests,
-- send and receive transport DTOs,
-- send the access token with protected requests,
-- perform login, refresh, and logout transport operations,
-- isolate HTTP-specific communication from the rest of the Mobile Core.
-
-###### Dependencies {.unnumbered}
-
-- `HttpClient`
-
-The concrete HTTP client configuration is an implementation concern and is not further defined by this class diagram.
-
-##### LoginRequestDto
-
-
-###### Purpose {.unnumbered}
-
-`LoginRequestDto` represents the transport data sent to the backend during login.
-
-###### Responsibilities {.unnumbered}
-
-- represent the login request in the REST communication layer,
-- carry the supplied identifier and password to the authentication endpoint,
-- provide a serializable transport representation for authentication data.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### LoginResponseDto
-
-
-###### Purpose {.unnumbered}
-
-`LoginResponseDto` represents the transport response returned by the backend after successful authentication.
-
-###### Responsibilities {.unnumbered}
-
-- represent the authentication response,
-- carry the short-lived access token and long-lived refresh token returned by the backend,
-- provide the credentials that are passed to `TokenManager`.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### RefreshTokenRequestDto
-
-
-###### Purpose {.unnumbered}
-
-`RefreshTokenRequestDto` represents the transport request used to renew authentication credentials.
-
-###### Responsibilities {.unnumbered}
-
-- carry the current refresh token to the backend refresh endpoint,
-- keep refresh-specific transport data inside the communication layer.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### RefreshTokenResponseDto
-
-
-###### Purpose {.unnumbered}
-
-`RefreshTokenResponseDto` represents the transport response returned after a successful token refresh.
-
-###### Responsibilities {.unnumbered}
-
-- carry the new access token,
-- carry a replacement refresh token when refresh-token rotation is applied,
-- provide the credentials used to update `TokenManager`.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### BookingDto
-
-
-###### Purpose {.unnumbered}
-
-`BookingDto` represents booking information exchanged with the backend.
-
-###### Responsibilities {.unnumbered}
-
-- represent booking data in the transport layer,
-- provide the source representation used when converting backend data into the application `Booking` model.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### ResourceAccessRequestDto
-
-
-###### Purpose {.unnumbered}
-
-`ResourceAccessRequestDto` represents a resource-access request sent through the REST API.
-
-###### Responsibilities {.unnumbered}
-
-- represent resource-access information in transport form,
-- keep the backend request representation separate from the application model.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### ResourceAccessResponseDto
-
-
-###### Purpose {.unnumbered}
-
-`ResourceAccessResponseDto` represents the backend response to a resource-access request.
-
-###### Responsibilities {.unnumbered}
-
-- represent the REST response for an access request,
-- provide the transport representation used to create a `ResourceAccessResponse`.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### AccessConfirmationRequestDto
-
-
-###### Purpose {.unnumbered}
-
-`AccessConfirmationRequestDto` represents the transport request used to confirm a resource-access operation.
-
-###### Responsibilities {.unnumbered}
-
-- represent access-confirmation data sent to the backend,
-- isolate the REST representation from the application-level `AccessConfirmation` model.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### CheckOutRequestDto
-
-
-###### Purpose {.unnumbered}
-
-`CheckOutRequestDto` represents a check-out request in the REST communication layer.
-
-###### Responsibilities {.unnumbered}
-
-- represent check-out information in transport form,
-- provide the DTO required by `BackendApiClient` when sending a check-out request.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### Booking
-
-
-###### Purpose {.unnumbered}
-
-`Booking` is the application-level representation of a booking.
-
-###### Responsibilities {.unnumbered}
-
-- represent booking information independently from the REST API,
-- provide a shared model that can be used by the `MobileCoreApplication` module.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### ResourceAccessRequest
-
-
-###### Purpose {.unnumbered}
-
-`ResourceAccessRequest` represents an application-level request to access a resource.
-
-###### Responsibilities {.unnumbered}
-
-- contain the information required by the application access flow,
-- keep the `MobileCoreApplication` module independent from `ResourceAccessRequestDto`.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### ResourceAccessResponse
-
-
-###### Purpose {.unnumbered}
-
-`ResourceAccessResponse` represents the application-level result of a resource-access request.
-
-###### Responsibilities {.unnumbered}
-
-- expose the access result to the `MobileCoreApplication` module,
-- hide the backend-specific `ResourceAccessResponseDto` representation.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-##### AccessConfirmation
-
-
-###### Purpose {.unnumbered}
-
-`AccessConfirmation` represents an application-level confirmation of a resource-access operation.
-
-###### Responsibilities {.unnumbered}
-
-- represent confirmation data inside the Mobile Core,
-- keep access-confirmation logic independent from the REST DTO representation.
-
-###### Dependencies {.unnumbered}
-
-None are defined in the current architecture.
-
-
+The concrete HTTP library, platform configuration, and client initialization are implementation choices and will be documented in Chapter 5. They do not define additional architectural modules in this design.
 
 #### TokenManager
 
-The `TokenManager` module encapsulates local authentication credential handling and separates credential storage from backend communication.
+The token-management module owns local authentication credentials. It uses the public `SecureStorage` contract supplied by the native application and remains independent from backend communication.
 
-The module does not perform REST requests. Token renewal is coordinated by `BackendCommunication`, while `TokenManager` is responsible for storing, retrieving, updating, and clearing credentials.
+The interface is defined in the `api` package. The existing diagram retains the relationship between the token manager and this external storage contract.
 
 ![Token Management Class Structure](assets/mobile-token-classes.png){width=80%}
 
+| Element | Description |
+|:----------------------------------------|:------------------------------------------------------------|
+| **TokenManager** | **Purpose:** Manage local authentication credentials. `\par\smallskip`{=latex} **Responsibilities:** Keep the access token in memory; persist and retrieve the refresh token through protected storage; replace credentials after login or refresh; clear credentials when the session ends. `\par\smallskip`{=latex} **Dependencies:** `SecureStorage`. |
 
-##### TokenManager
-
-
-###### Purpose {.unnumbered}
-
-`TokenManager` manages the authentication credentials used by the Mobile Core without performing backend communication.
-
-###### Responsibilities {.unnumbered}
-
-- maintain the short-lived access token in memory,
-- retrieve the current access token when required,
-- persist the long-lived refresh token through `SecureStorage`,
-- retrieve the refresh token when renewal or logout requires it,
-- replace locally managed credentials after login or successful refresh,
-- clear both access and refresh credentials when the session ends.
-
-###### Dependencies {.unnumbered}
-
-- `SecureStorage`
-
-###### Operations {.unnumbered}
-
-
-| Operation | Description |
-|---|---|
-| `getAccessToken() String?` | Returns the currently available in-memory access token, or no value if none is available. |
-| `getRefreshToken() String?` | Retrieves the persisted refresh token from `SecureStorage`, or no value if no renewable session exists. |
-| `storeTokens(accessToken: String, refreshToken: String)` | Replaces the currently managed credentials. The access token is kept in memory and the refresh token is persisted through `SecureStorage`. |
-| `clearTokens()` | Removes the in-memory access token and deletes the persisted refresh token. |
-
-##### SecureStorage
-
-
-###### Purpose {.unnumbered}
-
-`SecureStorage` defines the platform-independent contract used to persist sensitive values securely.
-
-The interface allows the shared Mobile Core to use protected storage without depending directly on Android or iOS storage APIs.
-
-###### Responsibilities {.unnumbered}
-
-- define secure key-value storage operations,
-- abstract platform-specific protected storage,
-- allow the native Android and iOS applications to provide their respective implementations.
-
-###### Dependencies {.unnumbered}
-
-The interface has no platform dependency inside the Mobile Core. Its concrete implementation is provided externally by the native application.
-
-###### Interface Operations {.unnumbered}
-
-
-| Operation | Description |
-|---|---|
-| `save(key: String, value: String)` | Stores the supplied value under the specified key using the platform-protected storage implementation. |
-| `get(key: String) String?` | Retrieves the value associated with the specified key. Returns no value if the key is not present. |
-| `remove(key: String)` | Removes the value associated with the specified key from secure storage. |
-
-The interface intentionally exposes generic key-value operations. Token-specific decisions, such as which values are stored and which keys are used, remain the responsibility of `TokenManager`.
-
-
-The following diagram summarizes the classes and dependencies described in this section.
-
-
+The component provides operations to obtain the access token, obtain the refresh token, store replacement credentials, and clear local credentials. Token renewal itself is coordinated by `BackendCommunication`.
 
 ### Authentication and Token Lifecycle
 
-Authentication state is managed jointly by `BackendCommunication` and `TokenManager`.
+Authentication is coordinated by `BackendCommunication` and `TokenManager`. The communication component owns backend interactions, while the token component owns local credential state.
 
-`BackendCommunication` owns the communication workflow, while `TokenManager` owns the local credential state. Authentication details are not exposed to the native applications or to the application services.
+The following flows describe the intended behavior. Authentication credentials remain internal to the core.
 
 #### Login Flow
 
 1. The native application calls `MobileCoreApi.login(identifier, password)`.
 2. `ServiceFacade` delegates the operation to `AuthService`.
-3. `AuthService` calls `CommunicationGateway.login(...)`.
-4. `BackendCommunication` creates a `LoginRequestDto` and delegates the HTTP operation to `BackendApiClient`.
+3. `AuthService` invokes `CommunicationGateway.login(...)`.
+4. `BackendCommunication` creates a `LoginRequestDto` and delegates the HTTP request to `BackendApiClient`.
 5. The backend validates the credentials and returns a short-lived access token and a long-lived refresh token.
-6. `BackendCommunication` stores the returned credentials through `TokenManager.storeTokens(...)`.
-7. The password is discarded after the login operation and is not used for automatic re-authentication.
-
-The complete login sequence is summarized in the following diagram.
+6. `BackendCommunication` stores the credentials through `TokenManager.storeTokens(...)`.
+7. The password is not persisted or reused for automatic authentication.
 
 ![Mobile Login Flow](assets/mobile-login-flow.png){width=100%}
 
 #### Access Token Refresh
 
-Token refresh is transparent to the caller and is not part of `MobileCoreApi` or `CommunicationGateway`.
+Refresh is transparent to callers and is not part of `MobileCoreApi` or `CommunicationGateway`.
 
-1. `BackendCommunication` obtains the current access token from `TokenManager`.
-2. The access token is used for a protected backend request.
-3. If no access token is available, or if the backend rejects it because it has expired, `BackendCommunication` requests the refresh token from `TokenManager`.
-4. `BackendCommunication` creates a `RefreshTokenRequestDto` and calls `BackendApiClient.refresh(...)`.
-5. When the refresh succeeds, the returned credentials replace the previous credentials through `TokenManager.storeTokens(...)`.
-6. The original protected operation may then be retried once with the new access token.
-7. If renewal fails because the refresh token is expired, revoked, or invalid, the local credentials are cleared and the caller is informed that authentication is required again.
-
-The complete renewal sequence is summarized in the following diagram.
+1. `BackendCommunication` obtains the access token from `TokenManager`.
+2. When available, the token is used for the protected backend request.
+3. If the token is absent or rejected as expired, the communication component obtains the refresh token.
+4. It creates a `RefreshTokenRequestDto` and calls `BackendApiClient.refresh(...)`.
+5. On success, the replacement credentials are stored through `TokenManager`.
+6. The protected operation is performed with the new token, or retried once if previously rejected.
+7. If the refresh token is invalid, expired, or revoked, local credentials are cleared and authentication is required again.
 
 ![Mobile Token Refresh Flow](assets/mobile-token-refresh-flow.png){width=95%}
 
 #### Logout Flow
 
 1. The native application calls `MobileCoreApi.logout()`.
-2. The operation reaches `BackendCommunication` through `AuthService` and `CommunicationGateway`.
-3. `BackendCommunication` retrieves the refresh token from `TokenManager`.
-4. The backend is asked to invalidate the renewable session.
-5. `TokenManager.clearTokens()` removes the local access token and the persisted refresh token.
+2. The operation reaches `BackendCommunication` through the facade, authentication service, and communication gateway.
+3. The communication component obtains the refresh token from `TokenManager`.
+4. The backend is asked to revoke the renewable session.
+5. `TokenManager.clearTokens()` removes the local access token and persisted refresh token.
 
-Local credentials are cleared when the user logs out. Backend-side invalidation ensures that the renewal credential can no longer be used to obtain new access credentials.
+Backend revocation prevents the renewable credential from being used to obtain new access credentials.
 
 #### Token and Session Lifecycle
 
+**Password.** Used for the initial authentication operation and not persisted.
 
-| Credential | Purpose | Lifetime | Local Storage |
-|---|---|---|---|
-| Password | Initial user authentication | Used only during login | Not persisted |
-| Access token | Authenticate protected backend requests | Short-lived | Memory |
-| Refresh token | Obtain new access credentials without storing the password | Long-lived and revocable | `SecureStorage` |
+**Access token.** Used to authenticate protected backend requests. It is short-lived and retained in memory.
+
+**Refresh token.** Used to obtain replacement access credentials. It is long-lived, revocable, and persisted through protected storage.
 
 ### Design Decisions and Assumptions
-
-This section records the main architectural decisions and assumptions that define the current Mobile Core design.
 
 #### Design Decisions
 
 | Decision | Rationale |
-|---|---|
-| Shared application logic is implemented in Kotlin Multiplatform. | Authentication, booking, backend communication, and token-related logic can be shared between Android and iOS while platform-specific functionality remains native. |
-| Native applications access the shared core only through `MobileCoreApi`. | A single public boundary reduces coupling between native code and the internal service structure of the Mobile Core. |
-| Backend communication is isolated behind `CommunicationGateway`. | Application services remain independent from REST, HTTP, serialization, DTO, and token-management concerns. |
-| DTOs are kept inside the communication layer. | Transport representations can evolve without directly affecting the application-facing API and models. |
-| Authentication communication is coordinated by `BackendCommunication`. | Login, refresh, and logout require interaction with the backend and therefore belong to the communication boundary rather than to application services or local token storage. |
-| `TokenManager` does not perform backend communication. | The module has a single responsibility: manage local authentication credentials and their storage lifecycle. |
-| The access token is kept in memory while the refresh token is persisted securely. | The access credential is short-lived, while the long-lived renewal credential requires platform-protected storage. |
-| Secure storage is represented by a platform-independent interface. | Android and iOS use different protected-storage mechanisms while the shared core remains platform-independent. |
-| BLE communication remains outside the Mobile Core. | BLE interaction depends on native platform APIs and is handled by the Android and iOS applications. |
+|:--------------------------|:------------------------------------------------------|
+| Shared Mobile Core | Share application, communication, and credential-management logic across Android and iOS. |
+| Three internal components | Separate application orchestration, backend communication, and local credential management. |
+| Separate API package | Group the public application contract, core creation entry point, and native storage contract. |
+| Single application contract | Let native applications invoke shared operations through `MobileCoreApi`. |
+| Communication boundary | Keep application services independent from HTTP and transport formats through `CommunicationGateway`. |
+| Separate data models | Allow backend transport representations to evolve independently from the application contract. |
+| HTTP communication | Keep transport mechanisms and configuration within the backend communication boundary. |
+| Internal token renewal | Keep login credentials and token-refresh mechanics out of native application flows. |
+| Protected credentials | Preserve renewable sessions without storing the password. |
+| Native adapters | Integrate platform-specific functionality through native applications and shared contracts. |
 
 #### Assumptions
 
-- The backend provides REST endpoints for login, token refresh, session revocation, and the operations required by `CommunicationGateway`.
-- Successful login returns a short-lived access token and a long-lived refresh token.
-- Successful refresh returns a new access token and may rotate the refresh token; when rotation is used, the replacement token is stored immediately.
+- The backend provides REST endpoints for authentication, bookings, and resource-access operations.
+- Login returns a short-lived access token and a long-lived refresh token.
+- Refresh may rotate the refresh token; any replacement is stored immediately.
 - Android and iOS provide concrete implementations of `SecureStorage`.
-- The internal architecture of the Android and iOS applications will be designed separately.
-- The BLE protocol and terminal interaction contract are not defined by this document.
-- DTO fields, error representations, and detailed endpoint contracts may be refined when the backend contract is finalized.
-- The current check-out flow uses `resourceId` at the application boundary. `CheckOutRequestDto` allows the transport request to be extended later without changing the current application interface.
-- An authenticated backend operation is retried at most once after a successful access-token refresh to avoid uncontrolled retry loops.
+- Detailed native architecture and the BLE protocol will be designed separately.
+- DTO attributes, endpoint contracts, and error mappings may be refined with the backend contract.
+- Check-out uses `resourceId`; its transport representation may evolve independently.
+- A protected operation is retried at most once after successful token renewal.
 
-## Door Terminal Design
-
-### Module Structure
-
-- *Show the proposed firmware modules for BLE communication, credential verification, door control, local storage, and event handling.*
-- *Explain their responsibilities, dependencies, and interfaces with the mobile app and the selected synchronization route.*
-
-### Class and Data Structure Design
-
-- *Include a proposed diagram of the important firmware classes or data structures, according to the chosen C/C++ design.*
-- *Show how protocol messages, authorization data, terminal state, and queued usage events relate to the firmware modules.*
 
 ## Database Design
 
-![ER Diagram](docs/report/assets/erd.png)
+<!-- ![ER Diagram](assets/erd.png) error -->
 
 ### 1. Core Entities
 

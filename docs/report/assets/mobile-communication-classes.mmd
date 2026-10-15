@@ -13,7 +13,6 @@ classDiagram
         }
 
         class BackendCommunication {
-            -apiClient: BackendApiClient
             -tokenManager: TokenManager
             +login(identifier: String, password: String)
             +logout()
@@ -21,7 +20,7 @@ classDiagram
             +requestAccess(request: ResourceAccessRequest) ResourceAccessResponse
             +confirmAccess(confirmation: AccessConfirmation)
             +checkOut(resourceId: String)
-            -refreshAccessToken() String
+            -refreshAccessToken(request: RefreshTokenRequestDto) Unit
         }
 
         class BackendApiClient {
@@ -56,7 +55,7 @@ classDiagram
     }
 
     CommunicationGateway <|.. BackendCommunication
-    BackendCommunication --> BackendApiClient
+    BackendCommunication ..> BackendApiClient : planned
 
     class TokenManager
     class HttpClient
