@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1760" viewBox="0 0 1100 880" role="img" aria-labelledby="title desc">
+<title id="title">Eight plywood panels from one 600 by 600 mm sheet</title>
+<desc id="desc">A dimensioned nesting plan for 6 mm plywood. A 222 mm strip contains the back and two sides. A 210 mm strip contains the divider, door and electronics cover. A 140 mm strip contains the top and bottom. Saw allowances are 4 mm. The front panels are trimmed to 206 mm high. All eight panels fit with offcuts remaining. Dimensions assume nominal material thickness; drilling and latch openings are separate assembly operations.</desc>
+<defs><style>
+text{font-family:Arial,Helvetica,sans-serif;fill:#283749}.title{font-size:26px;font-weight:700}.sub{font-size:15px;fill:#526a80}.panel{font-size:17px;font-weight:700}.size{font-size:15px}.small{font-size:13px;fill:#526a80}.dim{stroke:#60758a;stroke-width:1;fill:none}
+</style></defs>
+<rect width="1100" height="880" fill="white"/>
+<text x="40" y="43" class="title">Plywood cutting plan</text>
+<text x="40" y="72" class="sub">One sheet · 600 × 600 × 6 mm · eight finished panels · all dimensions in mm</text>
+<rect x="65" y="140" width="600" height="600" fill="#f1f3f5" stroke="#7c8da0" stroke-width="1.5"/>
+<path d="M65 117 H665 M65 112 V122 M665 112 V122 M40 140 V740 M35 140 H45 M35 740 H45" class="dim"/>
+<text x="365" y="109" text-anchor="middle" class="sub">600</text>
+<text x="29" y="440" text-anchor="middle" transform="rotate(-90 29 440)" class="sub">600</text>
+<rect x="65" y="362" width="600" height="4" fill="#e9984b"/>
+<rect x="65" y="576" width="600" height="4" fill="#e9984b"/>
+<rect x="65" y="720" width="600" height="4" fill="#e9984b"/>
+<rect x="267" y="140" width="4" height="222" fill="#e9984b"/>
+<rect x="411" y="140" width="4" height="222" fill="#e9984b"/>
+<rect x="555" y="140" width="4" height="222" fill="#e9984b"/>
+<rect x="205" y="366" width="4" height="210" fill="#e9984b"/>
+<rect x="344" y="366" width="4" height="210" fill="#e9984b"/>
+<rect x="389" y="366" width="4" height="210" fill="#e9984b"/>
+<rect x="209" y="572" width="135" height="4" fill="#e9984b"/>
+<rect x="348" y="572" width="41" height="4" fill="#e9984b"/>
+<rect x="255" y="580" width="4" height="140" fill="#e9984b"/>
+<rect x="449" y="580" width="4" height="140" fill="#e9984b"/>
+<rect x="65" y="140" width="202" height="222" fill="#dfc59f" stroke="#ad8957"/>
+<text x="166.0" y="245.0" text-anchor="middle" class="panel">A · Back</text><text x="166.0" y="270.0" text-anchor="middle" class="size">202 × 222</text>
+<rect x="271" y="140" width="140" height="222" fill="#dfc59f" stroke="#ad8957"/>
+<text x="341.0" y="245.0" text-anchor="middle" class="panel">B · Left side</text><text x="341.0" y="270.0" text-anchor="middle" class="size">140 × 222</text>
+<rect x="415" y="140" width="140" height="222" fill="#dfc59f" stroke="#ad8957"/>
+<text x="485.0" y="245.0" text-anchor="middle" class="panel">C · Right side</text><text x="485.0" y="270.0" text-anchor="middle" class="size">140 × 222</text>
+<rect x="65" y="366" width="140" height="210" fill="#dfc59f" stroke="#ad8957"/>
+<text x="135.0" y="465.0" text-anchor="middle" class="panel">F · Divider</text><text x="135.0" y="490.0" text-anchor="middle" class="size">140 × 210</text>
+<rect x="209" y="366" width="135" height="206" fill="#f1dfc3" stroke="#ad8957"/>
+<text x="276.5" y="463.0" text-anchor="middle" class="panel">G · Door</text><text x="276.5" y="488.0" text-anchor="middle" class="size">135 × 206</text>
+<rect x="348" y="366" width="41" height="206" fill="#f1dfc3" stroke="#ad8957"/>
+<g transform="translate(368.5 469.0) rotate(-90)"><text x="0" y="-2" text-anchor="middle" class="panel">H · Cover</text><text x="0" y="16" text-anchor="middle" class="small">41 × 206</text></g>
+<rect x="65" y="580" width="190" height="140" fill="#dfc59f" stroke="#ad8957"/>
+<text x="160.0" y="644.0" text-anchor="middle" class="panel">D · Top</text><text x="160.0" y="669.0" text-anchor="middle" class="size">190 × 140</text>
+<rect x="259" y="580" width="190" height="140" fill="#dfc59f" stroke="#ad8957"/>
+<text x="354.0" y="644.0" text-anchor="middle" class="panel">E · Bottom</text><text x="354.0" y="669.0" text-anchor="middle" class="size">190 × 140</text>
+<text x="612" y="255" text-anchor="middle" class="small">Offcut</text>
+<text x="529" y="467" text-anchor="middle" class="small">Offcut</text>
+<text x="559" y="652" text-anchor="middle" class="small">Offcut</text>
+<text x="705" y="150" class="panel">Finished panels</text>
+<text x="705" y="182" class="size">A  Back</text><text x="1050" y="182" text-anchor="end" class="size">202 × 222</text>
+<text x="705" y="211" class="size">B  Left side</text><text x="1050" y="211" text-anchor="end" class="size">140 × 222</text>
+<text x="705" y="240" class="size">C  Right side</text><text x="1050" y="240" text-anchor="end" class="size">140 × 222</text>
+<text x="705" y="269" class="size">D  Top</text><text x="1050" y="269" text-anchor="end" class="size">190 × 140</text>
+<text x="705" y="298" class="size">E  Bottom</text><text x="1050" y="298" text-anchor="end" class="size">190 × 140</text>
+<text x="705" y="327" class="size">F  Divider</text><text x="1050" y="327" text-anchor="end" class="size">140 × 210</text>
+<text x="705" y="356" class="size">G  Door</text><text x="1050" y="356" text-anchor="end" class="size">135 × 206</text>
+<text x="705" y="385" class="size">H  Cover</text><text x="1050" y="385" text-anchor="end" class="size">41 × 206</text>
+<path d="M705 418 H1050" stroke="#d5dee7"/>
+<text x="705" y="450" class="panel">Assembly dimensions</text>
+<text x="705" y="478" class="size">Body: 202 × 222 × 146</text>
+<text x="705" y="505" class="size">Equipment opening: 139 × 210</text>
+<text x="705" y="532" class="size">Electronics opening: 45 × 210</text>
+<text x="705" y="559" class="size">Door / cover gaps: 2 on each edge</text>
+<text x="705" y="586" class="size">Depth behind front panels: about 134</text>
+<path d="M705 610 H1050" stroke="#d5dee7"/>
+<text x="705" y="641" class="panel">Cutting allowance</text>
+<rect x="705" y="660" width="20" height="12" fill="#e9984b"/>
+<text x="735" y="672" class="small">Orange: 4 mm saw allowance</text>
+<text x="705" y="699" class="small">222 + 210 + 140 + (3 × 4) = 584</text>
+<text x="705" y="724" class="small">13 straight cuts budgeted; quote pending</text>
+<path d="M40 772 H1060" stroke="#d5dee7"/>
+<text x="40" y="802" class="sub">Door and cover: trim the 210 mm strip height to 206 mm after separating the panels.</text>
+<text x="40" y="828" class="small">Final hinge and latch fit follows the test piece. Holes and the divider cutout are separate workshop operations.</text>
+<text x="40" y="852" class="small">Small-panel cutting, especially the 41 mm cover, must be agreed with the workshop. Printed fittings and screws are handled separately.</text>
+</svg>
