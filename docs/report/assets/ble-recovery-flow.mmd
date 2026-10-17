@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant App as Smartphone App
+    participant T as Door Terminal
+    App->>T: Reconnect and set up the protected connection
+    App->>T: Query original operation ID
+    T->>T: Look up saved operation record
+    T-->>App: Fresh recovery challenge
+    App->>T: Proof using original device key
+    alt Record exists and proof matches saved key and details
+        T-->>App: Original signed receipt
+        App->>App: Check and save receipt, then upload it
+    else Missing record or failed proof
+        T-->>App: Outcome unavailable
+        App->>App: Keep original ID and see retry rules below
+    end
+    Note over App,T: No usage-state change, new event or access grant

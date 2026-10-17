@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant App as Smartphone App
+    participant T as Door Terminal
+    App->>T: Connect and verify the terminal
+    break Connection fails or terminal cannot be verified
+        Note over App,T: Stop. No ticket was sent
+    end
+    App->>T: Signed ticket and operation ID
+    break Ticket invalid or expired
+        T-->>App: Rejected, nothing saved
+    end
+    T-->>App: Fresh challenge
+    Note over App,T: Once the app starts sending the proof, the result can be unknown
+    App->>T: Device proof
+    break Proof invalid or conflicting state
+        T-->>App: Rejected, nothing saved
+    end
+    T-->>App: Signed receipt
+    opt No valid receipt arrives
+        App->>App: Show result unknown, keep operation ID
+        App->>T: Ask for the saved receipt (Appendix A)
+    end

@@ -13,6 +13,7 @@ top-level-division: chapter
 resource-path:
   - ${.}
   - ${.}/assets
+  - ${.}/chapters
 output-file: ${.}/../output/IIP_BLE_Booking_System.pdf
 input-files:
   - ${.}/chapters/01-problem-vision.md
