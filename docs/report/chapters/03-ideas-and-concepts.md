@@ -6,8 +6,143 @@
 
 ### Web Application
 
-- *Include a Use Case Diagram for resource search, booking management, invoice viewing, and administration through the web application.*
-- *Show which actions are available to Student, Lecturer, and Admin.*
+#### Overview & Role Scope
+The web application supports three main user roles:
+1. **Ordinary Users (Student / Lecturer):** Focus on self-service resource browsing, booking management, availability inspection, and viewing invoices.
+2. **Admin:** Full administrative permissions to manage user accounts, resources, terminals, billing statuses, and system audit logs.
+
+---
+
+#### Ordinary User Use Cases
+
+##### UC-01: User Authentication (Sign In / Sign Out / Password Reset)
+* **Actor:** Student, Lecturer, Admin
+* **Objective:** Securely authenticate and access the web application or terminate an active session.
+* **Requirements:** FR-01.04, FR-01.05
+* **Main Success Scenario:**
+  1. The user navigates to the login page and enters their username/email and password.
+  2. The backend validates the credentials and creates an authenticated session.
+  3. The user is redirected to the dashboard.
+  4. The user can log out at any time via the sign-out action, invalidating the session.
+* **Alternative / Failure Outcomes:**
+  * *Invalid Credentials:* The system denies access and displays a generic error message.
+  * *Forgot Password (Optional):* The user requests a password recovery link via email (FR-07.01) containing a temporary single-use token to reset their password.
+
+##### UC-02: Account Registration via Invitation
+* **Actor:** Unregistered User (Invited Student or Lecturer)
+* **Objective:** Register a new user account using a personal invitation link.
+* **Requirements:** FR-01.02
+* **Main Success Scenario:**
+  1. The user opens the personal invitation link provided by an Admin.
+  2. The system validates the link (checking validity, expiration, and single-use status).
+  3. The user sets a password and completes account registration.
+  4. The account is activated, and the user is redirected to the sign-in page.
+* **Alternative / Failure Outcomes:**
+  * *Expired / Reused / Invalid Link:* Registration is rejected, and the user is instructed to contact an Admin.
+
+##### UC-03: Search Resources & Inspect Availability
+* **Actor:** Student, Lecturer
+* **Objective:** Browse available resources (e.g., rooms, terminals) and inspect bookable time slots.
+* **Requirements:** FR-01.07, FR-02.01, FR-03.03
+* **Main Success Scenario:**
+  1. The user opens the resource catalog on the web dashboard.
+  2. The user applies filters or searches by resource type, availability, or time window.
+  3. The system displays only resources and time slots that match the user's role permissions (Student vs. Lecturer) and are not already booked.
+* **Alternative / Failure Outcomes:**
+  * *No Availability:* The system renders an appropriate empty state ("No resources available for the selected criteria").
+
+##### UC-04: Create Booking
+* **Actor:** Student, Lecturer
+* **Objective:** Create a binding booking for an available resource within a selected time window.
+* **Requirements:** FR-02.01, FR-04.01, FR-04.02, FR-07.01
+* **Main Success Scenario:**
+  1. The user selects an available resource and a valid time window.
+  2. The user confirms the booking.
+  3. The system verifies availability on the server side (enforcing concurrency control / `EXCLUDE` constraint) and saves the booking with status `CONFIRMED`.
+  4. The system sends a confirmation email to the user.
+* **Alternative / Failure Outcomes:**
+  * *Overlapping Booking (Concurrent Request):* If another user completes a booking for the same slot simultaneously, the system rejects the request and prompts the user to select another time.
+  * *Email Dispatch Failure:* The booking remains valid, but the email delivery failure is logged internally for administrative awareness (FR-07.02).
+
+##### UC-05: Manage Own Bookings (View / Modify / Cancel)
+* **Actor:** Student, Lecturer
+* **Objective:** Inspect active/past bookings, modify upcoming time slots, or cancel bookings prior to use.
+* **Requirements:** FR-04.03, FR-04.05, FR-07.01
+* **Main Success Scenario:**
+  1. The user navigates to the "My Bookings" section.
+  2. **Modify:** The user selects an upcoming or active booking and modifies the scheduled time. The system re-checks slot availability.
+  3. **Cancel:** The user cancels an upcoming booking *before* use begins. The status transitions to `CANCELLED`.
+  4. An email notification is sent to confirm the booking modification or cancellation.
+* **Alternative / Failure Outcomes:**
+  * *Cancellation After Check-In:* If the user attempts to cancel a booking that is already `IN_USE`, the request is rejected.
+  * *Modification After Completion:* Completed bookings (`COMPLETED`) cannot be altered or cancelled.
+
+##### UC-06: View Own Invoices & Payment Status
+* **Actor:** Student, Lecturer
+* **Objective:** View issued invoices, track payment status (`DUE`, `PENDING`, `PAID`), and download PDF copies.
+* **Requirements:** FR-06.03, FR-06.04, FR-06.05
+* **Main Success Scenario:**
+  1. The user navigates to the "Invoices" section.
+  2. The system lists all invoices linked to the account, displaying the total amount, usage details, and current payment status.
+  3. The user downloads the immutable PDF document for a selected invoice.
+* **Alternative / Failure Outcomes:**
+  * *No Invoices:* The system displays an empty state indicator.
+
+---
+
+#### Admin Use Cases
+
+##### UC-07: Account Management (Invitation, Edit, Deactivate, Role Change)
+* **Actor:** Admin
+* **Objective:** Manage all user accounts, generate single-use invitation links, and assign roles.
+* **Requirements:** FR-01.02, FR-01.03, FR-01.07
+* **Main Success Scenario:**
+  1. The Admin accesses the User Management panel.
+  2. **Invite:** The Admin generates an expiring, single-use invitation link assigned to a specific role (Student or Lecturer).
+  3. **Manage:** The Admin updates user details, adjusts roles, or deactivates accounts.
+  4. Deactivated accounts immediately lose online session access.
+* **Alternative / Failure Outcomes:**
+  * *Self-Deactivation Prevention:* The system prevents an Admin from revoking their own administrative privileges or deactivating their active account.
+
+##### UC-08: Resource & Terminal Administration
+* **Actor:** Admin
+* **Objective:** Create, edit, link, or decommission resources and hardware terminals.
+* **Requirements:** FR-03.01, FR-03.02, FR-05.06
+* **Main Success Scenario:**
+  1. The Admin creates or updates a resource (description, pricing rules, bookable windows, role eligibility).
+  2. The Admin associates a physical terminal with a resource.
+  3. The Admin flags lost or compromised terminals as "Out of Service".
+  4. The Admin removes a resource from future bookings (soft-delete / archive) without corrupting existing booking or invoice records.
+
+##### UC-09: Global Booking Inspection & Management
+* **Actor:** Admin
+* **Objective:** Inspect, adjust, or override all system-wide bookings across all users.
+* **Requirements:** FR-04.03, FR-04.05
+* **Main Success Scenario:**
+  1. The Admin searches and filters through all bookings system-wide.
+  2. The Admin modifies or cancels bookings when administrative intervention is required.
+  3. Affected users are automatically notified via email.
+
+##### UC-10: Invoice & Payment Status Management
+* **Actor:** Admin
+* **Objective:** Manage system invoices, manually update payment states, and ensure billing traceability.
+* **Requirements:** FR-06.04, FR-06.05
+* **Main Success Scenario:**
+  1. The Admin accesses the global invoice ledger and filters by status (e.g., `DUE` or `PENDING`).
+  2. The Admin updates a record status to `PAID`, logging the timestamp and Admin ID.
+  3. The system updates the status and notifies the respective user via email.
+* **Alternative / Failure Outcomes:**
+  * *Retrospective Price Protection:* Subsequent resource price changes do not modify previously issued invoices or generated PDFs.
+
+##### UC-11: Audit Log Inspection & Offline Conflict Review
+* **Actor:** Admin
+* **Objective:** Inspect system audit trails and resolve offline terminal synchronization conflicts.
+* **Requirements:** FR-05.04, FR-07.03, FR-07.04
+* **Main Success Scenario:**
+  1. The Admin opens the read-only audit log and filters entries by timestamp, actor, event type (e.g., BLE Check-In, Sync, Sign-In), or outcome.
+  2. The Admin reviews flagged offline synchronization conflicts reported by terminals and resolves discrepancies manually.
+* **Alternative / Failure Outcomes:**
+  * *Read-Only Enforcement:* The system strictly prevents editing or deleting audit log records.
 
 ### Mobile Application
 
