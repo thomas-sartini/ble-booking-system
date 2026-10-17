@@ -28,6 +28,48 @@
 
 The backend is a Spring Boot application with a PostgreSQL database. It is divided into eight modules. The web frontend and the mobile app communicate with it through a REST API over HTTPS. The door terminal has no connection to the backend; all data between terminal and backend is carried by the smartphone.
 
+### Framework Selection
+
+The backend has to provide a REST API for the web frontend and the mobile app, login with JWT and refresh tokens, roles and owner checks, password hashing with Argon2, signing and verifying P-256 signatures for tickets and receipts, PostgreSQL with migrations, scheduled jobs, internal events and PDF invoices with Swiss QR bill. The backend developer knows Java but has not built a REST API before, and the project runs for one semester.
+
+| Framework | Language | Version (October 2026) | Description |
+|---|---|------|--------|
+| Spring Boot | Java | 4.1.1, support until July 2027 | Most widely used Java framework, large ecosystem |
+| Quarkus | Java | 3.40 LTS, support until September 2027 | Cloud-native framework by Red Hat, fast startup |
+| Micronaut | Java | 5.2.2 | Compile-time dependency injection, low memory use |
+| Javalin | Java | 7.0 | Minimal web layer on Jetty, no built-in security or data access |
+| ASP.NET Core | C# | .NET 10 LTS, support until November 2028 | Microsoft framework, strong built-in security |
+| NestJS | TypeScript | – | Structured framework for Node.js |
+
+ASP.NET Core and NestJS are included because the project assignment mentions C# and Node.js as possible technologies. The alternatives were evaluated with the following criteria:
+
+1. The team knows the language.
+2. Built-in security (login, roles, password hashing, JWT, signatures).
+3. Database support (PostgreSQL, migrations).
+4. Learning resources and community.
+5. Required libraries are available (PDF, Swiss QR bill).
+
+| Criterion | Spring Boot | Quarkus | Micronaut | Javalin | ASP.NET Core | NestJS |
+|---|---|---|---|---|---|---|
+| Language known | yes | yes | yes | yes | no | no |
+| Built-in security | good | good | good | none | good | partial |
+| Database support | good | good | good | manual | good | good |
+| Learning resources | many | some | few | some | many | many |
+| Libraries | yes | yes | yes | yes | yes | yes |
+
+Spring Boot is the only option that fulfils all criteria well. Quarkus and Micronaut start faster and use less memory, but this is not important for a single backend instance.
+
+**Decision:** Spring Boot 4.1 on Java 25 (LTS) is used for the backend, for the following reasons:
+
+1. **Language known:** The team can focus on learning the framework, not a new language.
+2. **Security included:** Most security requirements are covered by Spring Security instead of own code, which reduces the risk of security mistakes.
+3. **Largest community:** Spring is used by a majority of Java developers, so most tutorials, answers and examples are available for it.
+4. **All required libraries available:** QR bill, PDF and P-256 cryptography work with standard Java libraries.
+5. **Long enough support:** Spring Boot 4.1 receives free updates until July 2027, which covers the whole project.
+6. **Disadvantage accepted:** Spring Boot starts slower and uses more memory than Quarkus or Micronaut. This does not matter for one backend instance.
+
+The project is created with Spring Initializr and Maven. It uses Spring Web, Spring Security, OAuth2 Resource Server (JWT), Spring Data JPA, the PostgreSQL driver, Flyway, Validation and Testcontainers.
+
 ### Module Structure
 
 **Auth.** Handles the identity of a user: account activation, login, access and refresh tokens, and password reset. Users cannot register themselves. An admin creates the user, and the user receives an activation link by email to set a password. Activation and password reset use the same mechanism: a random one-time token with an expiry date, stored only as a hash. *Depends on:* Users.
@@ -56,8 +98,6 @@ The backend is a Spring Boot application with a PostgreSQL database. It is divid
 | Tickets | Bookings, Devices |
 | Invoices | Bookings, Users, Resources |
 | Audit Logs | – (receives events from all modules) |
-
-: Backend module dependencies
 
 Bookings does not call Invoices directly. It publishes an event when a booking ends, and Invoices reacts to it. This avoids a circular dependency between the two modules.
 
@@ -153,7 +193,7 @@ Authorization is checked in two steps:
 1. Role check with Spring Security (`@PreAuthorize`).
 2. Owner check in the service of the module: users may only access objects that belong to them.
 
-Table: Access rights by role. *Yes* = allowed, *Own* = only objects that belong to the user, *No* = not allowed.
+Access rights by role (*Yes* = allowed, *Own* = only objects that belong to the user, *No* = not allowed):
 
 | Endpoint | Not logged in | STUDENT | STAFF | ADMIN |
 |---|---|---|---|---|
@@ -193,8 +233,6 @@ Each module owns its tables:
 | Invoices | invoices |
 | Audit Logs | audit_log |
 
-: Table ownership
-
 ### Error Handling
 
 All errors are returned as Problem Details (RFC 9457) and handled centrally with `@RestControllerAdvice`. An additional field `code` allows the clients to show the right message.
@@ -219,8 +257,6 @@ All errors are returned as Problem Details (RFC 9457) and handled centrally with
 | 409 | BOOKING_OVERLAP, INVALID_STATUS | Conflict with existing data or booking status |
 | 429 | TOO_MANY_REQUESTS | Too many login attempts |
 | 500 | INTERNAL_ERROR | Unexpected error |
-
-: HTTP status codes
 
 - Responses contain no stack traces, SQL errors or other internal details; these are written only to the server log.
 - Objects of other users return 404, not 403, so the API does not reveal whether they exist.
