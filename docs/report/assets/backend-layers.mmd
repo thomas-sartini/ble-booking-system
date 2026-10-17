@@ -1,0 +1,15 @@
+flowchart LR
+    Client["Web / Mobile App"]
+    subgraph Module["One module, e.g. booking"]
+        Controller["Controller<br/>@RestController"]
+        Service["Service<br/>@Service"]
+        Repository["Repository<br/>JpaRepository"]
+    end
+    Other["Service of<br/>another module"]
+    DB[("PostgreSQL")]
+
+    Client -->|"HTTP + JSON (DTO)"| Controller
+    Controller --> Service
+    Service --> Repository
+    Repository --> DB
+    Service --> Other

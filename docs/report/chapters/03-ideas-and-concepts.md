@@ -28,6 +28,48 @@
 
 The backend is a Spring Boot application with a PostgreSQL database. It is divided into eight modules. The web frontend and the mobile app communicate with it through a REST API over HTTPS. The door terminal has no connection to the backend; all data between terminal and backend is carried by the smartphone.
 
+### Framework Selection
+
+The backend has to provide a REST API for the web frontend and the mobile app, login with JWT and refresh tokens, roles and owner checks, password hashing with Argon2, signing and verifying P-256 signatures for tickets and receipts, PostgreSQL with migrations, scheduled jobs, internal events and PDF invoices with Swiss QR bill. The backend developer knows Java but has not built a REST API before, and the project runs for one semester.
+
+| Framework | Language | Version (October 2026) | Description |
+|---|---|------|--------|
+| Spring Boot | Java | 4.1.1, support until July 2027 | Most widely used Java framework, large ecosystem |
+| Quarkus | Java | 3.40 LTS, support until September 2027 | Cloud-native framework by Red Hat, fast startup |
+| Micronaut | Java | 5.2.2 | Compile-time dependency injection, low memory use |
+| Javalin | Java | 7.0 | Minimal web layer on Jetty, no built-in security or data access |
+| ASP.NET Core | C# | .NET 10 LTS, support until November 2028 | Microsoft framework, strong built-in security |
+| NestJS | TypeScript | – | Structured framework for Node.js |
+
+ASP.NET Core and NestJS are included because the project assignment mentions C# and Node.js as possible technologies. The alternatives were evaluated with the following criteria:
+
+1. The team knows the language.
+2. Built-in security (login, roles, password hashing, JWT, signatures).
+3. Database support (PostgreSQL, migrations).
+4. Learning resources and community.
+5. Required libraries are available (PDF, Swiss QR bill).
+
+| Criterion | Spring Boot | Quarkus | Micronaut | Javalin | ASP.NET Core | NestJS |
+|---|---|---|---|---|---|---|
+| Language known | yes | yes | yes | yes | no | no |
+| Built-in security | good | good | good | none | good | partial |
+| Database support | good | good | good | manual | good | good |
+| Learning resources | many | some | few | some | many | many |
+| Libraries | yes | yes | yes | yes | yes | yes |
+
+Spring Boot is the only option that fulfils all criteria well. Quarkus and Micronaut start faster and use less memory, but this is not important for a single backend instance.
+
+**Decision:** Spring Boot 4.1 on Java 25 (LTS) is used for the backend, for the following reasons:
+
+1. **Language known:** The team can focus on learning the framework, not a new language.
+2. **Security included:** Most security requirements are covered by Spring Security instead of own code, which reduces the risk of security mistakes.
+3. **Largest community:** Spring is used by a majority of Java developers, so most tutorials, answers and examples are available for it.
+4. **All required libraries available:** QR bill, PDF and P-256 cryptography work with standard Java libraries.
+5. **Long enough support:** Spring Boot 4.1 receives free updates until July 2027, which covers the whole project.
+6. **Disadvantage accepted:** Spring Boot starts slower and uses more memory than Quarkus or Micronaut. This does not matter for one backend instance.
+
+The project is created with Spring Initializr and Maven. It uses Spring Web, Spring Security, OAuth2 Resource Server (JWT), Spring Data JPA, the PostgreSQL driver, Flyway, Validation and Testcontainers.
+
 ### Module Structure
 
 **Auth.** Handles the identity of a user: account activation, login, access and refresh tokens, and password reset. Users cannot register themselves. An admin creates the user, and the user receives an activation link by email to set a password. Activation and password reset use the same mechanism: a random one-time token with an expiry date, stored only as a hash. *Depends on:* Users.
@@ -57,13 +99,43 @@ The backend is a Spring Boot application with a PostgreSQL database. It is divid
 | Invoices | Bookings, Users, Resources |
 | Audit Logs | – (receives events from all modules) |
 
-: Backend module dependencies
-
 Bookings does not call Invoices directly. It publishes an event when a booking ends, and Invoices reacts to it. This avoids a circular dependency between the two modules.
 
 ![Backend architecture. Solid arrows between modules mean "depends on"; dotted arrows are events or BLE communication.](assets/backend-architecture.png){width=100%}
 
 ![Booking status transitions](assets/booking-status.png){width=60%}
+
+### Code Structure
+
+This section only describes what is certain for the implementation. Class and method names are decided while programming.
+
+**Project setup.** One Spring Boot project in `backend/` (Java 25, Maven) with Spring Web, Spring Security, Spring Data JPA, the PostgreSQL driver and Validation. The database schema is created by `database/init.sql`; JPA only checks that the entities match it (`ddl-auto=validate`). Secrets such as database passwords and signing keys are read from environment variables.
+
+**Packages.** Each module is one Java package and owns the tables listed below.
+
+| Package | Tables |
+|---|---|
+| `user` | user |
+| `auth` | refresh_token, one_time_token |
+| `resource` | resource, availability, terminal |
+| `booking` | booking, receipt |
+| `device` | device |
+| `invoice` | invoice |
+| `audit` | audit_log |
+| `common` | – (security configuration, error handling) |
+
+Tickets are not stored. Whether ticket creation gets its own package or stays in `booking` is decided during implementation.
+
+**Layers.** Every module has the same layers:
+
+![Layers of a backend module](assets/backend-layers.png){width=100%}
+
+- Controllers receive requests and return DTOs. They contain no business logic.
+- Services contain the business logic and transactions.
+- Repositories are only used by their own module. Other modules call the service.
+- Entities map the tables of `init.sql` and are never returned by the API.
+
+**Shared parts.** Security (login with JWT, roles, password hashing), central error handling and audit logging are built once in `common` and used by all modules.
 
 ### API Structure
 
@@ -153,7 +225,7 @@ Authorization is checked in two steps:
 1. Role check with Spring Security (`@PreAuthorize`).
 2. Owner check in the service of the module: users may only access objects that belong to them.
 
-Table: Access rights by role. *Yes* = allowed, *Own* = only objects that belong to the user, *No* = not allowed.
+Access rights by role (*Yes* = allowed, *Own* = only objects that belong to the user, *No* = not allowed):
 
 | Endpoint | Not logged in | STUDENT | STAFF | ADMIN |
 |---|---|---|---|---|
@@ -193,8 +265,6 @@ Each module owns its tables:
 | Invoices | invoices |
 | Audit Logs | audit_log |
 
-: Table ownership
-
 ### Error Handling
 
 All errors are returned as Problem Details (RFC 9457) and handled centrally with `@RestControllerAdvice`. An additional field `code` allows the clients to show the right message.
@@ -220,14 +290,42 @@ All errors are returned as Problem Details (RFC 9457) and handled centrally with
 | 429 | TOO_MANY_REQUESTS | Too many login attempts |
 | 500 | INTERNAL_ERROR | Unexpected error |
 
-: HTTP status codes
-
 - Responses contain no stack traces, SQL errors or other internal details; these are written only to the server log.
 - Objects of other users return 404, not 403, so the API does not reveal whether they exist.
 - A failed login always returns the same message.
 - Security-relevant errors are written to the audit log.
 
 The check-in and check-out process with tickets, receipts and the offline terminal is described in [BLE Access and Security Concept](#ble-access-and-security-concept).
+
+### Test Concept
+
+Backend tests are written together with the code. For business rules and security checks, the test is written first: it describes the expected behaviour, fails, and passes once the feature is implemented.
+
+**Test levels.**
+
+| Level | What is tested | Tools |
+|---|-----|----|
+| Unit tests | Business rules in services and entities, without Spring and without a database, e.g. booking status changes or the 15-minute no-show rule | JUnit 5, Mockito, AssertJ |
+| Integration tests | Complete HTTP requests through all layers, including security, validation and error responses, against a real PostgreSQL with the schema from `database/init.sql`, e.g. two overlapping bookings, 401 without token, 403 for a wrong role, 404 for another user's booking | `@SpringBootTest`, MockMvc, Spring Security Test, Testcontainers |
+| Architecture tests | The rules of the code structure: controllers do not use repositories, repositories are only used in their own package, no cycles between packages | ArchUnit |
+
+**Test data and dependencies.**
+
+- Each integration test starts with an empty database and creates its own test data. Tests do not depend on each other.
+- Time is taken from an injected `Clock`, so time rules can be tested with a fixed time instead of waiting.
+- Key pairs for devices and terminals are generated in the test. A test helper signs receipts like a real terminal, so check-in and check-out can be tested without hardware.
+- Email is replaced by a fake implementation that only records the sent messages.
+- The mobile app and the terminal are not part of the backend tests. The complete flow across all components is tested separately (Chapter 6).
+
+**Naming and execution.** Test classes mirror the packages of the code. Unit tests end with `Test` and run with `./mvnw test` in a few seconds. Integration and architecture tests end with `IT` and run additionally with `./mvnw verify`. JaCoCo creates a coverage report; there is no fixed coverage limit, the focus is on business rules and security.
+
+**Continuous integration.** A GitHub Actions workflow (`.github/workflows/backend.yml`) runs `./mvnw verify` on every pull request and on every push to `main`, but only when files in `backend/` or `database/` change. The standard GitHub runners provide Docker, so Testcontainers also works there. A pull request can only be merged when all tests are green (branch protection on `main`). There is no automatic deployment, because the prototype is not deployed to a server.
+
+**Workflow.** Each feature is developed on its own branch. The developer writes a failing test, implements the feature and refactors while the tests stay green. Before pushing, `./mvnw verify` runs all tests locally. The pull request triggers the CI workflow, which runs the same command in a clean environment. Only a green pipeline allows review and merge; a failing pipeline sends the change back to implementation on the same branch.
+
+![Development and test workflow of one backend feature](assets/backend-test-workflow.png){width=40%}
+
+**Responsibilities.** The developer of a feature writes its tests in the same pull request. The reviewer checks that the important cases are tested before approving the pull request.
 
 ### Backend Design Decisions
 
