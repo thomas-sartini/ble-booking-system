@@ -1,5 +1,11 @@
 package ch.hslu.blebooking.mobile.model
 
+import kotlin.time.Instant
+
 data class Booking(
-    val id: Int // Placeholder: real Attributes to define
+    val id: String,
+    val resourceId: String,
+    val startTime: Instant,
+    val endTime: Instant,
+    val status: BookingStatus
 )
