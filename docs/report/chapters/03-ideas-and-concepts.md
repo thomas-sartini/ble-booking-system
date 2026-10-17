@@ -787,8 +787,50 @@ The BLE synchronization proposal in Detailed Security Documentation gives the ac
 
 ### Web Application UI
 
-- *Include wireframes for the main web screens: login, resource search, bookings, invoices, and administration.*
-- *Show navigation and the actions available to each role, including important confirmation and error states.*
+#### 1. Required Web Screens
+Based on the defined use cases, the web application comprises the following functional screens:
+
+* **Public & Authentication:**
+  * `S-01: Sign In Screen` (UC-01) – Authentication for all roles via credentials.
+  * `S-02: Account Registration Screen` (UC-02) – Single-use invitation link onboarding.
+  * `S-03: Password Reset Screen` (UC-01) – Password recovery flow.
+* **Ordinary User Space (Student / Lecturer):**
+  * `S-04: Resource Catalog & Availability` (UC-03) – Search, filter, and inspect availability.
+  * `S-05: Resource Detail & Booking Modal` (UC-04) – Slot selection and booking submission.
+  * `S-06: My Bookings` (UC-05) – View, modify, or cancel personal active and past bookings.
+  * `S-07: My Invoices` (UC-06) – Inspect payment status (`DUE`, `PENDING`, `PAID`) and download PDF invoices.
+* **Administrative Space:**
+  * `S-08: User Management` (UC-07) – User list, role changes, deactivation, and invitation link generation.
+  * `S-09: Resource & Terminal Administration` (UC-08) – Manage resources, pricing rules, and link/decommission terminals.
+  * `S-10: Global Bookings Overview` (UC-09) – System-wide booking inspection and administrative overrides.
+  * `S-11: Billing & Invoice Management` (UC-10) – Global invoice ledger and manual payment status updates.
+  * `S-12: Audit Logs & Sync Conflicts` (UC-11) – Read-only system audit trail and offline conflict review.
+
+---
+
+#### 2. Navigation Architecture & Role-Based Access
+Navigation is structured using a responsive sidebar/header navigation layout:
+* **Ordinary User Navigation:**
+  * **Browse Resources** (`S-04`)
+  * **My Bookings** (`S-06`)
+  * **Invoices** (`S-07`)
+  * **User Profile & Logout** (`S-01`)
+* **Admin Navigation Panel:**
+  * **Resource Management** (`S-09`)
+  * **Bookings Administration** (`S-10`)
+  * **User Management** (`S-08`)
+  * **Billing & Invoices** (`S-11`)
+  * **Audit Logs** (`S-12`)
+
+---
+
+#### 3. Essential UI Screen States
+To ensure a robust user interface design, all screens represent five fundamental interaction states:
+1. **Success State:** Renders data items or displays positive action feedback (e.g., booking confirmed).
+2. **Validation / Input Error State:** Highlights invalid form inputs and displays clear guidance (e.g., overlapping time slot selected).
+3. **Empty State:** Displays clear contextual guidance when lists contain no data (e.g., "No active bookings").
+4. **Access Denied State:** Renders appropriate restriction feedback when unauthorized users access restricted paths (`403 Forbidden`).
+5. **System / Network Error State:** Displays error boundaries with retry actions when backend operations fail.
 
 ### Mobile Application UI
 
