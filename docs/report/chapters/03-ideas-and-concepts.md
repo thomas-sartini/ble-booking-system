@@ -105,6 +105,38 @@ Bookings does not call Invoices directly. It publishes an event when a booking e
 
 ![Booking status transitions](assets/booking-status.png){width=60%}
 
+### Code Structure
+
+This section only describes what is certain for the implementation. Class and method names are decided while programming.
+
+**Project setup.** One Spring Boot project in `backend/` (Java 25, Maven) with Spring Web, Spring Security, Spring Data JPA, the PostgreSQL driver and Validation. The database schema is created by `database/init.sql`; JPA only checks that the entities match it (`ddl-auto=validate`). Secrets such as database passwords and signing keys are read from environment variables.
+
+**Packages.** Each module is one Java package and owns the tables listed below.
+
+| Package | Tables |
+|---|---|
+| `user` | user |
+| `auth` | refresh_token, one_time_token |
+| `resource` | resource, availability, terminal |
+| `booking` | booking, receipt |
+| `device` | device |
+| `invoice` | invoice |
+| `audit` | audit_log |
+| `common` | – (security configuration, error handling) |
+
+Tickets are not stored. Whether ticket creation gets its own package or stays in `booking` is decided during implementation.
+
+**Layers.** Every module has the same layers:
+
+![Layers of a backend module](assets/backend-layers.png){width=100%}
+
+- Controllers receive requests and return DTOs. They contain no business logic.
+- Services contain the business logic and transactions.
+- Repositories are only used by their own module. Other modules call the service.
+- Entities map the tables of `init.sql` and are never returned by the API.
+
+**Shared parts.** Security (login with JWT, roles, password hashing), central error handling and audit logging are built once in `common` and used by all modules.
+
 ### API Structure
 
 **Auth**
