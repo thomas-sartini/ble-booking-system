@@ -1,0 +1,64 @@
+classDiagram
+    direction TB
+    class TerminalSupervisor
+    class BleProtocol
+    class BleTransport
+    class TerminalController {
+        +authorize(request)
+        +completeAction(proof)
+        +startRecovery(operationId)
+        +completeRecovery(proof)
+        +applyAcknowledgment(ack)
+    }
+    class RecordStore {
+        <<interface>>
+        +findOperation(id)
+        +saveTogether(record)
+    }
+    class SecurityService {
+        <<interface>>
+        +verifySignature(data)
+        +signReceipt(data)
+    }
+    class Clock {
+        <<interface>>
+        +now()
+        +isReliable()
+    }
+    class DoorControl {
+        <<interface>>
+        +isClosed()
+        +release()
+        +lockWhenClosed()
+    }
+    class Feedback {
+        <<interface>>
+        +show(result)
+    }
+    class ServoDoorControl
+    class FlashRecordStore
+    class PlatformSecurity
+    class Ds3231Clock
+    class RgbBuzzerFeedback
+
+    TerminalSupervisor ..> TerminalController : creates
+    TerminalSupervisor ..> BleProtocol : creates and starts
+    TerminalSupervisor ..> BleTransport : creates
+    TerminalSupervisor ..> RecordStore : reads saved state
+    TerminalSupervisor ..> Clock : checks time
+    TerminalSupervisor ..> SecurityService : checks keys
+    TerminalSupervisor ..> DoorControl : restores latch
+    note for TerminalSupervisor "Also creates the five<br/>service implementations"
+    BleProtocol ..> BleTransport : uses
+    BleProtocol ..> SecurityService : handshake
+    BleProtocol ..> TerminalController : requests
+    TerminalController ..> RecordStore
+    TerminalController ..> SecurityService
+    TerminalController ..> Clock
+    TerminalController ..> DoorControl
+    TerminalController ..> Feedback
+    DoorControl <|.. ServoDoorControl
+    RecordStore <|.. FlashRecordStore
+    SecurityService <|.. PlatformSecurity
+    Clock <|.. Ds3231Clock
+    Feedback <|.. RgbBuzzerFeedback
