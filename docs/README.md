@@ -33,7 +33,33 @@ The output is `docs/output/IIP_BLE_Booking_System.pdf`. Rebuild it after editing
 - `report/metadata.yaml`: title, authors, date, language, abstract, and layout. Replace draft details before submission.
 - `report/references.bib`: sources for citations such as `[@projectAssignment2026]`.
 - `report/pandoc.yaml`: PDF settings and the exact input order. Add new chapter files here; filenames alone do not determine the order.
+- `report/filters/`: Pandoc filters, including internal links between chapters in the combined PDF.
 - `build.ps1` and `build.sh`: build commands for Windows and Unix.
+
+## One self-contained report
+
+The submitted PDF must contain the material needed to understand and assess the
+project. Keep each piece of report content in one authoritative location:
+
+- Main chapters: problem, approach, architecture, important design decisions,
+  implementation and evaluation. Include the diagrams and explanations needed to
+  follow the project without opening another repository file.
+- Appendices in the same PDF: installation and user manuals, detailed operating
+  procedures, full registers, test evidence and supporting technical tables.
+  Introduce and link to the relevant appendix from the main text.
+
+For links between chapters, use a relative Markdown filename and a stable heading
+anchor, for example:
+
+```markdown
+[Terminal operating details](08-appendices.md#terminal-operational-details)
+```
+
+This works when reading the Markdown files. During PDF generation,
+`filters/internal-section-links.lua` turns links to included chapters into
+destinations inside the PDF and rejects missing destination anchors. External
+sources remain ordinary links; they support the report rather than replacing its
+project-specific explanations.
 
 ## Images in Markdown and PDF
 

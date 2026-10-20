@@ -68,3 +68,61 @@ The backend proposal uses the smartphone to carry signed receipts from the termi
 4. Only "accepted" or "already accepted" marks an event as synchronized. Conflicts are kept for Admin review. A rejected upload does not delete the terminal event or undo access already granted.
 
 If no smartphone is available, events stay queued. If the queue is full, the terminal rejects new actions that it cannot save; it never deletes pending events to make room.
+
+## Terminal Operational Details
+
+These tables support [Door Terminal Design](03-ideas-and-concepts.md#door-terminal-design) in the main report. They describe proposed startup behaviour, failure handling and feedback, together with the terminal's requirement responsibilities. They are part of the design proposal, not a verified operating manual or test report.
+
+### Terminal Startup after a Power Interruption
+
+Before accepting new actions, the supervisor checks configuration, keys, storage and the clock. It reads the saved loan state before requesting any latch movement.
+
+| Saved state and door reading | Planned latch behaviour |
+|---|---|
+| Active loan | Request the released position and keep the loan active. |
+| No active loan; door closed | Request the locked position. |
+| No active loan; door open | Wait for a closed-door reading before requesting the locked position. This creates no check-out event. |
+| Saved state is missing after prior use, damaged or unreliable | Block new actions and do not guess a latch position. Restore the state through the agreed service procedure. |
+
+A new terminal is initialized explicitly during setup; missing records after a reset must not be treated as a new, empty terminal. An unreliable clock or missing keys also prevents new authorized actions. Restoring the latch creates no additional usage event.
+
+### Terminal Failures and Receipt Recovery
+
+Connection failures, authorization errors and unknown results follow [T-003 failure handling](03-ideas-and-concepts.md#failure-and-initial-recovery). The following cases also affect the terminal's hardware or storage:
+
+| Situation | Result for the app | Terminal behaviour |
+|---|---|---|
+| Door open during a new check-out | Rejected: door open | Keep the loan active and latch released; rejection feedback. |
+| Unreliable clock or full storage before saving | Rejected | Block new execution and retain pending records; technical-error feedback. Never overwrite unsynchronized events. |
+| Failed or uncertain save | Rejected if the write clearly saved nothing; otherwise unknown | No latch command without a confirmed save. Retain records for recovery and block new actions if storage is unreliable. |
+
+A rejected request leaves the latch released during an active loan. For read-only recovery, the controller issues a fresh challenge, verifies the original device key's proof and asks Storage for the receipt, without changing the loan or commanding the latch. Authorization and retry rules follow the [T-003 recovery proposal](#ble-recovery-proposal).
+
+Feedback uses the [Terminal LED and Sound Feedback](#terminal-led-and-sound-feedback) signals below.
+
+The smartphone uploads receipts to the backend. Under the T-003 acknowledgment proposal, the controller verifies a backend-signed result before Storage marks an event as synchronized. Conflicts remain available for review. The acknowledgment return path and retention rules still need team agreement.
+
+### Terminal LED and Sound Feedback
+
+The hardware proposal (T-015, revision of 17 October 2026) defines the following feedback using the Nano's RGB LED and active buzzer. The feedback service must signal the action result without blocking BLE processing or latch control.
+
+| Result | LED | Sound |
+|---|---|---|
+| Access authorized / action confirmed | Green | One short beep |
+| Access rejected | Red | Two short beeps |
+| Technical error | Orange | One longer beep |
+
+### Terminal Requirement Coverage
+
+This table assigns the terminal's part of each requirement. The full requirements also involve the backend and mobile application.
+
+| Requirement | Design responsibility |
+|---|---|
+| FR-05.01, FR-05.03 | BLE and protocol, Access control, Security and Time verify device-bound permission offline within its validity window. |
+| FR-05.02 | Access control and Storage record check-in/check-out. The backend updates its status after synchronization. |
+| FR-05.04 | Storage retains pending events; Access control handles duplicates and proposed acknowledgments. Conflicts remain for review. |
+| FR-05.05 | BLE and protocol use T-003's enrollment, message and security contract. |
+| FR-05.06 | Startup and setup configure the terminal/resource association. Central removal of a compromised terminal belongs to the backend. |
+| NFR-01.03, NFR-01.04 | Security, BLE and protocol, and Time enforce proofs, session protection and ticket validity; final policies follow T-003. |
+| NFR-01.05 | Security and authorized setup protect keys and configuration; diagnostics exclude secrets. |
+| FR-07.03 | Stored events and signed receipts provide the terminal contribution to the backend audit trail. |
