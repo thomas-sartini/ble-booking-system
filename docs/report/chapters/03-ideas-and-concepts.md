@@ -101,9 +101,9 @@ The project is created with Spring Initializr and Maven. It uses Spring Web, Spr
 
 Bookings does not call Invoices directly. It publishes an event when a booking ends, and Invoices reacts to it. This avoids a circular dependency between the two modules.
 
-![Backend architecture. Solid arrows between modules mean "depends on"; dotted arrows are events or BLE communication.](assets/backend-architecture.png){width=100%}
+![Backend architecture. Solid arrows between modules mean "depends on"; dotted arrows are events or BLE communication.](../assets/figures/backend-architecture.png){width=100%}
 
-![Booking status transitions](assets/booking-status.png){width=60%}
+![Booking status transitions](../assets/figures/booking-status.png){width=60%}
 
 ### Code Structure
 
@@ -128,7 +128,7 @@ Tickets are not stored. Whether ticket creation gets its own package or stays in
 
 **Layers.** Every module has the same layers:
 
-![Layers of a backend module](assets/backend-layers.png){width=100%}
+![Layers of a backend module](../assets/figures/backend-layers.png){width=100%}
 
 - Controllers receive requests and return DTOs. They contain no business logic.
 - Services contain the business logic and transactions.
@@ -337,7 +337,7 @@ Native applications invoke shared operations through `MobileCoreApi`. They obtai
 
 The following component diagram shows the architectural boundaries and the interfaces connecting these elements.
 
-![Mobile Application Component Architecture](assets/mobile-component-diagram.png){width=72%}
+![Mobile Application Component Architecture](../assets/figures/mobile-component-diagram.png){width=72%}
 
 
 #### Mobile Core
@@ -445,7 +445,7 @@ The interface exposes generic key-value operations. Token-specific decisions, in
 
 The application module coordinates shared authentication, booking, and resource-access operations. `ServiceFacade` implements the contract defined by `MobileCoreApi` and delegates operations to the specialized services.
 
-![Shared Mobile Core Class Structure](assets/mobile-core-classes.png){width=95%}
+![Shared Mobile Core Class Structure](../assets/figures/mobile-core-classes.png){width=95%}
 
 | Element | Description |
 |:----------------------------------------|:------------------------------------------------------------|
@@ -484,7 +484,7 @@ The communication module provides the boundary between application operations an
 
 Application models are converted to transport representations when sending requests. Received transport data is converted back into application models before it reaches the application services.
 
-![Backend Communication Class Structure](assets/mobile-communication-classes.png){width=100%}
+![Backend Communication Class Structure](../assets/figures/mobile-communication-classes.png){width=100%}
 
 ##### CommunicationGateway
 
@@ -548,7 +548,7 @@ The token-management module owns local authentication credentials. It uses the p
 
 The interface is defined in the `api` package. The existing diagram retains the relationship between the token manager and this external storage contract.
 
-![Token Management Class Structure](assets/mobile-token-classes.png){width=80%}
+![Token Management Class Structure](../assets/figures/mobile-token-classes.png){width=80%}
 
 | Element | Description |
 |:----------------------------------------|:------------------------------------------------------------|
@@ -572,7 +572,7 @@ The following flows describe the intended behavior. Authentication credentials r
 6. `BackendCommunication` stores the credentials through `TokenManager.storeTokens(...)`.
 7. The password is not persisted or reused for automatic authentication.
 
-![Mobile Login Flow](assets/mobile-login-flow.png){width=100%}
+![Mobile Login Flow](../assets/figures/mobile-login-flow.png){width=100%}
 
 #### Access Token Refresh
 
@@ -586,7 +586,7 @@ Refresh is transparent to callers and is not part of `MobileCoreApi` or `Communi
 6. The protected operation is performed with the new token, or retried once if previously rejected.
 7. If the refresh token is invalid, expired, or revoked, local credentials are cleared and authentication is required again.
 
-![Mobile Token Refresh Flow](assets/mobile-token-refresh-flow.png){width=95%}
+![Mobile Token Refresh Flow](../assets/figures/mobile-token-refresh-flow.png){width=95%}
 
 #### Logout Flow
 
@@ -637,7 +637,7 @@ Backend revocation prevents the renewable credential from being used to obtain n
 
 ## Database Design
 
-<!-- ![ER Diagram](assets/erd.png) error -->
+![ER Diagram](../assets/figures/erd.png){width=100%}
 
 ### 1. Core Entities
 
@@ -746,7 +746,7 @@ Check-in and check-out use the same exchange. Each needs its own ticket.
 
 Under the backend's ticket proposal, a check-out ticket is issued only after the backend has accepted the check-in receipt. The upload in step 5 is therefore required to obtain that ticket.
 
-![BLE connection, identification, check-in and check-out](../assets/ble-normal-flow.png){width=100%}
+![BLE connection, identification, check-in and check-out](../assets/figures/ble-normal-flow.png){width=100%}
 
 The message names describe purposes, not final names or formats. GATT characteristics, UUIDs, framing, and packet sizes are left for implementation.
 
@@ -773,7 +773,7 @@ Every failed attempt ends in one of three results for the app. Which one depends
 - **Rejected:** the terminal answered with a rejection. This attempt saved nothing.
 - **Unknown:** the app started sending the device proof but holds neither a valid receipt nor a final rejection. The terminal may have saved the event.
 
-![BLE failure handling and initial recovery](../assets/ble-failure-flow.png){width=100%}
+![BLE failure handling and initial recovery](../assets/figures/ble-failure-flow.png){width=100%}
 
 #### Failure cases
 

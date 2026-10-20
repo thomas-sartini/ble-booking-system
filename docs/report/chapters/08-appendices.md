@@ -41,7 +41,7 @@ This proposal details the read-only recovery used for an unknown BLE result and 
 
 Recovery asks the terminal for a saved receipt, using the original device key that was linked to the event. It can work after the ticket has expired. It does not extend permission, create an event, or grant access.
 
-![Read-only recovery of a BLE receipt](../assets/ble-recovery-flow.png){width=100%}
+![Read-only recovery of a BLE receipt](../assets/figures/ble-recovery-flow.png){width=100%}
 
 The recovery proof covers a fresh challenge, the purpose "recovery", the operation ID, the terminal, and the protected session. A proof from a normal check-in or check-out therefore cannot be used for recovery, and a recovery proof cannot be used for an action. The terminal checks the proof before it shows any receipt details. It returns the same generic "unavailable" answer whether the record is missing or the proof fails, and it limits attempts. A different device does not automatically get the receipt; a lost device key needs a separate recovery path.
 

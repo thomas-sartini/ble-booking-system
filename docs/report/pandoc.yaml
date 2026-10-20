@@ -1,4 +1,5 @@
-from: markdown+smart
+# Resolve links and images relative to the Markdown file that contains them.
+from: markdown+smart+rebase_relative_paths
 to: pdf
 standalone: true
 fail-if-warnings: true
@@ -10,10 +11,6 @@ toc: true
 toc-depth: 2
 number-sections: true
 top-level-division: chapter
-resource-path:
-  - ${.}
-  - ${.}/assets
-  - ${.}/chapters
 output-file: ${.}/../output/IIP_BLE_Booking_System.pdf
 input-files:
   - ${.}/chapters/01-problem-vision.md

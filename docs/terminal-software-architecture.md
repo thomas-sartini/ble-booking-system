@@ -14,7 +14,7 @@ This spike defines responsibilities, dependencies and the main interfaces. The i
 
 The smartphone talks to the BLE module. Access control coordinates the checks and calls the other services. Startup and setup connect these components and check that the terminal is ready.
 
-![Terminal modules and their dependencies](report/assets/terminal-modules.png)
+![Terminal modules and their dependencies](report/assets/figures/terminal-modules.png)
 
 *Solid arrows show communication with the smartphone or dependencies between modules. The dotted arrows show startup coordination.*
 
@@ -100,7 +100,7 @@ The smartphone uploads receipts to the backend. Under the T-003 acknowledgment p
 
 The diagram shows the classes and interfaces from section 2, including startup, BLE transport and the five service implementations.
 
-![Main terminal classes and interfaces](report/assets/terminal-core-classes.png)
+![Main terminal classes and interfaces](report/assets/figures/terminal-core-classes.png)
 
 *Only selected operations are shown. Dashed arrows with ordinary arrowheads show dependencies; labels identify creation and startup. Hollow triangles point from each implementation to its interface.*
 
