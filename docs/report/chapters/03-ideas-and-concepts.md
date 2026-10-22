@@ -832,6 +832,14 @@ To ensure a robust user interface design, all screens represent five fundamental
 4. **Access Denied State:** Renders appropriate restriction feedback when unauthorized users access restricted paths (`403 Forbidden`).
 5. **System / Network Error State:** Displays error boundaries with retry actions when backend operations fail.
 
+*Figma Prototype:* [BLE Booking System Figma Prototype](https://www.figma.com/design/QzahEEhEJQ6pndblTa12Vl/UI-prototype?node-id=3-17762&t=Y9g1sM36tJAp3LoM-1)
+
+#### Key Screen Wireframes
+![Sign In Screen](../assets/web-ui/s01-signin.png)
+![Resource Catalog & Availability](../assets/web-ui/s04-catalog.png)
+![My Bookings](../assets/web-ui/s06-my-bookings.png)
+![Admin User Management](../assets/web-ui/s08-admin-users.png)
+
 ### Mobile Application UI
 
 - *Include wireframes for the main mobile screens: login, current booking/access entitlement, BLE connection, and check-in/check-out.*
