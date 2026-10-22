@@ -1,4 +1,4 @@
-package ch.ble.backend;
+package ch.hslu.blebooking.backend;
 
 import org.springframework.boot.SpringApplication;
 

@@ -1,4 +1,4 @@
-package ch.ble.backend;
+package ch.hslu.blebooking.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
