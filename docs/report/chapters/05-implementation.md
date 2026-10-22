@@ -87,13 +87,9 @@ Developers can manage the local database lifecycle via Docker CLI:
 To ensure that the local development database can be provisioned automatically, cleanly, and in a reproducible manner from a fresh state, an automated initialization script mechanism has been implemented.
 
 #### Implementation & Structure
-- **Location:** The initial database setup script is located at `database/init.sql` in the project root.
-- **Automatic Execution:** PostgreSQL 16 Alpine automatically executes any `.sql` or `.sh` scripts placed in the container path `/docker-entrypoint-initdb.d/` upon initial database creation. This is achieved via a volume mount defined in the `docker-compose.yml`:
-  ```yaml
-  volumes:
-    - ./database:/docker-entrypoint-initdb.d
-  ```
-*   **Schema & Verification:** The `init.sql` script sets up the initial baseline schema and tables (e.g., `sample_bookings`) required for the application's starting state.
+- **Location:** The initial schema is located at `backend/src/main/resources/db/migration/V1__initial_schema.sql`.
+- **Automatic Execution:** The PostgreSQL 18 Alpine container only provides an empty database. Flyway applies the migrations when the backend starts. Each migration runs only once; later schema changes are added as new migrations (`V2__...`).
+*   **Schema & Verification:** The `V1__initial_schema.sql` migration sets up the initial baseline schema and tables (e.g., `sample_bookings`) required for the application's starting state.
 
 ## Mobile Application
 
