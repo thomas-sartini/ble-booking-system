@@ -797,7 +797,7 @@ Based on the defined use cases, the web application comprises the following func
 * **Ordinary User Space (Student / Lecturer):**
   * `S-04: Resource Catalog & Availability` (UC-03) – Search, filter, and inspect availability.
   * `S-05: Resource Detail & Booking Modal` (UC-04) – Slot selection and booking submission.
-  * `S-06: My Bookings` (UC-05) – View, modify, or cancel personal active and past bookings.
+  * `S-06: My Bookings & Linked Devices` (UC-05) – View, modify, or cancel personal active and past bookings, and view active mobile device authorizations.
   * `S-07: My Invoices` (UC-06) – Inspect payment status (`DUE`, `PENDING`, `PAID`) and download PDF invoices.
 * **Administrative Space:**
   * `S-08: User Management` (UC-07) – User list, role changes, deactivation, and invitation link generation.
@@ -805,6 +805,8 @@ Based on the defined use cases, the web application comprises the following func
   * `S-10: Global Bookings Overview` (UC-09) – System-wide booking inspection and administrative overrides.
   * `S-11: Billing & Invoice Management` (UC-10) – Global invoice ledger and manual payment status updates.
   * `S-12: Audit Logs & Sync Conflicts` (UC-11) – Read-only system audit trail and offline conflict review.
+* **Responsive Mobile Web Views:**
+  * `Mobile S-04, S-05, S-06` – Mobile-optimized viewport layouts (375px) featuring hamburger navigation, stacked filters, and card-based resource/booking views.
 
 ---
 
@@ -812,7 +814,7 @@ Based on the defined use cases, the web application comprises the following func
 Navigation is structured using a responsive sidebar/header navigation layout:
 * **Ordinary User Navigation:**
   * **Browse Resources** (`S-04`)
-  * **My Bookings** (`S-06`)
+  * **My Bookings & Devices** (`S-06`)
   * **Invoices** (`S-07`)
   * **User Profile & Logout** (`S-01`)
 * **Admin Navigation Panel:**
@@ -831,6 +833,14 @@ To ensure a robust user interface design, all screens represent five fundamental
 3. **Empty State:** Displays clear contextual guidance when lists contain no data (e.g., "No active bookings").
 4. **Access Denied State:** Renders appropriate restriction feedback when unauthorized users access restricted paths (`403 Forbidden`).
 5. **System / Network Error State:** Displays error boundaries with retry actions when backend operations fail.
+
+*Figma Prototype:* [Link to Figma-Board / Prototype](https://figma.com/...)
+
+#### Key Screen Wireframes
+![Sign In Screen](../assets/web-ui/s01-signin.png)
+![Resource Catalog & Availability](../assets/web-ui/s04-catalog.png)
+![My Bookings](../assets/web-ui/s06-my-bookings.png)
+![Admin User Management](../assets/web-ui/s08-admin-users.png)
 
 ### Mobile Application UI
 
