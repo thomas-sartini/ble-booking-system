@@ -1,32 +1,143 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1520" viewBox="0 0 1100 760" role="img" aria-labelledby="title desc" xmlns:c2pa="http://c2pa.org/manifest">
-<title id="title">Equipment lending station with plywood body, door, cover and divider</title>
-<desc id="desc">Three concept views of the equipment lending station made from eight 6 mm plywood panels. Body size 202 by 222 mm, depth 146 mm, excluding projecting fittings. Internal openings: equipment 139 by 210 mm, electronics 45 by 210 mm, separated by a 6 mm plywood divider. A: inset plywood door 135 by 206 mm with printed hinges and handle; plywood cover 41 by 206 mm with LED window and sound openings. Both panels have 2 mm gaps. B: Nano on a mini breadboard, DS3231 clock, servo and latch through a divider cutout, power connections and magnetic door contact. Equipment rests on the plywood base; inset panels leave about 134 mm depth before fittings. C: plywood rear panel with the five-volt inlet low behind the electronics. Hinge, latch and mounting details require CAD fit validation.</desc>
-<metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpiMDE5YzU1NS04YmI5LTQ2ZjYtOWI1OS1kYWM2NDE5ZjQzMzIAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaJZ7bXJQ948BFcZqUN3ufFMAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDplNjhjZTY2YS0yZDIwLTQ1ZmItOWVhMi1hYWNhMDYwMzk3NjJscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoVs8K6fzxyEzi+BaCuXvhZwAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg4oK5cDNekU+0wuNazy8MIL8Zsy+fKXUJHAgfb12e6nukZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaLqfZxOm08pljs2/tMBzVkwAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIH+pYOFMLwyNX/8sGIv6/qfOTCLrqQm7MLzJIgO8/HpMZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQPrZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmIwMTljNTU1LThiYjktNDZmNi05YjU5LWRhYzY0MTlmNDMzMi9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjliOGYwZTBlLTE4ZWEtNGY0ZS1hZDFkLWIwY2Q4NjllNmMzZnJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDigrlwM16RT7TC41rPLwwgvxmzL58pdQkcCB9vXZ7qe6JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggmwPnjL/N5y9wSwxg7cO64gdW+2HUhx5/y0B9sO0JueaiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggLRE1y5DN4c/LifSsrjg7HA/uJFT1+Im4GbKMwXlQpuF0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQFfg0heAftk37RGoRmkDM60o6GwQdPRCa3SC3NFpBgQxN5E/3SuRu3JMl1U4ohFhI6diSU1kWDOZiX/GlfAZdBc=</c2pa:manifest>T-015 concept. Revised 2026-10-15: equipment lending station with plywood body, DS3231 with LIR2032, USB-C screw-terminal cable and magnetic door contact.</metadata>
-<defs><style>
-text{font-family:Arial,Helvetica,sans-serif;fill:#283749}
-.h{font-size:17px;font-weight:700}.sub{font-size:12px;fill:#60758a}.legend{font-size:13px}.small{font-size:10px;fill:#60758a}
-.tag{fill:#e6802a;stroke:white;stroke-width:2}.n{fill:white;font-size:10px;font-weight:bold;text-anchor:middle;dominant-baseline:central}
-.call{fill:none;stroke:#d97a28;stroke-width:1.4}.dim{stroke:#60758a;stroke-width:1;fill:none}
-.hole{fill:#0b0e12;stroke:#7a8899;stroke-width:0.7}
-</style></defs>
-<rect width="1100" height="760" fill="white"/>
-<text x="40" y="35" class="h">A · Front</text><text x="40" y="56" class="sub">Door and cover closed</text>
-<text x="395" y="35" class="h">B · Inside, viewed from front</text><text x="395" y="56" class="sub">Door and electronics cover removed</text>
-<text x="750" y="35" class="h">C · Rear</text><text x="750" y="56" class="sub">Mirrored; power enters behind the electronics</text>
-<rect x="40.0" y="92.0" width="282.8" height="310.8" fill="#e2c9a0" stroke="#b08d5b"/>
-<rect x="48.4" y="100.4" width="266.0" height="294.0" fill="#475360"/>
-<rect x="243.0" y="100.4" width="8.4" height="294.0" fill="#d0b182"/>
-<rect x="51.2" y="103.2" width="189.0" height="288.4" fill="#f0dfc4" stroke="#b08d5b"/>
-<rect x="254.2" y="103.2" width="57.4" height="288.4" fill="#e8d2af" stroke="#b08d5b"/>
-<rect x="42.8" y="148.0" width="9.8" height="25.2" fill="#a6b2c0" rx="2"/>
-<rect x="42.8" y="321.6" width="9.8" height="25.2" fill="#a6b2c0" rx="2"/>
-<rect x="217.8" y="260.0" width="8.4" height="72.8" fill="#3a638a" rx="3"/>
-<text x="145.7" y="234.8" text-anchor="middle" style="font-size:58px;font-weight:700;fill:#6b5233">01</text>
-<text x="145.7" y="257.2" text-anchor="middle" style="font-size:10px;letter-spacing:2px;fill:#6b5233">EQUIPMENT</text>
-<text x="145.7" y="274.2" text-anchor="middle" style="font-size:9px;letter-spacing:1px;fill:#6b5233">LENDING STATION</text>
-<circle cx="282.9" cy="164.1" r="6.5" fill="#88a295"/><circle cx="282.9" cy="164.1" r="3.8" fill="#44d58a"/>
-<g class="hole"><circle cx="260.5" cy="185.1" r="2"/><circle cx="260.5" cy="192.1" r="2"/><circle cx="267.5" cy="185.1" r="2"/><circle cx="267.5" cy="192.1" r="2"/></g>
-<metadata id="bluetooth-icon-attribution">Bluetooth icon: Lucide Icons
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:c2pa="http://c2pa.org/manifest" width="2460" height="1400" viewBox="0 0 1230 700" role="img" aria-labelledby="title desc"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTozMGM0NzJmMi04NzA1LTQyYmMtODQ1Mi1kYzIwYzIwMjNmMDUAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaKH/k/CDyKNL+mGf0xsTdPcAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo3MDcwMzA5Yy1iZDVmLTQ3MWUtOGM1Zi1kYTM1NTU5NTYwZjlscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNonXAcSrPWW2of6d2D1h/Z6gAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg+DkWmW0meHn4hkyQQfm8FAGAGuXUcLJjkUwZbSe2Y6CkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaOQflBUZTbzb1gZI/lj1KZAAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCDHcm94vacLNKCR5pJoHCbhizbSEmMpGukHQD4ivVH4dWRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBjBZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjMwYzQ3MmYyLTg3MDUtNDJiYy04NDUyLWRjMjBjMjAyM2YwNS9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjMyM2VlOWYxLTRjOGYtNDdjZi1iNDRkLThhNWViNWY1ZWIyY3JjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCD4ORaZbSZ4efiGTJBB+bwUAYAa5dRwsmORTBltJ7ZjoKJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggQAgDH3nVvFOVqAQhCKGZqP9GThm3QL6ttd5sceocs+2iY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggHjT4znsj/unvBOurBwcUtkuNLIFBUQ/y9IL9E9VA5tp0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQPOMwsyTPPmDAnbCPgSlaUYu9GDJuGrHAVC8nc6Gs0zNiyYVOCWcghcnmS1W8zKKkoEjZFJi/VzVms/P3ulvS10=</c2pa:manifest></metadata><title id="title">Equipment lending station, 8 mm poplar, 300 × 250 × 150 mm</title><desc id="desc">Equipment lending station made from eight 8 mm poplar plywood panels. Body 300 by 250 by 150 mm; openings 170 by 234 mm and 106 by 234 mm. Hinged door 166 by 230 mm with a handle; hinged electronics cover 102 by 230 mm with a knob. Each panel has two metal hinges, one magnetic catch and 2 mm gaps. Front, interior and mirrored rear views. Servo latch, door contact, Nano ESP32, DS3231 clock, fixed buzzer below the servo and rear lower power inlet. Mounting positions are conceptual and need CAD and assembly validation.</desc><defs><style>text{font-family:Arial,Helvetica,sans-serif;fill:#283749}.h{font-size:17px;font-weight:700}.sub{font-size:12px;fill:#60758a}.legend{font-size:13px}.small{font-size:10px;fill:#60758a}.tag{fill:#e6802a;stroke:white;stroke-width:2}.n{fill:white;font-size:10px;font-weight:bold;text-anchor:middle;dominant-baseline:central}.call{fill:none;stroke:#d97a28;stroke-width:1.4}.dim{stroke:#60758a;stroke-width:1;fill:none}.hole{fill:#0b0e12;stroke:#7a8899;stroke-width:0.7}</style></defs><rect width="1230" height="700" fill="white" /><text x="40.0" y="35.0" class="h">A · Front</text>
+<text x="40.0" y="56.0" class="sub">Door and cover closed</text>
+<text x="440.0" y="35.0" class="h">B · Inside, viewed from front</text>
+<text x="440.0" y="56.0" class="sub">Front panels omitted · wiring simplified: red 5 V, black GND</text>
+<text x="845.0" y="35.0" class="h">C · Rear</text>
+<text x="845.0" y="56.0" class="sub">Mirrored; power enters behind the electronics</text>
+<rect x="40.0" y="92.0" width="330.0" height="275.0" fill="#e2c9a0" stroke="#b08d5b" />
+<rect x="48.8" y="100.8" width="187.0" height="257.4" fill="#475360" />
+<rect x="244.6" y="100.8" width="116.6" height="257.4" fill="#475360" />
+<rect x="235.8" y="100.8" width="8.8" height="257.4" fill="#d0b182" />
+<rect x="51.0" y="103.0" width="182.6" height="253.0" fill="#f0dfc4" stroke="#b08d5b" />
+<rect x="246.8" y="103.0" width="112.2" height="253.0" fill="#e8d2af" stroke="#b08d5b" />
+<rect x="213.8" y="196.5" width="6.6" height="77.0" fill="#3a638a" rx="3" id="equipment-door-handle" />
+<text x="142.3" y="221.8" text-anchor="middle" style="font-size:64px;font-weight:700;fill:#6b5233">01</text>
+<text x="142.3" y="241.6" text-anchor="middle" style="font-size:11px;letter-spacing:2px;fill:#6b5233">EQUIPMENT</text>
+<text x="142.3" y="257.0" text-anchor="middle" style="font-size:10px;letter-spacing:1px;fill:#6b5233">LENDING STATION</text>
+<circle cx="302.9" cy="149.2" r="6.5" fill="#88a295" /><circle cx="302.9" cy="149.2" r="3.8" fill="#44d58a" />
+<g class="hole" id="buzzer-sound-openings"><circle cx="299.6" cy="207.7" r="2" /><circle cx="299.6" cy="214.3" r="2" /><circle cx="306.2" cy="207.7" r="2" /><circle cx="306.2" cy="214.3" r="2" /></g>
+<g transform="translate(280.1 250.0) scale(1.9)" fill="none" stroke="#3a638a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="bluetooth-symbol"><path d="m7 7 10 10-5 5V2l5 5L7 17" /></g>
+<g id="hinged-front-fittings"><g id="door-hinges"><g id="door-hinge-1" data-role="metal-hinge"><rect x="51.00" y="130.78" width="12.65" height="34.65" rx="1" fill="#b5bec6" stroke="#687a8b" stroke-width="0.7" /><circle cx="57.33" cy="140.10" r="1.3" fill="#687a8b" /><circle cx="57.33" cy="156.10" r="1.3" fill="#687a8b" /><rect x="48.80" y="130.10" width="2.2" height="36" rx="1" fill="#738797" /></g><g id="door-hinge-2" data-role="metal-hinge"><rect x="51.00" y="295.78" width="12.65" height="34.65" rx="1" fill="#b5bec6" stroke="#687a8b" stroke-width="0.7" /><circle cx="57.33" cy="305.10" r="1.3" fill="#687a8b" /><circle cx="57.33" cy="321.10" r="1.3" fill="#687a8b" /><rect x="48.80" y="295.10" width="2.2" height="36" rx="1" fill="#738797" /></g></g><g id="electronics-cover-hinges"><g id="electronics-cover-hinge-1" data-role="metal-hinge"><rect x="346.35" y="130.78" width="12.65" height="34.65" rx="1" fill="#b5bec6" stroke="#687a8b" stroke-width="0.7" /><circle cx="352.68" cy="140.10" r="1.3" fill="#687a8b" /><circle cx="352.68" cy="156.10" r="1.3" fill="#687a8b" /><rect x="359.00" y="130.10" width="2.2" height="36" rx="1" fill="#738797" /></g><g id="electronics-cover-hinge-2" data-role="metal-hinge"><rect x="346.35" y="295.78" width="12.65" height="34.65" rx="1" fill="#b5bec6" stroke="#687a8b" stroke-width="0.7" /><circle cx="352.68" cy="305.10" r="1.3" fill="#687a8b" /><circle cx="352.68" cy="321.10" r="1.3" fill="#687a8b" /><rect x="359.00" y="295.10" width="2.2" height="36" rx="1" fill="#738797" /></g></g><g id="electronics-cover-knob"><circle cx="263.3" cy="235.0" r="7.7" fill="#3a638a" stroke="#284965" stroke-width="1" /><circle cx="261.5" cy="233.0" r="2.0" fill="#6d90af" /></g></g><circle cx="70.8" cy="125.0" r="10" class="tag" /><text x="70.8" y="125.0" class="n">1</text>
+<path d="M309.9 149.2 L330.0 122.0 H382.0" class="call" />
+<circle cx="392.0" cy="122.0" r="10" class="tag" /><text x="392.0" y="122.0" class="n">2</text>
+<path d="M309.2 211.0 H382.0" class="call" />
+<circle cx="392.0" cy="211.0" r="10" class="tag" /><text x="392.0" y="211.0" class="n">3</text>
+<path d="M359.0 337.0 L382.0 335.0" class="call" />
+<circle cx="392.0" cy="335.0" r="10" class="tag" /><text x="392.0" y="335.0" class="n">4</text>
+<path d="M40.0 383.0 H370.0 M40.0 379.0 V387.0 M370.0 379.0 V387.0" class="dim" />
+<text x="205.0" y="378.0" class="small" text-anchor="middle">300 mm</text>
+<path d="M26.0 92.0 V367.0 M22.0 92.0 H30.0 M22.0 367.0 H30.0" class="dim" />
+<text x="20.0" y="229.5" class="small" text-anchor="middle" transform="rotate(-90 20.0 229.5)">250 mm</text>
+<rect x="440.0" y="92.0" width="330.0" height="275.0" fill="#e2c9a0" stroke="#b08d5b" />
+<rect x="448.8" y="100.8" width="187.0" height="257.4" fill="#eef3f8" />
+<rect x="644.6" y="100.8" width="116.6" height="257.4" fill="#e1e8ef" />
+<rect x="635.8" y="100.8" width="8.8" height="257.4" fill="#d0b182" />
+<rect x="635.8" y="243.8" width="8.8" height="34.1" fill="#eef3f8" stroke="#b08d5b" stroke-dasharray="2 2" />
+<g fill="#9fb1c4" stroke="#60758a" stroke-width="0.7"><path d="M644.6 100.8 H660.0 V103.5 H647.4 V116.2 H644.6 Z" /><path d="M635.8 358.2 H620.4 V355.5 H633.0 V342.8 H635.8 Z" /></g>
+<text x="542.3" y="136.0" text-anchor="middle" style="font-size:15px;fill:#708398">Equipment</text>
+<text x="542.3" y="152.5" text-anchor="middle" style="font-size:15px;fill:#708398">compartment</text>
+<text x="542.3" y="170.1" class="sub" text-anchor="middle">170 × 234 mm clear opening</text>
+<rect x="629.2" y="107.4" width="6.6" height="19.8" fill="white" stroke="#7d8fa0" />
+<rect x="620.4" y="107.4" width="6.6" height="19.8" fill="#eef3f8" stroke="#7d8fa0" stroke-dasharray="2 2" />
+<rect x="647.9" y="104.1" width="110.0" height="226.0" fill="none" stroke="#1d9e75" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<rect x="683.7" y="107.4" width="38.5" height="51.7" fill="#faf9f4" stroke="#b7c4d0" rx="2" />
+<rect x="693.1" y="108.5" width="19.8" height="49.5" fill="#217f7a" stroke="#12615e" rx="2" />
+<text x="702.9" y="131.6" text-anchor="middle" transform="rotate(-90 702.9 131.6)" style="font-size:8px;fill:white">NANO</text>
+<circle cx="702.9" cy="149.2" r="2.3" fill="#43d587" />
+<rect x="699.7" y="155.8" width="6.6" height="3.3" fill="#a6b2bd" />
+<rect x="697.4" y="159.1" width="11.0" height="24.2" fill="#3b4654" rx="2" />
+<path d="M702.9 183.3 C702.9 196.5 758.5 188.8 758.5 204.2 V343.9 H746.2" fill="none" stroke="#3b4654" stroke-width="3.2" stroke-linecap="round" />
+<g id="wiring-simplified"><g id="dc-jack-inside"><rect x="694.0" y="333.0" width="18.0" height="20.0" rx="3" fill="#52687d" /><circle cx="703.0" cy="345.0" r="5.0" fill="#283d53" /><circle cx="703.0" cy="345.0" r="2.4" fill="#b8c7d6" /><rect x="696.6" y="331.4" width="3" height="2.2" fill="#c8963a" /><rect x="706.6" y="331.4" width="3" height="2.2" fill="#c8963a" /></g><path d="M731.7 155.3 V159.0 H726.9 V116.49 H717.5" fill="none" stroke="#2a2f36" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><circle cx="717.5" cy="116.49" r="1.1" fill="#2a2f36" /><path d="M735.2 155.3 V165.0 H723.0 V150.02 H717.5" fill="none" stroke="#c2185b" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><circle cx="717.5" cy="150.02" r="1.1" fill="#c2185b" /><path d="M738.7 155.3 V163.0 H724.3 V133.26 H717.5" fill="none" stroke="#8e6bbf" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><circle cx="717.5" cy="133.26" r="1.1" fill="#8e6bbf" /><path d="M742.2 155.3 V161.0 H725.6 V130.46 H717.5" fill="none" stroke="#8a97a5" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><circle cx="717.5" cy="130.46" r="1.1" fill="#8a97a5" /><path d="M698.1 331.4 V325.0 H654.55 V319.7" fill="none" stroke="#d9534f" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M660.0 279.2 V291.0 H661.55 V301.0" fill="none" stroke="#d9534f" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M668.55 319.7 V328.0 H680.55 V319.7" fill="none" stroke="#d9534f" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M687.55 319.7 V326.0 H716.0 V341.5 H719.8" fill="none" stroke="#d9534f" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M694.55 319.7 V331.0 H675.0 V338.4" fill="none" stroke="#d9534f" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M708.1 331.4 H708.55 V319.7" fill="none" stroke="#2a2f36" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M672.0 279.2 V287.0 H715.55 V301.0" fill="none" stroke="#2a2f36" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M722.55 319.7 V328.0 H734.55 V319.7" fill="none" stroke="#2a2f36" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M741.55 319.7 V333.0 H714.0 V346.5 H719.8" fill="none" stroke="#2a2f36" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M748.55 319.7 V336.0 H693.8 V343.9 H690.8" fill="none" stroke="#2a2f36" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M681.5 271.0 H684.5 V144.43 H688.5" fill="none" stroke="#e0a43a" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M696.3 210.0 H690.5 V127.67 H688.5" fill="none" stroke="#12a19a" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" data-net="buzzer-D3" /><path d="M702.9 217.6 V223.0 H678.0 V143.0 Q674.5 140.5 678.0 138.0 V122.08 H688.5" fill="none" stroke="#2a2f36" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" data-net="buzzer-Nano-GND" /><path d="M634.0 127.2 H641.0 V137.7 H654.55" fill="none" stroke="#2a2f36" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M661.55 119.0 V114.0 H681.0 V122.08 H688.5" fill="none" stroke="#2a2f36" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M632.0 127.2 V162.7 H654.55" fill="none" stroke="#2f7fd1" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><path d="M661.55 144.0 V140.5 H683.0 V124.88 H688.5" fill="none" stroke="#2f7fd1" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" /><circle cx="688.5" cy="144.43" r="1.1" fill="#e0a43a" /><circle cx="688.5" cy="127.67" r="1.1" fill="#12a19a" /><circle cx="688.5" cy="122.08" r="1.1" fill="#2a2f36" /><circle cx="688.5" cy="124.88" r="1.1" fill="#2f7fd1" /></g>
+<g id="six-lever-connectors"><g id="connector-K1" data-role="lever-connector" data-net="5V"><rect x="650" y="301" width="23.1" height="18.7" rx="1.4" fill="#e8ecef" stroke="#8799a9" stroke-width="0.7" /><rect x="651.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="654.55" cy="317.8" r="1.05" fill="#617589" /><rect x="658.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="661.55" cy="317.8" r="1.05" fill="#617589" /><rect x="665.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="668.55" cy="317.8" r="1.05" fill="#617589" /><text x="661.55" y="313.9" text-anchor="middle" style="font-size:5.8px;font-weight:700;fill:#34495b">K1</text></g><g id="connector-K2" data-role="lever-connector" data-net="5V"><rect x="676" y="301" width="23.1" height="18.7" rx="1.4" fill="#e8ecef" stroke="#8799a9" stroke-width="0.7" /><rect x="677.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="680.55" cy="317.8" r="1.05" fill="#617589" /><rect x="684.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="687.55" cy="317.8" r="1.05" fill="#617589" /><rect x="691.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="694.55" cy="317.8" r="1.05" fill="#617589" /><text x="687.55" y="313.9" text-anchor="middle" style="font-size:5.8px;font-weight:700;fill:#34495b">K2</text></g><g id="connector-K3" data-role="lever-connector" data-net="GND"><rect x="704" y="301" width="23.1" height="18.7" rx="1.4" fill="#e8ecef" stroke="#8799a9" stroke-width="0.7" /><rect x="705.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="708.55" cy="317.8" r="1.05" fill="#617589" /><rect x="712.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="715.55" cy="317.8" r="1.05" fill="#617589" /><rect x="719.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="722.55" cy="317.8" r="1.05" fill="#617589" /><text x="715.55" y="313.9" text-anchor="middle" style="font-size:5.8px;font-weight:700;fill:#34495b">K3</text></g><g id="connector-K4" data-role="lever-connector" data-net="GND"><rect x="730" y="301" width="23.1" height="18.7" rx="1.4" fill="#e8ecef" stroke="#8799a9" stroke-width="0.7" /><rect x="731.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="734.55" cy="317.8" r="1.05" fill="#617589" /><rect x="738.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="741.55" cy="317.8" r="1.05" fill="#617589" /><rect x="745.6" y="302.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="748.55" cy="317.8" r="1.05" fill="#617589" /><text x="741.55" y="313.9" text-anchor="middle" style="font-size:5.8px;font-weight:700;fill:#34495b">K4</text></g><g id="connector-K5" data-role="lever-connector" data-net="door-GND"><rect x="650" y="119" width="23.1" height="18.7" rx="1.4" fill="#e8ecef" stroke="#8799a9" stroke-width="0.7" /><rect x="651.6" y="120.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="654.55" cy="135.8" r="1.05" fill="#617589" /><rect x="658.6" y="120.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="661.55" cy="135.8" r="1.05" fill="#617589" /><rect x="665.6" y="120.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="668.55" cy="135.8" r="1.05" fill="#617589" /><text x="661.55" y="131.9" text-anchor="middle" style="font-size:5.8px;font-weight:700;fill:#34495b">K5</text></g><g id="connector-K6" data-role="lever-connector" data-net="door-signal"><rect x="650" y="144" width="23.1" height="18.7" rx="1.4" fill="#e8ecef" stroke="#8799a9" stroke-width="0.7" /><rect x="651.6" y="145.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="654.55" cy="160.8" r="1.05" fill="#617589" /><rect x="658.6" y="145.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="661.55" cy="160.8" r="1.05" fill="#617589" /><rect x="665.6" y="145.4" width="5.8" height="4.5" rx="0.5" fill="#e6802a" /><circle cx="668.55" cy="160.8" r="1.05" fill="#617589" /><text x="661.55" y="156.9" text-anchor="middle" style="font-size:5.8px;font-weight:700;fill:#34495b">K6</text></g></g><rect x="728.0" y="107.4" width="24.2" height="42.4" fill="#2f6fb0" stroke="#1e4f80" rx="1" />
+<circle cx="740.1" cy="126.1" r="11.0" fill="#c9d3dd" stroke="#8799a9" />
+<text x="740.1" y="146.3" text-anchor="middle" style="font-size:6px;font-weight:700;fill:white">DS3231</text>
+<rect x="730.8" y="149.8" width="1.8" height="5.5" fill="#c8963a" />
+<rect x="734.3" y="149.8" width="1.8" height="5.5" fill="#c8963a" />
+<rect x="737.8" y="149.8" width="1.8" height="5.5" fill="#c8963a" />
+<rect x="741.3" y="149.8" width="1.8" height="5.5" fill="#c8963a" />
+<rect x="744.8" y="149.8" width="1.8" height="5.5" fill="#c8963a" />
+<rect x="748.4" y="149.8" width="1.8" height="5.5" fill="#c8963a" />
+
+
+
+
+<circle cx="702.9" cy="211.0" r="6.6" fill="#263847" stroke="#1d232b" stroke-width="1.2" id="active-buzzer" />
+<path d="M655.6 272.4 L628.1 272.4 A27.5 27.5 0 0 1 655.6 244.9 Z" fill="#f3c46b" fill-opacity="0.3" stroke="#c8963a" stroke-width="1" stroke-dasharray="3 3" />
+<rect x="645.7" y="265.8" width="35.8" height="13.4" fill="#3d779d" stroke="#285575" rx="2" />
+<text x="669.4" y="274.9" text-anchor="middle" style="font-size:6.5px;fill:white">MG90S</text>
+<rect x="628.1" y="269.1" width="27.5" height="6.6" fill="#edb94e" stroke="#a67622" rx="2.5" />
+<circle cx="655.6" cy="272.4" r="3.3" fill="#edb94e" stroke="#a67622" /><circle cx="655.6" cy="272.4" r="1.3" fill="white" />
+<rect x="671.0" y="338.4" width="19.8" height="11.0" fill="#2f3b4a" rx="3" />
+<rect x="686.4" y="338.4" width="3.3" height="11.0" fill="#c9d3dd" />
+<rect x="719.8" y="338.4" width="26.4" height="11.0" fill="#4f8a3a" rx="1" />
+<path d="M722.2 107.4 L782.0 94.2" class="call" />
+<circle cx="792.0" cy="94.2" r="10" class="tag" /><text x="792.0" y="94.2" class="n">6</text>
+<path d="M752.2 136.0 L782.0 138.2" class="call" />
+<circle cx="792.0" cy="138.2" r="10" class="tag" /><text x="792.0" y="138.2" class="n">7</text>
+<path d="M708.4 175.6 L782.0 171.2" class="call" />
+<circle cx="792.0" cy="171.2" r="10" class="tag" /><text x="792.0" y="171.2" class="n">8</text>
+<path d="M710.3 211.0 H782.0" class="call" />
+<circle cx="792.0" cy="211.0" r="10" class="tag" /><text x="792.0" y="211.0" class="n">10</text>
+<path d="M681.5 272.4 L782.0 268.0" class="call" />
+<circle cx="792.0" cy="268.0" r="10" class="tag" /><text x="792.0" y="268.0" class="n">9</text>
+<path d="M753.1 310.35 L782.0 317.5" class="call" />
+<circle cx="792.0" cy="317.5" r="10" class="tag" /><text x="792.0" y="317.5" class="n">11</text>
+<path d="M650.0 152.0 L621.0 191.0" class="call" /><circle cx="613.0" cy="199.0" r="10" class="tag" /><text x="613.0" y="199.0" class="n">11</text>
+<path d="M746.2 343.9 L782.0 347.2" class="call" />
+<circle cx="792.0" cy="347.2" r="10" class="tag" /><text x="792.0" y="347.2" class="n">12</text>
+<path d="M712.0 350.0 L782.0 372.0" class="call" /><circle cx="792.0" cy="372.0" r="10" class="tag" /><text x="792.0" y="372.0" class="n">13</text>
+<path d="M620.4 117.3 L601.8 117.3" class="call" />
+<circle cx="591.8" cy="117.3" r="10" class="tag" /><text x="591.8" y="117.3" class="n">5</text>
+<path d="M630.3 349.4 V378.0 L568.0 382.0" class="call" />
+<circle cx="558.0" cy="382.0" r="10" class="tag" /><text x="558.0" y="382.0" class="n">14</text>
+<path d="M448.8 82.0 H635.8 M448.8 78.0 V86.0 M635.8 78.0 V86.0" class="dim" />
+<text x="542.3" y="77.0" class="small" text-anchor="middle">170</text>
+<path d="M644.6 82.0 H761.2 M644.6 78.0 V86.0 M761.2 78.0 V86.0" class="dim" />
+<text x="702.9" y="77.0" class="small" text-anchor="middle">106</text>
+<path d="M426.0 100.8 V358.2 M422.0 100.8 H430.0 M422.0 358.2 H430.0" class="dim" />
+<text x="420.0" y="229.5" class="small" text-anchor="middle" transform="rotate(-90 420.0 229.5)">234 mm inside</text>
+<g id="magnetic-catches"><g id="door-magnetic-catch"><rect x="597.0" y="331.0" width="19.8" height="23.65" rx="2" fill="#f8f7f2" stroke="#8594a3" stroke-width="0.8" /><rect x="595.9" y="354.65" width="22.0" height="2.2" fill="#8594a3" /><circle cx="606.9" cy="341.0" r="5.5" fill="#bcc7cf" stroke="#738697" stroke-width="0.8" /><circle cx="606.9" cy="341.0" r="2.8" fill="#526778" /></g><g id="electronics-cover-magnetic-catch"><rect x="646.8" y="331.0" width="19.8" height="23.65" rx="2" fill="#f8f7f2" stroke="#8594a3" stroke-width="0.8" /><rect x="645.7" y="354.65" width="22.0" height="2.2" fill="#8594a3" /><circle cx="656.7" cy="341.0" r="5.5" fill="#bcc7cf" stroke="#738697" stroke-width="0.8" /><circle cx="656.7" cy="341.0" r="2.8" fill="#526778" /></g><path d="M597.0 341.0 L565.0 334.0" class="call" /><circle cx="555" cy="334" r="10" class="tag" /><text x="555" y="334" class="n">15</text><path d="M666.6 341.0 L680.0 373.0 L722.0 389.0" class="call" /><circle cx="732" cy="389" r="10" class="tag" /><text x="732" y="389" class="n">15</text></g><rect x="845.0" y="92.0" width="330.0" height="275.0" fill="#e2c9a0" stroke="#b08d5b" />
+<rect x="853.8" y="100.8" width="116.6" height="257.4" fill="none" stroke="#b08d5b" stroke-dasharray="5 4" />
+<text x="912.1" y="229.5" text-anchor="middle" transform="rotate(-90 912.1 229.5)" style="font-size:10px;fill:#6b5233">behind the electronics</text>
+<text x="1072.7" y="224.0" class="sub" text-anchor="middle">Back panel</text>
+<text x="1072.7" y="241.6" class="sub" text-anchor="middle">poplar plywood 8 mm</text>
+<rect x="900.0" y="323.2" width="24" height="26" rx="4" fill="#52687d" /><circle cx="912.0" cy="336.2" r="7.5" fill="#283d53" /><circle cx="912.0" cy="336.2" r="3.6" fill="#b8c7d6" />
+<rect x="907.0" y="337.2" width="10" height="22" rx="3" fill="#263847" />
+<path d="M912.0 337.2 V395.0 Q912.0 409.0 928.0 409.0 H948.0" fill="none" stroke="#364758" stroke-width="6" />
+<text x="960.0" y="413.0" class="sub">5 V supply lead</text>
+<path d="M926.0 336.2 L978.0 336.2" class="call" />
+<circle cx="988.0" cy="336.2" r="10" class="tag" /><text x="988.0" y="336.2" class="n">13</text>
+<path d="M845.0 82.0 H1175.0 M845.0 78.0 V86.0 M1175.0 78.0 V86.0" class="dim" />
+<text x="1010.0" y="77.0" class="small" text-anchor="middle">300 mm</text>
+<g class="legend">
+<text x="40.0" y="470">1  Door 166 × 230; handle and two hinges</text>
+<text x="40.0" y="492">2  Window with light pipe for the RGB LED</text>
+<text x="40.0" y="514">3  Sound openings for the buzzer</text>
+<text x="40.0" y="536">4  Hinged cover 102 × 230; knob, two hinges</text>
+<text x="440.0" y="470">5  Door contact on the divider, magnet in the door</text>
+<text x="440.0" y="492">6  Nano on mini breadboard, USB-C down</text>
+<text x="845.0" y="470">10  Buzzer below Nano, behind sound openings</text>
+<text x="440.0" y="536">8  USB-C cable to its screw terminal</text>
+<text x="440.0" y="514">7  DS3231 clock, LIR2032 to the front</text>
+<text x="440.0" y="558">9  MG90S servo; latch through the divider</text>
+<text x="845.0" y="492">11  Six connectors: four power, two door contact</text>
+<text x="845.0" y="514">12  Capacitor; USB-C screw terminal</text>
+<text x="845.0" y="536">13  DC inlet in the back panel</text>
+<text x="845.0" y="558">14  Printed supports for the divider</text>
+<text x="845.0" y="580">15  Two magnetic catches, one per panel</text></g>
+<rect x="40" y="600" width="22" height="12" fill="#e2c9a0" stroke="#b08d5b" />
+<text x="70.0" y="610.0" class="sub">Poplar plywood 8 mm, cut to size</text>
+<rect x="300" y="600" width="22" height="12" fill="#9fb1c4" />
+<text x="330.0" y="610.0" class="sub">Printed: handle, knob, mounts and latch</text>
+<rect x="640" y="600" width="22" height="12" fill="none" stroke="#1d9e75" stroke-dasharray="4 3" />
+<text x="670.0" y="610.0" class="sub">Mounting plate</text>
+<path d="M800 594 L826 594 L826 612 Z" fill="#f3c46b" fill-opacity="0.3" stroke="#c8963a" stroke-dasharray="3 3" />
+<text x="834.0" y="610.0" class="sub">Latch sweep, keep clear</text>
+<rect x="1000" y="600" width="22" height="12" fill="#b5bec6" stroke="#687a8b" stroke-width="0.7" />
+<text x="1030.0" y="610.0" class="sub">Metal hinges</text>
+<path d="M40 626 H1190" stroke="#d5dee7" />
+<text x="40.0" y="650.0" class="sub">Body 300 × 250 × 150 mm · 8 mm poplar plywood · openings: equipment 170 × 234 mm; electronics 106 × 234 mm.</text>
+<text x="40.0" y="674.0" class="sub">Door 166 × 230 mm; cover 102 × 230 mm · 2 mm gaps · usable depth about 134 mm · verify mounting positions in CAD.</text><metadata id="bluetooth-icon-attribution">Bluetooth icon: Lucide Icons
 Source: https://github.com/lucide-icons/lucide/blob/main/icons/bluetooth.svg
 
 ISC License
@@ -37,7 +148,7 @@ Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
 copyright notice and this permission notice appear in all copies.
 
-THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
 ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
@@ -56,7 +167,7 @@ The MIT License (MIT) (for the icons listed above)
 Copyright (c) 2013-present Cole Bemis
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the &quot;Software&quot;), to deal
+of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
@@ -65,7 +176,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -73,135 +184,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 </metadata>
-<g id="bluetooth-symbol" transform="translate(261.3 225.8) scale(1.8)" fill="none" stroke="#3a638a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-<title>Bluetooth</title>
-<path d="m7 7 10 10-5 5V2l5 5L7 17"/>
-</g>
-<circle cx="260.0" cy="109.0" r="2" fill="#60758a"/>
-<circle cx="305.8" cy="109.0" r="2" fill="#60758a"/>
-<circle cx="260.0" cy="385.8" r="2" fill="#60758a"/>
-<circle cx="305.8" cy="385.8" r="2" fill="#60758a"/>
-<circle cx="70.8" cy="122.8" r="10" class="tag"/><text x="70.8" y="122.8" class="n">1</text>
-<path d="M289.9 164.1 L329.79999999999995 152.1" class="call"/>
-<circle cx="339.79999999999995" cy="152.1" r="10" class="tag"/><text x="339.79999999999995" y="152.1" class="n">2</text>
-<path d="M270.0 188.6 L329.79999999999995 200.6" class="call"/>
-<circle cx="339.79999999999995" cy="200.6" r="10" class="tag"/><text x="339.79999999999995" y="200.6" class="n">3</text>
-<path d="M308.8 351.0 H329.79999999999995" class="call"/>
-<circle cx="339.79999999999995" cy="351.0" r="10" class="tag"/><text x="339.79999999999995" y="351.0" class="n">4</text>
-<path d="M40.0 416.8 H322.8 M40.0 412.8 V420.8 M322.8 412.8 V420.8" class="dim"/>
-<text x="181.4" y="411.8" text-anchor="middle" class="small">202 mm</text>
-<path d="M26.0 92.0 V402.8 M22.0 92.0 H30.0 M22.0 402.8 H30.0" class="dim"/>
-<text x="20.0" y="247.4" text-anchor="middle" transform="rotate(-90 20.0 247.4)" class="small">222 mm</text>
-<rect x="395.0" y="92.0" width="282.8" height="310.8" fill="#e2c9a0" stroke="#b08d5b"/>
-<rect x="403.4" y="100.4" width="194.6" height="294.0" fill="#eef3f8" />
-<rect x="606.4" y="100.4" width="63.0" height="294.0" fill="#e1e8ef" />
-<rect x="598.0" y="100.4" width="8.4" height="294.0" fill="#d0b182" />
-<rect x="598.0" y="268.0" width="8.4" height="40.0" fill="#eef3f8" stroke="#b08d5b" stroke-dasharray="2 2"/>
-<g id="divider-supports" fill="#9fb1c4" stroke="#60758a" stroke-width="0.7">
-<path d="M606.4 100.4 H623.2 V103.2 H609.2 V117.2 H606.4 Z"/>
-<path d="M595.2 377.6 H598.0 V394.4 H581.2 V391.6 H595.2 Z"/>
-</g>
-<text x="500.7" y="181.0" text-anchor="middle" style="font-size:14px;fill:#708398">Equipment</text>
-<text x="500.7" y="198.0" text-anchor="middle" style="font-size:14px;fill:#708398">compartment</text>
-<text x="500.7" y="218.8" text-anchor="middle" class="sub">Door removed</text>
-<rect x="607.8" y="102.5" width="60.2" height="224.0" rx="2" fill="none" stroke="#1d9e75" stroke-width="1" stroke-dasharray="4 3"/>
-<rect x="590.3" y="106.0" width="7.7" height="22.4" fill="white" stroke="#7d8fa0"/>
-<rect x="579.8" y="106.0" width="8.4" height="22.4" fill="#eef3f8" stroke="#7d8fa0" stroke-dasharray="2 2"/>
-<rect x="613.4" y="106.0" width="49.0" height="65.8" rx="2" fill="#faf9f4" stroke="#b7c4d0"/>
-<rect x="625.3" y="107.4" width="25.2" height="63.0" rx="2" fill="#217f7a" stroke="#12615e"/>
-<text x="637.9" y="134.0" text-anchor="middle" transform="rotate(-90 637.9 134.0)" style="font-size:8px;fill:white">NANO</text>
-<rect x="633.7" y="168.3" width="8.4" height="4.2" fill="#a6b2bd"/><circle cx="637.9" cy="164.1" r="2.3" fill="#43d587"/>
-<rect x="630.9" y="172.5" width="14.0" height="30.8" rx="2" fill="#3b4654"/>
-<path d="M637.9 203.3 C637.9 212.4 666.6 206.8 666.6 220.8 V373.4 H665.2" fill="none" stroke="#3b4654" stroke-width="3.2" stroke-linecap="round"/>
-<circle cx="619.0" cy="188.6" r="9.8" fill="none" stroke="#1d232b" stroke-width="1.2" stroke-dasharray="3 2"/>
-<path d="M621.8 302.0 L588.2 302.0 A33.6 33.6 0 0 1 621.8 268.4 Z" fill="#f3c46b" fill-opacity="0.3" stroke="#c8963a" stroke-width="1" stroke-dasharray="3 3"/>
-<rect x="630.2" y="208.2" width="30.8" height="53.9" rx="1" fill="#2f6fb0" stroke="#1e4f80"/>
-<circle cx="645.6" cy="234.8" r="14.0" fill="#c9d3dd" stroke="#8799a9"/>
-<text x="645.6" y="236.5" text-anchor="middle" style="font-size:6px;fill:#283749">LIR2032</text>
-<rect x="635.3" y="262.1" width="2.2" height="8.4" fill="#c8963a"/>
-<rect x="638.9" y="262.1" width="2.2" height="8.4" fill="#c8963a"/>
-<rect x="642.4" y="262.1" width="2.2" height="8.4" fill="#c8963a"/>
-<rect x="646.0" y="262.1" width="2.2" height="8.4" fill="#c8963a"/>
-<rect x="649.5" y="262.1" width="2.2" height="8.4" fill="#c8963a"/>
-<rect x="653.1" y="262.1" width="2.2" height="8.4" fill="#c8963a"/>
-<rect x="642.1" y="270.5" width="3.2" height="18.2" fill="#2a2f36"/>
-<rect x="645.6" y="270.5" width="3.2" height="18.2" fill="#2a2f36"/>
-<rect x="649.2" y="270.5" width="3.2" height="18.2" fill="#2a2f36"/>
-<rect x="652.7" y="270.5" width="3.2" height="18.2" fill="#2a2f36"/>
-<path d="M643.8 288.7 V296.0 H661.8 V135.4 H658.2" fill="none" stroke="#9aa7b4" stroke-width="1.1"/>
-<path d="M647.4 288.7 V294.7 H663.1 V138.9 H658.2" fill="none" stroke="#e0a43a" stroke-width="1.1"/>
-<path d="M650.9 288.7 V293.5 H664.4 V160.2 H658.2" fill="none" stroke="#d9534f" stroke-width="1.1"/>
-<path d="M654.5 288.7 V292.2 H665.6 V117.6 H658.2" fill="none" stroke="#2a2f36" stroke-width="1.1"/>
-<rect x="606.7" y="293.6" width="45.5" height="17.1" rx="2" fill="#3d779d" stroke="#285575"/>
-<text x="640.0" y="304.2" text-anchor="middle" style="font-size:6.5px;fill:white">MG90S</text>
-<rect x="588.2" y="297.8" width="33.6" height="8.4" rx="2.5" fill="#edb94e" stroke="#a67622"/>
-<circle cx="621.8" cy="302.0" r="4.2" fill="#edb94e" stroke="#a67622"/><circle cx="621.8" cy="302.0" r="1.3" fill="white"/>
-<rect x="607.8" y="338.4" width="16.8" height="25.2" rx="1" fill="#e8ecef" stroke="#8799a9"/><rect x="609.2" y="338.4" width="14.0" height="5.6" fill="#e6802a"/>
-<rect x="626.0" y="338.4" width="16.8" height="25.2" rx="1" fill="#e8ecef" stroke="#8799a9"/><rect x="627.4" y="338.4" width="14.0" height="5.6" fill="#e6802a"/>
-<rect x="644.2" y="338.4" width="16.8" height="25.2" rx="1" fill="#e8ecef" stroke="#8799a9"/><rect x="645.6" y="338.4" width="14.0" height="5.6" fill="#e6802a"/>
-<rect x="607.8" y="370.6" width="25.2" height="14.0" rx="3" fill="#2f3b4a"/><rect x="627.4" y="370.6" width="4.2" height="14.0" fill="#c9d3dd"/>
-<rect x="635.1" y="370.6" width="30.1" height="14.0" rx="1" fill="#4f8a3a"/>
-<rect x="451.0" y="341.2" width="98.0" height="53.2" rx="3" fill="none" stroke="#8799a9" stroke-dasharray="4 3"/>
-<text x="500.0" y="372.0" text-anchor="middle" class="small">equipment</text>
-<path d="M662.4 138.2 L684.8 128" class="call"/>
-<circle cx="694.8" cy="128" r="10" class="tag"/><text x="694.8" y="128" class="n">6</text>
-<path d="M644.9 187.2 L684.8 180" class="call"/>
-<circle cx="694.8" cy="180" r="10" class="tag"/><text x="694.8" y="180" class="n">8</text>
-<path d="M661.0 234.8 L684.8 226" class="call"/>
-<circle cx="694.8" cy="226" r="10" class="tag"/><text x="694.8" y="226" class="n">9</text>
-<path d="M652.2 306.2 L684.8 300" class="call"/>
-<circle cx="694.8" cy="300" r="10" class="tag"/><text x="694.8" y="300" class="n">10</text>
-<path d="M661.0 351.0 L684.8 342" class="call"/>
-<circle cx="694.8" cy="342" r="10" class="tag"/><text x="694.8" y="342" class="n">11</text>
-<path d="M665.2 377.6 L684.8 382" class="call"/>
-<circle cx="694.8" cy="382" r="10" class="tag"/><text x="694.8" y="382" class="n">12</text>
-<path d="M590.3 117.2 L576 118" class="call"/>
-<circle cx="566" cy="118" r="10" class="tag"/><text x="566" y="118" class="n">5</text>
-<path d="M609.2 188.6 L576 186" class="call"/>
-<circle cx="566" cy="186" r="10" class="tag"/><text x="566" y="186" class="n">7</text>
-<path d="M591.0 391.0 L576 376" class="call"/>
-<circle cx="566" cy="376" r="10" class="tag"/><text x="566" y="376" class="n">14</text>
-<path d="M403.4 82.2 H598.0 M403.4 78.2 V86.2 M598.0 78.2 V86.2" class="dim"/>
-<text x="500.7" y="77.2" text-anchor="middle" class="small">139</text>
-<path d="M606.4 82.2 H669.4 M606.4 78.2 V86.2 M669.4 78.2 V86.2" class="dim"/>
-<text x="637.9" y="77.2" text-anchor="middle" class="small">45</text>
-<path d="M381.0 100.4 V394.4 M377.0 100.4 H385.0 M377.0 394.4 H385.0" class="dim"/>
-<text x="375.0" y="247.39999999999998" text-anchor="middle" transform="rotate(-90 375.0 247.39999999999998)" class="small">210 mm inside</text>
-<rect x="750.0" y="92.0" width="282.8" height="310.8" fill="#e2c9a0" stroke="#b08d5b"/>
-<rect x="758.4" y="100.4" width="63.0" height="294.0" fill="none" stroke="#b08d5b" stroke-dasharray="5 4"/>
-<text x="926.4" y="239.0" text-anchor="middle" class="sub">Back panel</text>
-<text x="926.4" y="255.8" text-anchor="middle" class="sub">plywood 6 mm</text>
-<text x="789.9" y="225.0" text-anchor="middle" transform="rotate(-90 789.9 225.0)" style="font-size:10px;fill:#6b5233">behind the electronics</text>
-<rect x="775.8" y="364.6" width="24" height="26" rx="4" fill="#52687d"/><circle cx="787.8" cy="377.6" r="7.5" fill="#283d53"/><circle cx="787.8" cy="377.6" r="3.6" fill="#b8c7d6"/>
-<rect x="782.8" y="378.6" width="10" height="22" rx="3" fill="#263847"/>
-<path d="M787.8 378.6 V430 Q787.8 444 803.8 444 H857.8" fill="none" stroke="#364758" stroke-width="6"/>
-<text x="869.8" y="448" class="sub">5 V supply lead</text>
-<path d="M801.8 377.6 H842.8" class="call"/>
-<circle cx="853.8" cy="377.6" r="10" class="tag"/><text x="853.8" y="377.6" class="n">13</text>
-<path d="M750.0 82.2 H1032.8 M750.0 78.2 V86.2 M1032.8 78.2 V86.2" class="dim"/>
-<text x="891.4" y="77.2" text-anchor="middle" class="small">202 mm</text>
-<g class="legend">
-<text x="40" y="498">1  Plywood door; printed handle and hinges</text>
-<text x="40" y="522">2  Window with light pipe for the RGB LED</text>
-<text x="40" y="546">3  Sound openings for the buzzer</text>
-<text x="40" y="570">4  Removable plywood electronics cover</text>
-<text x="395" y="498">5  Door contact on the divider, magnet in the door</text>
-<text x="395" y="522">6  Nano on mini breadboard, USB-C down</text>
-<text x="395" y="546">7  Buzzer clipped inside the cover (dashed)</text>
-<text x="395" y="570">8  USB-C cable to its screw terminal</text>
-<text x="395" y="594">9  DS3231 clock, LIR2032 to the front</text>
-<text x="750" y="498">10  MG90S servo; latch through the divider</text>
-<text x="750" y="522">11  Lever connectors: 5 V, GND, door contact</text>
-<text x="750" y="546">12  Capacitor; USB-C screw terminal</text>
-<text x="750" y="570">13  DC inlet in the back panel</text>
-<text x="750" y="594">14  Printed supports for the divider</text>
-</g>
-<rect x="40" y="626" width="22" height="12" fill="#e2c9a0" stroke="#b08d5b"/><text x="70" y="636" class="sub">Plywood 6 mm, cut to size</text>
-<rect x="250" y="626" width="22" height="12" fill="#9fb1c4"/><text x="280" y="636" class="sub">Printed: hinges, handle, mounts and latch</text>
-<rect x="680" y="626" width="22" height="12" fill="none" stroke="#1d9e75" stroke-dasharray="4 3"/><text x="710" y="636" class="sub">Mounting plate</text>
-<path d="M840 620 L866 620 L866 638 Z" fill="#f3c46b" fill-opacity="0.3" stroke="#c8963a" stroke-dasharray="3 3"/><text x="874" y="636" class="sub">Latch sweep, keep clear</text>
-<path d="M40 660 H1062" stroke="#d5dee7"/>
-<text x="40" y="686" class="sub">Body 202 × 222 × 146 mm; clear openings: equipment 139 × 210 mm, electronics 45 × 210 mm.</text>
-<text x="40" y="710" class="sub">Door 135 × 206 mm; cover 41 × 206 mm. Both inset with a 2 mm gap; usable depth about 134 mm before fittings.</text>
-<text x="40" y="734" class="sub">Concept layout. Printed hinge and latch fit, openings and component clearance are checked during CAD design.</text>
-</svg>
+<metadata id="local-dimension-revision">Local revision 2026-10-22: two hinged front panels, four metal hinges, door handle and cover knob, and two magnetic catches; comparison overlay removed; fixed buzzer position retained.</metadata><metadata id="local-hinge-revision">Local revision 2026-10-22 (Claude): wall-side hinge leaves drawn inside the side walls, so only the panel leaf and knuckle show from the front; clock module labelled DS3231; metal hinges added to the legend.</metadata><metadata id="local-axis-revision">Local revision 2026-10-22 (Claude): light pipe, Bluetooth mark and buzzer openings on the electronics cover share one vertical centre axis with equal spacing; Nano on its breadboard centred behind the light pipe, DS3231 beside it and the buzzer moved onto the same axis below the servo.</metadata><metadata id="local-wiring-revision">Local revision 2026-10-22 (Claude): simplified wiring added to view B. Lever connectors: 5 V and GND at the bottom, two for the door contact (signal, GND) near the divider top. Nano pins: servo D9, door contact D2, buzzer D3, DS3231 SDA A4, SCL A5, VCC 3V3. DC inlet moved to sit behind the jack.</metadata><metadata id="local-six-connectors-revision">2026-10-22: Six PCT-213 connectors shown; buzzer D3 and Nano GND via breadboard. Front LED, sound openings and Bluetooth symbol share x=302.9.</metadata></svg>
