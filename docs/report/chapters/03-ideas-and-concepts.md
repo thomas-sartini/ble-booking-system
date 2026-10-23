@@ -6,8 +6,143 @@
 
 ### Web Application
 
-- *Include a Use Case Diagram for resource search, booking management, invoice viewing, and administration through the web application.*
-- *Show which actions are available to Student, Lecturer, and Admin.*
+#### Overview & Role Scope
+The web application supports three main user roles:
+1. **Ordinary Users (Student / Lecturer):** Focus on self-service resource browsing, booking management, availability inspection, and viewing invoices.
+2. **Admin:** Full administrative permissions to manage user accounts, resources, terminals, billing statuses, and system audit logs.
+
+---
+
+#### Ordinary User Use Cases
+
+##### UC-01: User Authentication (Sign In / Sign Out / Password Reset)
+* **Actor:** Student, Lecturer, Admin
+* **Objective:** Securely authenticate and access the web application or terminate an active session.
+* **Requirements:** FR-01.04, FR-01.05
+* **Main Success Scenario:**
+  1. The user navigates to the login page and enters their username/email and password.
+  2. The backend validates the credentials and creates an authenticated session.
+  3. The user is redirected to the dashboard.
+  4. The user can log out at any time via the sign-out action, invalidating the session.
+* **Alternative / Failure Outcomes:**
+  * *Invalid Credentials:* The system denies access and displays a generic error message.
+  * *Forgot Password (Optional):* The user requests a password recovery link via email (FR-07.01) containing a temporary single-use token to reset their password.
+
+##### UC-02: Account Registration via Invitation
+* **Actor:** Unregistered User (Invited Student or Lecturer)
+* **Objective:** Register a new user account using a personal invitation link.
+* **Requirements:** FR-01.02
+* **Main Success Scenario:**
+  1. The user opens the personal invitation link provided by an Admin.
+  2. The system validates the link (checking validity, expiration, and single-use status).
+  3. The user sets a password and completes account registration.
+  4. The account is activated, and the user is redirected to the sign-in page.
+* **Alternative / Failure Outcomes:**
+  * *Expired / Reused / Invalid Link:* Registration is rejected, and the user is instructed to contact an Admin.
+
+##### UC-03: Search Resources & Inspect Availability
+* **Actor:** Student, Lecturer
+* **Objective:** Browse available resources (e.g., rooms, terminals) and inspect bookable time slots.
+* **Requirements:** FR-01.07, FR-02.01, FR-03.03
+* **Main Success Scenario:**
+  1. The user opens the resource catalog on the web dashboard.
+  2. The user applies filters or searches by resource type, availability, or time window.
+  3. The system displays only resources and time slots that match the user's role permissions (Student vs. Lecturer) and are not already booked.
+* **Alternative / Failure Outcomes:**
+  * *No Availability:* The system renders an appropriate empty state ("No resources available for the selected criteria").
+
+##### UC-04: Create Booking
+* **Actor:** Student, Lecturer
+* **Objective:** Create a binding booking for an available resource within a selected time window.
+* **Requirements:** FR-02.01, FR-04.01, FR-04.02, FR-07.01
+* **Main Success Scenario:**
+  1. The user selects an available resource and a valid time window.
+  2. The user confirms the booking.
+  3. The system verifies availability on the server side (enforcing concurrency control / `EXCLUDE` constraint) and saves the booking with status `CONFIRMED`.
+  4. The system sends a confirmation email to the user.
+* **Alternative / Failure Outcomes:**
+  * *Overlapping Booking (Concurrent Request):* If another user completes a booking for the same slot simultaneously, the system rejects the request and prompts the user to select another time.
+  * *Email Dispatch Failure:* The booking remains valid, but the email delivery failure is logged internally for administrative awareness (FR-07.02).
+
+##### UC-05: Manage Own Bookings (View / Modify / Cancel)
+* **Actor:** Student, Lecturer
+* **Objective:** Inspect active/past bookings, modify upcoming time slots, or cancel bookings prior to use.
+* **Requirements:** FR-04.03, FR-04.05, FR-07.01
+* **Main Success Scenario:**
+  1. The user navigates to the "My Bookings" section.
+  2. **Modify:** The user selects an upcoming or active booking and modifies the scheduled time. The system re-checks slot availability.
+  3. **Cancel:** The user cancels an upcoming booking *before* use begins. The status transitions to `CANCELLED`.
+  4. An email notification is sent to confirm the booking modification or cancellation.
+* **Alternative / Failure Outcomes:**
+  * *Cancellation After Check-In:* If the user attempts to cancel a booking that is already `IN_USE`, the request is rejected.
+  * *Modification After Completion:* Completed bookings (`COMPLETED`) cannot be altered or cancelled.
+
+##### UC-06: View Own Invoices & Payment Status
+* **Actor:** Student, Lecturer
+* **Objective:** View issued invoices, track payment status (`DUE`, `PENDING`, `PAID`), and download PDF copies.
+* **Requirements:** FR-06.03, FR-06.04, FR-06.05
+* **Main Success Scenario:**
+  1. The user navigates to the "Invoices" section.
+  2. The system lists all invoices linked to the account, displaying the total amount, usage details, and current payment status.
+  3. The user downloads the immutable PDF document for a selected invoice.
+* **Alternative / Failure Outcomes:**
+  * *No Invoices:* The system displays an empty state indicator.
+
+---
+
+#### Admin Use Cases
+
+##### UC-07: Account Management (Invitation, Edit, Deactivate, Role Change)
+* **Actor:** Admin
+* **Objective:** Manage all user accounts, generate single-use invitation links, and assign roles.
+* **Requirements:** FR-01.02, FR-01.03, FR-01.07
+* **Main Success Scenario:**
+  1. The Admin accesses the User Management panel.
+  2. **Invite:** The Admin generates an expiring, single-use invitation link assigned to a specific role (Student or Lecturer).
+  3. **Manage:** The Admin updates user details, adjusts roles, or deactivates accounts.
+  4. Deactivated accounts immediately lose online session access.
+* **Alternative / Failure Outcomes:**
+  * *Self-Deactivation Prevention:* The system prevents an Admin from revoking their own administrative privileges or deactivating their active account.
+
+##### UC-08: Resource & Terminal Administration
+* **Actor:** Admin
+* **Objective:** Create, edit, link, or decommission resources and hardware terminals.
+* **Requirements:** FR-03.01, FR-03.02, FR-05.06
+* **Main Success Scenario:**
+  1. The Admin creates or updates a resource (description, pricing rules, bookable windows, role eligibility).
+  2. The Admin associates a physical terminal with a resource.
+  3. The Admin flags lost or compromised terminals as "Out of Service".
+  4. The Admin removes a resource from future bookings (soft-delete / archive) without corrupting existing booking or invoice records.
+
+##### UC-09: Global Booking Inspection & Management
+* **Actor:** Admin
+* **Objective:** Inspect, adjust, or override all system-wide bookings across all users.
+* **Requirements:** FR-04.03, FR-04.05
+* **Main Success Scenario:**
+  1. The Admin searches and filters through all bookings system-wide.
+  2. The Admin modifies or cancels bookings when administrative intervention is required.
+  3. Affected users are automatically notified via email.
+
+##### UC-10: Invoice & Payment Status Management
+* **Actor:** Admin
+* **Objective:** Manage system invoices, manually update payment states, and ensure billing traceability.
+* **Requirements:** FR-06.04, FR-06.05
+* **Main Success Scenario:**
+  1. The Admin accesses the global invoice ledger and filters by status (e.g., `DUE` or `PENDING`).
+  2. The Admin updates a record status to `PAID`, logging the timestamp and Admin ID.
+  3. The system updates the status and notifies the respective user via email.
+* **Alternative / Failure Outcomes:**
+  * *Retrospective Price Protection:* Subsequent resource price changes do not modify previously issued invoices or generated PDFs.
+
+##### UC-11: Audit Log Inspection & Offline Conflict Review
+* **Actor:** Admin
+* **Objective:** Inspect system audit trails and resolve offline terminal synchronization conflicts.
+* **Requirements:** FR-05.04, FR-07.03, FR-07.04
+* **Main Success Scenario:**
+  1. The Admin opens the read-only audit log and filters entries by timestamp, actor, event type (e.g., BLE Check-In, Sync, Sign-In), or outcome.
+  2. The Admin reviews flagged offline synchronization conflicts reported by terminals and resolves discrepancies manually.
+* **Alternative / Failure Outcomes:**
+  * *Read-Only Enforcement:* The system strictly prevents editing or deleting audit log records.
 
 ### Mobile Application
 
@@ -27,6 +162,48 @@
 ## Backend Design
 
 The backend is a Spring Boot application with a PostgreSQL database. It is divided into eight modules. The web frontend and the mobile app communicate with it through a REST API over HTTPS. The door terminal has no connection to the backend; all data between terminal and backend is carried by the smartphone.
+
+### Framework Selection
+
+The backend has to provide a REST API for the web frontend and the mobile app, login with JWT and refresh tokens, roles and owner checks, password hashing with Argon2, signing and verifying P-256 signatures for tickets and receipts, PostgreSQL with migrations, scheduled jobs, internal events and PDF invoices with Swiss QR bill. The backend developer knows Java but has not built a REST API before, and the project runs for one semester.
+
+| Framework | Language | Version (October 2026) | Description |
+|---|---|------|--------|
+| Spring Boot | Java | 4.1.1, support until July 2027 | Most widely used Java framework, large ecosystem |
+| Quarkus | Java | 3.40 LTS, support until September 2027 | Cloud-native framework by Red Hat, fast startup |
+| Micronaut | Java | 5.2.2 | Compile-time dependency injection, low memory use |
+| Javalin | Java | 7.0 | Minimal web layer on Jetty, no built-in security or data access |
+| ASP.NET Core | C# | .NET 10 LTS, support until November 2028 | Microsoft framework, strong built-in security |
+| NestJS | TypeScript | – | Structured framework for Node.js |
+
+ASP.NET Core and NestJS are included because the project assignment mentions C# and Node.js as possible technologies. The alternatives were evaluated with the following criteria:
+
+1. The team knows the language.
+2. Built-in security (login, roles, password hashing, JWT, signatures).
+3. Database support (PostgreSQL, migrations).
+4. Learning resources and community.
+5. Required libraries are available (PDF, Swiss QR bill).
+
+| Criterion | Spring Boot | Quarkus | Micronaut | Javalin | ASP.NET Core | NestJS |
+|---|---|---|---|---|---|---|
+| Language known | yes | yes | yes | yes | no | no |
+| Built-in security | good | good | good | none | good | partial |
+| Database support | good | good | good | manual | good | good |
+| Learning resources | many | some | few | some | many | many |
+| Libraries | yes | yes | yes | yes | yes | yes |
+
+Spring Boot is the only option that fulfils all criteria well. Quarkus and Micronaut start faster and use less memory, but this is not important for a single backend instance.
+
+**Decision:** Spring Boot 4.1 on Java 25 (LTS) is used for the backend, for the following reasons:
+
+1. **Language known:** The team can focus on learning the framework, not a new language.
+2. **Security included:** Most security requirements are covered by Spring Security instead of own code, which reduces the risk of security mistakes.
+3. **Largest community:** Spring is used by a majority of Java developers, so most tutorials, answers and examples are available for it.
+4. **All required libraries available:** QR bill, PDF and P-256 cryptography work with standard Java libraries.
+5. **Long enough support:** Spring Boot 4.1 receives free updates until July 2027, which covers the whole project.
+6. **Disadvantage accepted:** Spring Boot starts slower and uses more memory than Quarkus or Micronaut. This does not matter for one backend instance.
+
+The project is created with Spring Initializr and Maven. It uses Spring Web, Spring Security, OAuth2 Resource Server (JWT), Spring Data JPA, the PostgreSQL driver, Flyway, Validation and Testcontainers.
 
 ### Module Structure
 
@@ -57,13 +234,43 @@ The backend is a Spring Boot application with a PostgreSQL database. It is divid
 | Invoices | Bookings, Users, Resources |
 | Audit Logs | – (receives events from all modules) |
 
-: Backend module dependencies
-
 Bookings does not call Invoices directly. It publishes an event when a booking ends, and Invoices reacts to it. This avoids a circular dependency between the two modules.
 
 ![Backend architecture. Solid arrows between modules mean "depends on"; dotted arrows are events or BLE communication.](assets/backend-architecture.png){width=100%}
 
 ![Booking status transitions](assets/booking-status.png){width=60%}
+
+### Code Structure
+
+This section only describes what is certain for the implementation. Class and method names are decided while programming.
+
+**Project setup.** One Spring Boot project in `backend/` (Java 25, Maven) with Spring Web, Spring Security, Spring Data JPA, the PostgreSQL driver and Validation. The database schema is created by `database/init.sql`; JPA only checks that the entities match it (`ddl-auto=validate`). Secrets such as database passwords and signing keys are read from environment variables.
+
+**Packages.** Each module is one Java package and owns the tables listed below.
+
+| Package | Tables |
+|---|---|
+| `user` | user |
+| `auth` | refresh_token, one_time_token |
+| `resource` | resource, availability, terminal |
+| `booking` | booking, receipt |
+| `device` | device |
+| `invoice` | invoice |
+| `audit` | audit_log |
+| `common` | – (security configuration, error handling) |
+
+Tickets are not stored. Whether ticket creation gets its own package or stays in `booking` is decided during implementation.
+
+**Layers.** Every module has the same layers:
+
+![Layers of a backend module](assets/backend-layers.png){width=100%}
+
+- Controllers receive requests and return DTOs. They contain no business logic.
+- Services contain the business logic and transactions.
+- Repositories are only used by their own module. Other modules call the service.
+- Entities map the tables of `init.sql` and are never returned by the API.
+
+**Shared parts.** Security (login with JWT, roles, password hashing), central error handling and audit logging are built once in `common` and used by all modules.
 
 ### API Structure
 
@@ -153,7 +360,7 @@ Authorization is checked in two steps:
 1. Role check with Spring Security (`@PreAuthorize`).
 2. Owner check in the service of the module: users may only access objects that belong to them.
 
-Table: Access rights by role. *Yes* = allowed, *Own* = only objects that belong to the user, *No* = not allowed.
+Access rights by role (*Yes* = allowed, *Own* = only objects that belong to the user, *No* = not allowed):
 
 | Endpoint | Not logged in | STUDENT | STAFF | ADMIN |
 |---|---|---|---|---|
@@ -193,8 +400,6 @@ Each module owns its tables:
 | Invoices | invoices |
 | Audit Logs | audit_log |
 
-: Table ownership
-
 ### Error Handling
 
 All errors are returned as Problem Details (RFC 9457) and handled centrally with `@RestControllerAdvice`. An additional field `code` allows the clients to show the right message.
@@ -219,8 +424,6 @@ All errors are returned as Problem Details (RFC 9457) and handled centrally with
 | 409 | BOOKING_OVERLAP, INVALID_STATUS | Conflict with existing data or booking status |
 | 429 | TOO_MANY_REQUESTS | Too many login attempts |
 | 500 | INTERNAL_ERROR | Unexpected error |
-
-: HTTP status codes
 
 - Responses contain no stack traces, SQL errors or other internal details; these are written only to the server log.
 - Objects of other users return 404, not 403, so the API does not reveal whether they exist.
@@ -797,7 +1000,7 @@ Based on the defined use cases, the web application comprises the following func
 * **Ordinary User Space (Student / Lecturer):**
   * `S-04: Resource Catalog & Availability` (UC-03) – Search, filter, and inspect availability.
   * `S-05: Resource Detail & Booking Modal` (UC-04) – Slot selection and booking submission.
-  * `S-06: My Bookings` (UC-05) – View, modify, or cancel personal active and past bookings.
+  * `S-06: My Bookings & Linked Devices` (UC-05) – View, modify, or cancel personal active and past bookings, and view active mobile device authorizations.
   * `S-07: My Invoices` (UC-06) – Inspect payment status (`DUE`, `PENDING`, `PAID`) and download PDF invoices.
 * **Administrative Space:**
   * `S-08: User Management` (UC-07) – User list, role changes, deactivation, and invitation link generation.
@@ -805,6 +1008,8 @@ Based on the defined use cases, the web application comprises the following func
   * `S-10: Global Bookings Overview` (UC-09) – System-wide booking inspection and administrative overrides.
   * `S-11: Billing & Invoice Management` (UC-10) – Global invoice ledger and manual payment status updates.
   * `S-12: Audit Logs & Sync Conflicts` (UC-11) – Read-only system audit trail and offline conflict review.
+* **Responsive Mobile Web Views:**
+  * `Mobile S-04, S-05, S-06` – Mobile-optimized viewport layouts (375px) featuring hamburger navigation, stacked filters, and card-based resource/booking views.
 
 ---
 
@@ -812,7 +1017,7 @@ Based on the defined use cases, the web application comprises the following func
 Navigation is structured using a responsive sidebar/header navigation layout:
 * **Ordinary User Navigation:**
   * **Browse Resources** (`S-04`)
-  * **My Bookings** (`S-06`)
+  * **My Bookings & Devices** (`S-06`)
   * **Invoices** (`S-07`)
   * **User Profile & Logout** (`S-01`)
 * **Admin Navigation Panel:**

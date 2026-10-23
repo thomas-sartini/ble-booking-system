@@ -23,6 +23,7 @@ For task-based branches, include the globally unique task ID (`T-101`). The User
 |:--|:--|:--|
 | `feature` | `feature/thomas/T-101-user-registration` | A user-facing feature |
 | `fix` | `fix/alex/T-205-overlapping-bookings` | A bug fix |
+| `test` | `test/thomas/T-206-mobile-test-foundation` | Test setup, new tests, or improvements to existing tests |
 | `planning` | `planning/thomas/update-product-backlog` | Requirements, expected results, backlog, or other planning changes |
 | `docs` | `docs/thomas/documentation-outline` | Technical or academic documentation, with or without a Task |
 | `refactor` | `refactor/alex/T-408-booking-service` | Behaviour-preserving code work |

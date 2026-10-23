@@ -1,0 +1,21 @@
+flowchart TB
+    Phone["Smartphone app"]
+    Ble["BLE and protocol<br/>BleProtocol"]
+    Core["Access control<br/>TerminalController"]
+    Supervisor["Startup and setup<br/>TerminalSupervisor"]
+    Store["Storage<br/>RecordStore"]
+    Security["Security<br/>SecurityService"]
+    Time["Time<br/>Clock"]
+    Door["Door control<br/>DoorControl"]
+    Feedback["Feedback<br/>Feedback"]
+
+    Phone <-->|BLE messages| Ble
+    Ble -->|requests| Core
+    Ble -->|handshake| Security
+    Core --> Store
+    Core --> Security
+    Core --> Time
+    Core --> Door
+    Core --> Feedback
+    Supervisor -.->|checks and restores| Core
+    Supervisor -.->|starts when ready| Ble
