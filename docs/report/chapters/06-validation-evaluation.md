@@ -19,9 +19,22 @@
 
 ## Mobile Application Tests
 
-- *Report tests for shared mobile logic, backend communication, credential renewal, protected storage, and the main application screens.*
-- *Present Android/iOS coverage for BLE discovery, connection, check-in/check-out, permissions, disconnections, and access feedback.*
+Automated unit tests have been prepared for the shared Kotlin Multiplatform core using `kotlin.test`, Kotlin’s standard multiplatform testing library. Its platform-independent annotations and assertions allow test code to be shared between Android and iOS. `kotlinx-coroutines-test` provides official support for testing suspending operations through `runTest`. Mokkery was selected for dependency mocking because it supports Kotlin Multiplatform and suspending methods.
 
+Mocks replace dependencies with controlled responses, allowing each class to be tested independently. Application services use a mocked `CommunicationGateway`, while `TokenManager` uses a mocked `SecureStorage`. Tests can therefore specify successful results and errors without a running backend or native storage.
+
+The current suite contains **19 test cases**:
+
+- **AuthService:** four cases for login, logout, and error propagation.
+- **BookingService:** three cases for empty and populated booking lists and communication errors.
+- **AccessService:** six cases for access requests, confirmations, check-out, and related errors.
+- **TokenManager:** six cases for credential retrieval, storage, replacement, and clearing.
+
+All cases are currently marked `@Ignore` pending implementation. They specify expected behaviour but do not yet provide functional pass/fail results. `ServiceFacade` has no dedicated unit tests because, as a facade, it only forwards calls to the corresponding service methods.
+
+Backend communication and credential renewal have not yet been tested. These tests are deferred until the REST requests and responses are defined and implemented. HTTP responses will then be simulated to verify client behaviour independently of a running backend.
+
+Native protected storage, application screens, and BLE functionality remain untested on both Android and iOS. Planned platform tests cover discovery, connection, check-in/check-out, permissions, disconnections, and access feedback. The storage mocks do not verify actual credential protection or persistence on either platform.
 ## Door Terminal Tests
 
 - *Report tests for BLE message handling, valid and invalid credentials, replay/tampering attempts, door control, and usage-event recording.*

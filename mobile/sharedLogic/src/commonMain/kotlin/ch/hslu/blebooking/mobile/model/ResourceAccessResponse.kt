@@ -1,5 +1,8 @@
 package ch.hslu.blebooking.mobile.model
 
+import kotlin.time.Instant
+
 data class ResourceAccessResponse(
-    val id: Int // Placeholder: real Attributes to define
+    val ticket: String,
+    val expiresAt: Instant
 )
