@@ -6,8 +6,143 @@
 
 ### Web Application
 
-- *Include a Use Case Diagram for resource search, booking management, invoice viewing, and administration through the web application.*
-- *Show which actions are available to Student, Lecturer, and Admin.*
+#### Overview & Role Scope
+The web application supports three main user roles:
+1. **Ordinary Users (Student / Lecturer):** Focus on self-service resource browsing, booking management, availability inspection, and viewing invoices.
+2. **Admin:** Full administrative permissions to manage user accounts, resources, terminals, billing statuses, and system audit logs.
+
+---
+
+#### Ordinary User Use Cases
+
+##### UC-01: User Authentication (Sign In / Sign Out / Password Reset)
+* **Actor:** Student, Lecturer, Admin
+* **Objective:** Securely authenticate and access the web application or terminate an active session.
+* **Requirements:** FR-01.04, FR-01.05
+* **Main Success Scenario:**
+  1. The user navigates to the login page and enters their username/email and password.
+  2. The backend validates the credentials and creates an authenticated session.
+  3. The user is redirected to the dashboard.
+  4. The user can log out at any time via the sign-out action, invalidating the session.
+* **Alternative / Failure Outcomes:**
+  * *Invalid Credentials:* The system denies access and displays a generic error message.
+  * *Forgot Password (Optional):* The user requests a password recovery link via email (FR-07.01) containing a temporary single-use token to reset their password.
+
+##### UC-02: Account Registration via Invitation
+* **Actor:** Unregistered User (Invited Student or Lecturer)
+* **Objective:** Register a new user account using a personal invitation link.
+* **Requirements:** FR-01.02
+* **Main Success Scenario:**
+  1. The user opens the personal invitation link provided by an Admin.
+  2. The system validates the link (checking validity, expiration, and single-use status).
+  3. The user sets a password and completes account registration.
+  4. The account is activated, and the user is redirected to the sign-in page.
+* **Alternative / Failure Outcomes:**
+  * *Expired / Reused / Invalid Link:* Registration is rejected, and the user is instructed to contact an Admin.
+
+##### UC-03: Search Resources & Inspect Availability
+* **Actor:** Student, Lecturer
+* **Objective:** Browse available resources (e.g., rooms, terminals) and inspect bookable time slots.
+* **Requirements:** FR-01.07, FR-02.01, FR-03.03
+* **Main Success Scenario:**
+  1. The user opens the resource catalog on the web dashboard.
+  2. The user applies filters or searches by resource type, availability, or time window.
+  3. The system displays only resources and time slots that match the user's role permissions (Student vs. Lecturer) and are not already booked.
+* **Alternative / Failure Outcomes:**
+  * *No Availability:* The system renders an appropriate empty state ("No resources available for the selected criteria").
+
+##### UC-04: Create Booking
+* **Actor:** Student, Lecturer
+* **Objective:** Create a binding booking for an available resource within a selected time window.
+* **Requirements:** FR-02.01, FR-04.01, FR-04.02, FR-07.01
+* **Main Success Scenario:**
+  1. The user selects an available resource and a valid time window.
+  2. The user confirms the booking.
+  3. The system verifies availability on the server side (enforcing concurrency control / `EXCLUDE` constraint) and saves the booking with status `CONFIRMED`.
+  4. The system sends a confirmation email to the user.
+* **Alternative / Failure Outcomes:**
+  * *Overlapping Booking (Concurrent Request):* If another user completes a booking for the same slot simultaneously, the system rejects the request and prompts the user to select another time.
+  * *Email Dispatch Failure:* The booking remains valid, but the email delivery failure is logged internally for administrative awareness (FR-07.02).
+
+##### UC-05: Manage Own Bookings (View / Modify / Cancel)
+* **Actor:** Student, Lecturer
+* **Objective:** Inspect active/past bookings, modify upcoming time slots, or cancel bookings prior to use.
+* **Requirements:** FR-04.03, FR-04.05, FR-07.01
+* **Main Success Scenario:**
+  1. The user navigates to the "My Bookings" section.
+  2. **Modify:** The user selects an upcoming or active booking and modifies the scheduled time. The system re-checks slot availability.
+  3. **Cancel:** The user cancels an upcoming booking *before* use begins. The status transitions to `CANCELLED`.
+  4. An email notification is sent to confirm the booking modification or cancellation.
+* **Alternative / Failure Outcomes:**
+  * *Cancellation After Check-In:* If the user attempts to cancel a booking that is already `IN_USE`, the request is rejected.
+  * *Modification After Completion:* Completed bookings (`COMPLETED`) cannot be altered or cancelled.
+
+##### UC-06: View Own Invoices & Payment Status
+* **Actor:** Student, Lecturer
+* **Objective:** View issued invoices, track payment status (`DUE`, `PENDING`, `PAID`), and download PDF copies.
+* **Requirements:** FR-06.03, FR-06.04, FR-06.05
+* **Main Success Scenario:**
+  1. The user navigates to the "Invoices" section.
+  2. The system lists all invoices linked to the account, displaying the total amount, usage details, and current payment status.
+  3. The user downloads the immutable PDF document for a selected invoice.
+* **Alternative / Failure Outcomes:**
+  * *No Invoices:* The system displays an empty state indicator.
+
+---
+
+#### Admin Use Cases
+
+##### UC-07: Account Management (Invitation, Edit, Deactivate, Role Change)
+* **Actor:** Admin
+* **Objective:** Manage all user accounts, generate single-use invitation links, and assign roles.
+* **Requirements:** FR-01.02, FR-01.03, FR-01.07
+* **Main Success Scenario:**
+  1. The Admin accesses the User Management panel.
+  2. **Invite:** The Admin generates an expiring, single-use invitation link assigned to a specific role (Student or Lecturer).
+  3. **Manage:** The Admin updates user details, adjusts roles, or deactivates accounts.
+  4. Deactivated accounts immediately lose online session access.
+* **Alternative / Failure Outcomes:**
+  * *Self-Deactivation Prevention:* The system prevents an Admin from revoking their own administrative privileges or deactivating their active account.
+
+##### UC-08: Resource & Terminal Administration
+* **Actor:** Admin
+* **Objective:** Create, edit, link, or decommission resources and hardware terminals.
+* **Requirements:** FR-03.01, FR-03.02, FR-05.06
+* **Main Success Scenario:**
+  1. The Admin creates or updates a resource (description, pricing rules, bookable windows, role eligibility).
+  2. The Admin associates a physical terminal with a resource.
+  3. The Admin flags lost or compromised terminals as "Out of Service".
+  4. The Admin removes a resource from future bookings (soft-delete / archive) without corrupting existing booking or invoice records.
+
+##### UC-09: Global Booking Inspection & Management
+* **Actor:** Admin
+* **Objective:** Inspect, adjust, or override all system-wide bookings across all users.
+* **Requirements:** FR-04.03, FR-04.05
+* **Main Success Scenario:**
+  1. The Admin searches and filters through all bookings system-wide.
+  2. The Admin modifies or cancels bookings when administrative intervention is required.
+  3. Affected users are automatically notified via email.
+
+##### UC-10: Invoice & Payment Status Management
+* **Actor:** Admin
+* **Objective:** Manage system invoices, manually update payment states, and ensure billing traceability.
+* **Requirements:** FR-06.04, FR-06.05
+* **Main Success Scenario:**
+  1. The Admin accesses the global invoice ledger and filters by status (e.g., `DUE` or `PENDING`).
+  2. The Admin updates a record status to `PAID`, logging the timestamp and Admin ID.
+  3. The system updates the status and notifies the respective user via email.
+* **Alternative / Failure Outcomes:**
+  * *Retrospective Price Protection:* Subsequent resource price changes do not modify previously issued invoices or generated PDFs.
+
+##### UC-11: Audit Log Inspection & Offline Conflict Review
+* **Actor:** Admin
+* **Objective:** Inspect system audit trails and resolve offline terminal synchronization conflicts.
+* **Requirements:** FR-05.04, FR-07.03, FR-07.04
+* **Main Success Scenario:**
+  1. The Admin opens the read-only audit log and filters entries by timestamp, actor, event type (e.g., BLE Check-In, Sync, Sign-In), or outcome.
+  2. The Admin reviews flagged offline synchronization conflicts reported by terminals and resolves discrepancies manually.
+* **Alternative / Failure Outcomes:**
+  * *Read-Only Enforcement:* The system strictly prevents editing or deleting audit log records.
 
 ### Mobile Application
 
@@ -296,6 +431,36 @@ All errors are returned as Problem Details (RFC 9457) and handled centrally with
 - Security-relevant errors are written to the audit log.
 
 The check-in and check-out process with tickets, receipts and the offline terminal is described in [BLE Access and Security Concept](#ble-access-and-security-concept).
+
+### Test Concept
+
+Backend tests are written together with the code. For business rules and security checks, the test is written first: it describes the expected behaviour, fails, and passes once the feature is implemented.
+
+**Test levels.**
+
+| Level | What is tested | Tools |
+|---|-----|----|
+| Unit tests | Business rules in services and entities, without Spring and without a database, e.g. booking status changes or the 15-minute no-show rule | JUnit 5, Mockito, AssertJ |
+| Integration tests | Complete HTTP requests through all layers, including security, validation and error responses, against a real PostgreSQL with the schema from `database/init.sql`, e.g. two overlapping bookings, 401 without token, 403 for a wrong role, 404 for another user's booking | `@SpringBootTest`, MockMvc, Spring Security Test, Testcontainers |
+| Architecture tests | The rules of the code structure: controllers do not use repositories, repositories are only used in their own package, no cycles between packages | ArchUnit |
+
+**Test data and dependencies.**
+
+- Each integration test starts with an empty database and creates its own test data. Tests do not depend on each other.
+- Time is taken from an injected `Clock`, so time rules can be tested with a fixed time instead of waiting.
+- Key pairs for devices and terminals are generated in the test. A test helper signs receipts like a real terminal, so check-in and check-out can be tested without hardware.
+- Email is replaced by a fake implementation that only records the sent messages.
+- The mobile app and the terminal are not part of the backend tests. The complete flow across all components is tested separately (Chapter 6).
+
+**Naming and execution.** Test classes mirror the packages of the code. Unit tests end with `Test` and run with `./mvnw test` in a few seconds. Integration and architecture tests end with `IT` and run additionally with `./mvnw verify`. JaCoCo creates a coverage report; there is no fixed coverage limit, the focus is on business rules and security.
+
+**Continuous integration.** A GitHub Actions workflow (`.github/workflows/backend.yml`) runs `./mvnw verify` on every pull request and on every push to `main`, but only when files in `backend/` or `database/` change. The standard GitHub runners provide Docker, so Testcontainers also works there. A pull request can only be merged when all tests are green (branch protection on `main`). There is no automatic deployment, because the prototype is not deployed to a server.
+
+**Workflow.** Each feature is developed on its own branch. The developer writes a failing test, implements the feature and refactors while the tests stay green. Before pushing, `./mvnw verify` runs all tests locally. The pull request triggers the CI workflow, which runs the same command in a clean environment. Only a green pipeline allows review and merge; a failing pipeline sends the change back to implementation on the same branch.
+
+![Development and test workflow of one backend feature](assets/backend-test-workflow.png){width=40%}
+
+**Responsibilities.** The developer of a feature writes its tests in the same pull request. The reviewer checks that the important cases are tested before approving the pull request.
 
 ### Backend Design Decisions
 
@@ -855,8 +1020,60 @@ The BLE synchronization proposal in Detailed Security Documentation gives the ac
 
 ### Web Application UI
 
-- *Include wireframes for the main web screens: login, resource search, bookings, invoices, and administration.*
-- *Show navigation and the actions available to each role, including important confirmation and error states.*
+#### 1. Required Web Screens
+Based on the defined use cases, the web application comprises the following functional screens:
+
+* **Public & Authentication:**
+  * `S-01: Sign In Screen` (UC-01) – Authentication for all roles via credentials.
+  * `S-02: Account Registration Screen` (UC-02) – Single-use invitation link onboarding.
+  * `S-03: Password Reset Screen` (UC-01) – Password recovery flow.
+* **Ordinary User Space (Student / Lecturer):**
+  * `S-04: Resource Catalog & Availability` (UC-03) – Search, filter, and inspect availability.
+  * `S-05: Resource Detail & Booking Modal` (UC-04) – Slot selection and booking submission.
+  * `S-06: My Bookings & Linked Devices` (UC-05) – View, modify, or cancel personal active and past bookings, and view active mobile device authorizations.
+  * `S-07: My Invoices` (UC-06) – Inspect payment status (`DUE`, `PENDING`, `PAID`) and download PDF invoices.
+* **Administrative Space:**
+  * `S-08: User Management` (UC-07) – User list, role changes, deactivation, and invitation link generation.
+  * `S-09: Resource & Terminal Administration` (UC-08) – Manage resources, pricing rules, and link/decommission terminals.
+  * `S-10: Global Bookings Overview` (UC-09) – System-wide booking inspection and administrative overrides.
+  * `S-11: Billing & Invoice Management` (UC-10) – Global invoice ledger and manual payment status updates.
+  * `S-12: Audit Logs & Sync Conflicts` (UC-11) – Read-only system audit trail and offline conflict review.
+* **Responsive Mobile Web Views:**
+  * `Mobile S-04, S-05, S-06` – Mobile-optimized viewport layouts (375px) featuring hamburger navigation, stacked filters, and card-based resource/booking views.
+
+---
+
+#### 2. Navigation Architecture & Role-Based Access
+Navigation is structured using a responsive sidebar/header navigation layout:
+* **Ordinary User Navigation:**
+  * **Browse Resources** (`S-04`)
+  * **My Bookings & Devices** (`S-06`)
+  * **Invoices** (`S-07`)
+  * **User Profile & Logout** (`S-01`)
+* **Admin Navigation Panel:**
+  * **Resource Management** (`S-09`)
+  * **Bookings Administration** (`S-10`)
+  * **User Management** (`S-08`)
+  * **Billing & Invoices** (`S-11`)
+  * **Audit Logs** (`S-12`)
+
+---
+
+#### 3. Essential UI Screen States
+To ensure a robust user interface design, all screens represent five fundamental interaction states:
+1. **Success State:** Renders data items or displays positive action feedback (e.g., booking confirmed).
+2. **Validation / Input Error State:** Highlights invalid form inputs and displays clear guidance (e.g., overlapping time slot selected).
+3. **Empty State:** Displays clear contextual guidance when lists contain no data (e.g., "No active bookings").
+4. **Access Denied State:** Renders appropriate restriction feedback when unauthorized users access restricted paths (`403 Forbidden`).
+5. **System / Network Error State:** Displays error boundaries with retry actions when backend operations fail.
+
+*Figma Prototype:* [BLE Booking System Figma Prototype](https://www.figma.com/design/QzahEEhEJQ6pndblTa12Vl/UI-prototype?node-id=3-17762&t=Y9g1sM36tJAp3LoM-1)
+
+#### Key Screen Wireframes
+![Sign In Screen](../assets/web-ui/s01-signin.png)
+![Resource Catalog & Availability](../assets/web-ui/s04-catalog.png)
+![My Bookings](../assets/web-ui/s06-my-bookings.png)
+![Admin User Management](../assets/web-ui/s08-admin-users.png)
 
 ### Mobile Application UI
 
