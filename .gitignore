@@ -10,3 +10,11 @@
 # OS files
 Thumbs.db
 .DS_Store
+
+# Java / Maven build output
+target/
+*.class
+*.log
+
+# Spring Initializr leftovers
+backend/HELP.md
