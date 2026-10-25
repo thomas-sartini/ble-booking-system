@@ -2,6 +2,7 @@ package ch.hslu.blebooking.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.modulith.core.ApplicationModules;
+import org.springframework.modulith.docs.Documenter;
 
 /**
  * Checks that the modules only use the dependencies declared in their package-info.java
@@ -14,6 +15,15 @@ class ModularityIT {
 	@Test
 	void modulesFollowDeclaredDependencies() {
 		modules.verify();
+	}
+
+	/**
+	 * Writes module diagrams (PlantUML) to target/spring-modulith-docs,
+	 * so they can be compared with the architecture diagram in the report.
+	 */
+	@Test
+	void writesModuleDocumentation() {
+		new Documenter(modules).writeDocumentation();
 	}
 
 }
