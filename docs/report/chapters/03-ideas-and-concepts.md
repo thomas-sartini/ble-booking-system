@@ -1,163 +1,18 @@
 # Ideas and Concepts
 
-- *Present the proposed solution, component designs, and main design choices.*
-
 ## Use Cases
 
-### Web Application
+The web design covers authentication and invitation-based registration, resource discovery and booking, management of personal bookings and invoices, and administration of accounts, resources, terminals, bookings, payments and audit records. Students and Lecturers use the self-service functions; Admins manage the system. The [full UC-01–UC-11 scenarios](08-appendices.md#web-use-cases) include requirements and alternative outcomes.
 
-#### Overview & Role Scope
-The web application supports three main user roles:
-1. **Ordinary Users (Student / Lecturer):** Focus on self-service resource browsing, booking management, availability inspection, and viewing invoices.
-2. **Admin:** Full administrative permissions to manage user accounts, resources, terminals, billing statuses, and system audit logs.
-
----
-
-#### Ordinary User Use Cases
-
-##### UC-01: User Authentication (Sign In / Sign Out / Password Reset)
-* **Actor:** Student, Lecturer, Admin
-* **Objective:** Securely authenticate and access the web application or terminate an active session.
-* **Requirements:** FR-01.04, FR-01.05
-* **Main Success Scenario:**
-  1. The user navigates to the login page and enters their username/email and password.
-  2. The backend validates the credentials and creates an authenticated session.
-  3. The user is redirected to the dashboard.
-  4. The user can log out at any time via the sign-out action, invalidating the session.
-* **Alternative / Failure Outcomes:**
-  * *Invalid Credentials:* The system denies access and displays a generic error message.
-  * *Forgot Password (Optional):* The user requests a password recovery link via email (FR-07.01) containing a temporary single-use token to reset their password.
-
-##### UC-02: Account Registration via Invitation
-* **Actor:** Unregistered User (Invited Student or Lecturer)
-* **Objective:** Register a new user account using a personal invitation link.
-* **Requirements:** FR-01.02
-* **Main Success Scenario:**
-  1. The user opens the personal invitation link provided by an Admin.
-  2. The system validates the link (checking validity, expiration, and single-use status).
-  3. The user sets a password and completes account registration.
-  4. The account is activated, and the user is redirected to the sign-in page.
-* **Alternative / Failure Outcomes:**
-  * *Expired / Reused / Invalid Link:* Registration is rejected, and the user is instructed to contact an Admin.
-
-##### UC-03: Search Resources & Inspect Availability
-* **Actor:** Student, Lecturer
-* **Objective:** Browse available resources (e.g., rooms, terminals) and inspect bookable time slots.
-* **Requirements:** FR-01.07, FR-02.01, FR-03.03
-* **Main Success Scenario:**
-  1. The user opens the resource catalog on the web dashboard.
-  2. The user applies filters or searches by resource type, availability, or time window.
-  3. The system displays only resources and time slots that match the user's role permissions (Student vs. Lecturer) and are not already booked.
-* **Alternative / Failure Outcomes:**
-  * *No Availability:* The system renders an appropriate empty state ("No resources available for the selected criteria").
-
-##### UC-04: Create Booking
-* **Actor:** Student, Lecturer
-* **Objective:** Create a binding booking for an available resource within a selected time window.
-* **Requirements:** FR-02.01, FR-04.01, FR-04.02, FR-07.01
-* **Main Success Scenario:**
-  1. The user selects an available resource and a valid time window.
-  2. The user confirms the booking.
-  3. The system verifies availability on the server side (enforcing concurrency control / `EXCLUDE` constraint) and saves the booking with status `CONFIRMED`.
-  4. The system sends a confirmation email to the user.
-* **Alternative / Failure Outcomes:**
-  * *Overlapping Booking (Concurrent Request):* If another user completes a booking for the same slot simultaneously, the system rejects the request and prompts the user to select another time.
-  * *Email Dispatch Failure:* The booking remains valid, but the email delivery failure is logged internally for administrative awareness (FR-07.02).
-
-##### UC-05: Manage Own Bookings (View / Modify / Cancel)
-* **Actor:** Student, Lecturer
-* **Objective:** Inspect active/past bookings, modify upcoming time slots, or cancel bookings prior to use.
-* **Requirements:** FR-04.03, FR-04.05, FR-07.01
-* **Main Success Scenario:**
-  1. The user navigates to the "My Bookings" section.
-  2. **Modify:** The user selects an upcoming or active booking and modifies the scheduled time. The system re-checks slot availability.
-  3. **Cancel:** The user cancels an upcoming booking *before* use begins. The status transitions to `CANCELLED`.
-  4. An email notification is sent to confirm the booking modification or cancellation.
-* **Alternative / Failure Outcomes:**
-  * *Cancellation After Check-In:* If the user attempts to cancel a booking that is already `IN_USE`, the request is rejected.
-  * *Modification After Completion:* Completed bookings (`COMPLETED`) cannot be altered or cancelled.
-
-##### UC-06: View Own Invoices & Payment Status
-* **Actor:** Student, Lecturer
-* **Objective:** View issued invoices, track payment status (`DUE`, `PENDING`, `PAID`), and download PDF copies.
-* **Requirements:** FR-06.03, FR-06.04, FR-06.05
-* **Main Success Scenario:**
-  1. The user navigates to the "Invoices" section.
-  2. The system lists all invoices linked to the account, displaying the total amount, usage details, and current payment status.
-  3. The user downloads the immutable PDF document for a selected invoice.
-* **Alternative / Failure Outcomes:**
-  * *No Invoices:* The system displays an empty state indicator.
-
----
-
-#### Admin Use Cases
-
-##### UC-07: Account Management (Invitation, Edit, Deactivate, Role Change)
-* **Actor:** Admin
-* **Objective:** Manage all user accounts, generate single-use invitation links, and assign roles.
-* **Requirements:** FR-01.02, FR-01.03, FR-01.07
-* **Main Success Scenario:**
-  1. The Admin accesses the User Management panel.
-  2. **Invite:** The Admin generates an expiring, single-use invitation link assigned to a specific role (Student or Lecturer).
-  3. **Manage:** The Admin updates user details, adjusts roles, or deactivates accounts.
-  4. Deactivated accounts immediately lose online session access.
-* **Alternative / Failure Outcomes:**
-  * *Self-Deactivation Prevention:* The system prevents an Admin from revoking their own administrative privileges or deactivating their active account.
-
-##### UC-08: Resource & Terminal Administration
-* **Actor:** Admin
-* **Objective:** Create, edit, link, or decommission resources and hardware terminals.
-* **Requirements:** FR-03.01, FR-03.02, FR-05.06
-* **Main Success Scenario:**
-  1. The Admin creates or updates a resource (description, pricing rules, bookable windows, role eligibility).
-  2. The Admin associates a physical terminal with a resource.
-  3. The Admin flags lost or compromised terminals as "Out of Service".
-  4. The Admin removes a resource from future bookings (soft-delete / archive) without corrupting existing booking or invoice records.
-
-##### UC-09: Global Booking Inspection & Management
-* **Actor:** Admin
-* **Objective:** Inspect, adjust, or override all system-wide bookings across all users.
-* **Requirements:** FR-04.03, FR-04.05
-* **Main Success Scenario:**
-  1. The Admin searches and filters through all bookings system-wide.
-  2. The Admin modifies or cancels bookings when administrative intervention is required.
-  3. Affected users are automatically notified via email.
-
-##### UC-10: Invoice & Payment Status Management
-* **Actor:** Admin
-* **Objective:** Manage system invoices, manually update payment states, and ensure billing traceability.
-* **Requirements:** FR-06.04, FR-06.05
-* **Main Success Scenario:**
-  1. The Admin accesses the global invoice ledger and filters by status (e.g., `DUE` or `PENDING`).
-  2. The Admin updates a record status to `PAID`, logging the timestamp and Admin ID.
-  3. The system updates the status and notifies the respective user via email.
-* **Alternative / Failure Outcomes:**
-  * *Retrospective Price Protection:* Subsequent resource price changes do not modify previously issued invoices or generated PDFs.
-
-##### UC-11: Audit Log Inspection & Offline Conflict Review
-* **Actor:** Admin
-* **Objective:** Inspect system audit trails and resolve offline terminal synchronization conflicts.
-* **Requirements:** FR-05.04, FR-07.03, FR-07.04
-* **Main Success Scenario:**
-  1. The Admin opens the read-only audit log and filters entries by timestamp, actor, event type (e.g., BLE Check-In, Sync, Sign-In), or outcome.
-  2. The Admin reviews flagged offline synchronization conflicts reported by terminals and resolves discrepancies manually.
-* **Alternative / Failure Outcomes:**
-  * *Read-Only Enforcement:* The system strictly prevents editing or deleting audit log records.
-
-### Mobile Application
-
-- *Include a Use Case Diagram for login, viewing the current booking or access entitlement, BLE identification, and check-in/check-out.*
-- *Show the relevant user roles and distinguish required mobile functions from optional functions.*
+<!-- Author: Add the agreed mobile use-case diagram. -->
 
 ## General System Flow
 
-- *Show the overall process from login and booking to BLE check-in, resource use, check-out, and billing.*
-- *Include permitted access without a prior booking and indicate where offline operation affects the process.*
+The intended flow links login and reservation to BLE check-in, use, check-out and billing. The backend authorizes the user and issues a device-bound ticket; the terminal verifies it locally and saves a signed receipt. The smartphone uploads that receipt so the backend can update the booking. The backend design then creates invoices through booking events. Walk-in access is required by FR-03.05, but its detailed flow is still to be defined.
 
 ## Proposed System Architecture
 
-- *Include a conceptual component diagram with Web, Backend, Database, Shared Mobile Core, Android, iOS, and Door Terminal controlling the door.*
-- *Briefly explain each component's responsibility, the proposed module boundaries, and the connections through REST/HTTPS, shared mobile interfaces, and BLE.*
+The web application provides booking and administration. The backend manages identities, resources, bookings, tickets, invoices and audit data in PostgreSQL. Native Android and iOS applications provide BLE and protected storage around a shared Mobile Core. The terminal authorizes local actions and controls the compartment latch. Web and mobile clients use the backend REST API over HTTPS; the terminal has no direct backend connection.
 
 ## Backend Design
 
@@ -166,6 +21,9 @@ The backend is a Spring Boot application with a PostgreSQL database. It is divid
 ### Framework Selection
 
 The backend has to provide a REST API for the web frontend and the mobile app, login with JWT and refresh tokens, roles and owner checks, password hashing with Argon2, signing and verifying P-256 signatures for tickets and receipts, PostgreSQL with migrations, scheduled jobs, internal events and PDF invoices with Swiss QR bill. The backend developer knows Java but has not built a REST API before, and the project runs for one semester.
+
+
+<a id="tbl-03-01"></a>
 
 | Framework | Language | Version (October 2026) | Description |
 |---|---|------|--------|
@@ -176,6 +34,9 @@ The backend has to provide a REST API for the web frontend and the mobile app, l
 | ASP.NET Core | C# | .NET 10 LTS, support until November 2028 | Microsoft framework, strong built-in security |
 | NestJS | TypeScript | – | Structured framework for Node.js |
 
+: Framework Selection — framework, language {#tbl-03-01}
+
+
 ASP.NET Core and NestJS are included because the project assignment mentions C# and Node.js as possible technologies. The alternatives were evaluated with the following criteria:
 
 1. The team knows the language.
@@ -184,6 +45,9 @@ ASP.NET Core and NestJS are included because the project assignment mentions C# 
 4. Learning resources and community.
 5. Required libraries are available (PDF, Swiss QR bill).
 
+
+<a id="tbl-03-02"></a>
+
 | Criterion | Spring Boot | Quarkus | Micronaut | Javalin | ASP.NET Core | NestJS |
 |---|---|---|---|---|---|---|
 | Language known | yes | yes | yes | yes | no | no |
@@ -191,6 +55,9 @@ ASP.NET Core and NestJS are included because the project assignment mentions C# 
 | Database support | good | good | good | manual | good | good |
 | Learning resources | many | some | few | some | many | many |
 | Libraries | yes | yes | yes | yes | yes | yes |
+
+: Framework Selection — criterion, spring boot {#tbl-03-02}
+
 
 Spring Boot is the only option that fulfils all criteria well. Quarkus and Micronaut start faster and use less memory, but this is not important for a single backend instance.
 
@@ -223,22 +90,12 @@ The project is created with Spring Initializr and Maven. It uses Spring Web, Spr
 
 **Audit Logs.** Stores security-relevant events of the whole application. The other modules publish events (Spring Events) to which this module listens. Only admins can read the logs, and nobody can change or delete them. *Depends on:* nothing.
 
-| Module | Depends on |
-|---|---|
-| Auth | Users |
-| Users | – |
-| Resources | – |
-| Bookings | Users, Resources |
-| Devices | Users |
-| Tickets | Bookings, Devices |
-| Invoices | Bookings, Users, Resources |
-| Audit Logs | – (receives events from all modules) |
+The [module dependency table](08-appendices.md#backend-apis-and-modules) provides the detailed reference.
 
 Bookings does not call Invoices directly. It publishes an event when a booking ends, and Invoices reacts to it. This avoids a circular dependency between the two modules.
 
-![Backend architecture. Solid arrows between modules mean "depends on"; dotted arrows are events or BLE communication.](assets/backend-architecture.png){width=100%}
+![Backend architecture. Solid arrows between modules mean "depends on"; dotted arrows are events or BLE communication.](../assets/backend/backend-architecture.png){#fig-backend-architecture width=100%}
 
-![Booking status transitions](assets/booking-status.png){width=60%}
 
 ### Code Structure
 
@@ -248,22 +105,13 @@ This section only describes what is certain for the implementation. Class and me
 
 **Packages.** Each module is one Java package and owns the tables listed below.
 
-| Package | Tables |
-|---|---|
-| `user` | user |
-| `auth` | refresh_token, one_time_token |
-| `resource` | resource, availability, terminal |
-| `booking` | booking, receipt |
-| `device` | device |
-| `invoice` | invoice |
-| `audit` | audit_log |
-| `common` | – (security configuration, error handling) |
+Package ownership is listed in the [backend reference](08-appendices.md#backend-apis-and-modules).
 
 Tickets are not stored. Whether ticket creation gets its own package or stays in `booking` is decided during implementation.
 
 **Layers.** Every module has the same layers:
 
-![Layers of a backend module](assets/backend-layers.png){width=100%}
+![Layers of a backend module](../assets/backend/backend-layers.png){#fig-backend-layers width=100%}
 
 - Controllers receive requests and return DTOs. They contain no business logic.
 - Services contain the business logic and transactions.
@@ -274,76 +122,7 @@ Tickets are not stored. Whether ticket creation gets its own package or stays in
 
 ### API Structure
 
-**Auth**
-
-| Method | Path | Body / Note |
-|---|---------|--------|
-| POST | `/auth/activate` | activation token (from the email link), new password |
-| POST | `/auth/login` | email, password; returns access token (JWT) and refresh token |
-| POST | `/auth/refresh` | refresh token; returns a new access token and a new refresh token |
-| POST | `/auth/logout` | refresh token; the refresh token is no longer valid |
-| POST | `/auth/password-reset/request` | email; the response is always the same, whether the email exists or not |
-| POST | `/auth/password-reset/confirm` | reset code, new password |
-
-**Users**
-
-| Method | Path | Body / Note |
-|---|---------|--------|
-| POST | `/users` | email, firstName, lastName, role, startSemester and bachelorCourse (students only); sends the activation email |
-| GET | `/users` | list of users; query: role, status; with pagination |
-| POST | `/users/{id}/invitation` | sends the activation email again |
-| GET | `/users/{id}` | |
-| PATCH | `/users/{id}` | only the fields that change; the role cannot be changed here |
-| PATCH | `/users/{id}/role` | changes the role (written to the audit log) |
-| DELETE | `/users/{id}` | sets the status to DISABLED; the user is not deleted |
-
-**Resources and Terminals**
-
-| Method | Path | Body / Note |
-|---|---------|--------|
-| POST | `/resources` | name, type (MOBILE or FIXED), position, pricePerHour |
-| GET | `/resources` | list of resources; query: type |
-| GET | `/resources/{id}` | |
-| PATCH | `/resources/{id}` | only the fields that change |
-| DELETE | `/resources/{id}` | |
-| GET | `/resources/{id}/availability` | free time slots; query: from, to; the logic is in the Bookings module |
-| POST | `/terminals` | name, resourceId, publicKey (P-256, DER, Base64); the response contains the terminalId and the backend public key |
-| GET | `/terminals` | list of terminals |
-| GET | `/terminals/{id}` | |
-| DELETE | `/terminals/{id}` | removes a terminal, e.g. if it is stolen |
-
-**Bookings and Tickets**
-
-| Method | Path | Body / Note |
-|---|---------|--------|
-| POST | `/bookings` | resourceId, start, end; the user is taken from the access token |
-| GET | `/bookings` | list of bookings; query: from, to, resourceId, userId; users only receive their own |
-| GET | `/bookings/{id}` | |
-| PATCH | `/bookings/{id}` | only while the status is BOOKED |
-| DELETE | `/bookings/{id}` | cancels the booking (status CANCELLED) |
-| POST | `/bookings/{id}/check-in` | check-in receipt signed by the terminal |
-| POST | `/bookings/{id}/check-out` | check-out receipt signed by the terminal |
-| GET | `/bookings/{id}/ticket` | query: deviceId; ticket for an active booking, available shortly before the start |
-
-**Devices**
-
-| Method | Path | Body / Note |
-|---|---------|--------|
-| POST | `/users/me/devices` | publicKey (P-256, DER, Base64), device name; requires a recent login |
-| GET | `/users/me/devices` | the user's own devices |
-| DELETE | `/users/me/devices/{id}` | blocks a device, e.g. if it is lost |
-| GET | `/users/{id}/devices` | devices of any user |
-| DELETE | `/users/{id}/devices/{deviceId}` | blocks a device of any user |
-
-**Invoices and Audit Logs**
-
-| Method | Path | Body / Note |
-|---|---------|--------|
-| GET | `/invoices` | list of invoices; query: userId, paymentStatus; users only receive their own |
-| GET | `/invoices/{id}/pdf` | invoice as PDF (Swiss QR invoice) |
-| PATCH | `/invoices/{id}` | changes the payment status |
-| POST | `/invoices` | creates an invoice manually for special cases |
-| GET | `/admin/audit-logs` | audit log entries; query: from, to, userId; with pagination |
+The [backend reference](08-appendices.md#backend-apis-and-modules) lists the proposed endpoints, permissions and error contracts.
 
 ### Authentication and Authorization
 
@@ -360,107 +139,13 @@ Authorization is checked in two steps:
 1. Role check with Spring Security (`@PreAuthorize`).
 2. Owner check in the service of the module: users may only access objects that belong to them.
 
-Access rights by role (*Yes* = allowed, *Own* = only objects that belong to the user, *No* = not allowed):
-
-| Endpoint | Not logged in | STUDENT | STAFF | ADMIN |
-|---|---|---|---|---|
-| All `/auth/*` endpoints | Yes | Yes | Yes | Yes |
-| `POST /users`, `GET /users` | No | No | No | Yes |
-| `POST /users/{id}/invitation` | No | No | No | Yes |
-| `GET /users/{id}`, `PATCH /users/{id}` | No | Own | Own | Yes |
-| `PATCH /users/{id}/role`, `DELETE /users/{id}` | No | No | No | Yes |
-| `GET /resources`, `GET /resources/{id}` | No | Yes | Yes | Yes |
-| `GET /resources/{id}/availability` | No | Yes | Yes | Yes |
-| `POST`, `PATCH`, `DELETE /resources` | No | No | No | Yes |
-| All `/terminals` endpoints | No | No | No | Yes |
-| `POST /bookings` | No | Yes | Yes | Yes |
-| `GET`, `PATCH`, `DELETE /bookings/{id}` | No | Own | Own | Yes |
-| `POST /bookings/{id}/check-in`, `/check-out` | No | Own | Own | Own |
-| `GET /bookings/{id}/ticket` | No | Own | Own | Own |
-| `/users/me/devices` (all methods) | No | Own | Own | Own |
-| `GET`, `DELETE /users/{id}/devices` | No | No | No | Yes |
-| `GET /invoices`, `GET /invoices/{id}/pdf` | No | Own | Own | Yes |
-| `PATCH /invoices/{id}`, `POST /invoices` | No | No | No | Yes |
-| `GET /admin/audit-logs` | No | No | No | Yes |
+The complete role matrix is in the [backend reference](08-appendices.md#backend-permissions).
 
 Check-in, check-out and tickets are restricted to the owner even for admins: only the owner of a booking can check in, with their own device.
 
-### Database Access
-
-Each module owns its tables:
-
-| Module | Tables |
-|---|---|
-| Auth | refresh_tokens, one_time_tokens |
-| Users | users |
-| Resources | resources, terminals |
-| Bookings | bookings, receipts |
-| Devices | devices |
-| Tickets | – (tickets are not stored) |
-| Invoices | invoices |
-| Audit Logs | audit_log |
-
 ### Error Handling
 
-All errors are returned as Problem Details (RFC 9457) and handled centrally with `@RestControllerAdvice`. An additional field `code` allows the clients to show the right message.
-
-```json
-{
-  "type": "about:blank",
-  "title": "Booking overlap",
-  "status": 409,
-  "detail": "The resource is already booked at this time.",
-  "instance": "/bookings",
-  "code": "BOOKING_OVERLAP"
-}
-```
-
-| Status | Code (examples) | When |
-|---|---|---|
-| 400 | VALIDATION_ERROR, INVALID_RECEIPT | Invalid input, invalid signature |
-| 401 | UNAUTHORIZED | Token missing, invalid or expired |
-| 403 | FORBIDDEN | Role not allowed |
-| 404 | NOT_FOUND | Object does not exist or does not belong to the user |
-| 409 | BOOKING_OVERLAP, INVALID_STATUS | Conflict with existing data or booking status |
-| 429 | TOO_MANY_REQUESTS | Too many login attempts |
-| 500 | INTERNAL_ERROR | Unexpected error |
-
-- Responses contain no stack traces, SQL errors or other internal details; these are written only to the server log.
-- Objects of other users return 404, not 403, so the API does not reveal whether they exist.
-- A failed login always returns the same message.
-- Security-relevant errors are written to the audit log.
-
-The check-in and check-out process with tickets, receipts and the offline terminal is described in [BLE Access and Security Concept](#ble-access-and-security-concept).
-
-### Test Concept
-
-Backend tests are written together with the code. For business rules and security checks, the test is written first: it describes the expected behaviour, fails, and passes once the feature is implemented.
-
-**Test levels.**
-
-| Level | What is tested | Tools |
-|---|-----|----|
-| Unit tests | Business rules in services and entities, without Spring and without a database, e.g. booking status changes or the 15-minute no-show rule | JUnit 5, Mockito, AssertJ |
-| Integration tests | Complete HTTP requests through all layers, including security, validation and error responses, against a real PostgreSQL with the schema from `database/init.sql`, e.g. two overlapping bookings, 401 without token, 403 for a wrong role, 404 for another user's booking | `@SpringBootTest`, MockMvc, Spring Security Test, Testcontainers |
-| Architecture tests | The rules of the code structure: controllers do not use repositories, repositories are only used in their own package, no cycles between packages | ArchUnit |
-
-**Test data and dependencies.**
-
-- Each integration test starts with an empty database and creates its own test data. Tests do not depend on each other.
-- Time is taken from an injected `Clock`, so time rules can be tested with a fixed time instead of waiting.
-- Key pairs for devices and terminals are generated in the test. A test helper signs receipts like a real terminal, so check-in and check-out can be tested without hardware.
-- Email is replaced by a fake implementation that only records the sent messages.
-- The mobile app and the terminal are not part of the backend tests. The complete flow across all components is tested separately (Chapter 6).
-
-**Naming and execution.** Test classes mirror the packages of the code. Unit tests end with `Test` and run with `./mvnw test` in a few seconds. Integration and architecture tests end with `IT` and run additionally with `./mvnw verify`. JaCoCo creates a coverage report; there is no fixed coverage limit, the focus is on business rules and security.
-
-**Continuous integration.** A GitHub Actions workflow (`.github/workflows/backend.yml`) runs `./mvnw verify` on every pull request and on every push to `main`, but only when files in `backend/` or `database/` change. The standard GitHub runners provide Docker, so Testcontainers also works there. A pull request can only be merged when all tests are green (branch protection on `main`). There is no automatic deployment, because the prototype is not deployed to a server.
-
-**Workflow.** Each feature is developed on its own branch. The developer writes a failing test, implements the feature and refactors while the tests stay green. Before pushing, `./mvnw verify` runs all tests locally. The pull request triggers the CI workflow, which runs the same command in a clean environment. Only a green pipeline allows review and merge; a failing pipeline sends the change back to implementation on the same branch.
-
-![Development and test workflow of one backend feature](assets/backend-test-workflow.png){width=40%}
-
-**Responsibilities.** The developer of a feature writes its tests in the same pull request. The reviewer checks that the important cases are tested before approving the pull request.
+The design uses centrally handled Problem Details (RFC 9457) with a client-facing `code`. It hides implementation details and other users' objects, uses a generic login error, and records security-relevant errors. The [error contract](08-appendices.md#backend-errors) contains the example and status catalogue.
 
 ### Backend Design Decisions
 
@@ -494,20 +179,21 @@ The detailed internal architecture of the native applications and the BLE protoc
 
 The mobile architecture comprises a shared Mobile Core, native Android and iOS applications, and the backend.
 
-#### Module Structure
-
+#### Module Structure {.unnumbered}
 The Mobile Core contains shared application logic, backend communication, and local authentication credential management. The native applications provide the user interface, BLE interaction, and platform-specific protected storage.
 
 Native applications invoke shared operations through `MobileCoreApi`. They obtain a core instance through `MobileCoreFactory` and supply their platform-specific implementation of `SecureStorage`.
 
 The following component diagram shows the architectural boundaries and the interfaces connecting these elements.
 
-![Mobile Application Component Architecture](assets/mobile-component-diagram.png){width=72%}
+![Mobile Application Component Architecture](../assets/mobile/mobile-component-diagram.png){#fig-mobile-component-diagram width=72%}
 
 
-#### Mobile Core
-
+#### Mobile Core {.unnumbered}
 The Mobile Core contains the shared Kotlin Multiplatform logic used by both Android and iOS. It consists of three architectural components.
+
+
+<a id="tbl-03-03"></a>
 
 | Component | Main Responsibilities | Interfaces |
 |:-----------------------------|:---------------------------------------------|:-----------------------------|
@@ -515,211 +201,24 @@ The Mobile Core contains the shared Kotlin Multiplatform logic used by both Andr
 | **BackendCommunication** | Communicate with the backend through HTTP; convert between application models and DTOs; coordinate login, token refresh, and logout using `TokenManager` to manage credentials. | **Provides:** `CommunicationGateway`; **Requires:** `REST/API`. |
 | **TokenManager** | Maintain the access token in memory; store and retrieve the refresh token through secure storage; update and clear locally managed credentials. | **Provides:** none; **Requires:** `SecureStorage`. |
 
-#### External Components
+: Mobile Core — component, main responsibilities {#tbl-03-03}
 
+
+#### External Components {.unnumbered}
 **Backend** provides the REST API required by the mobile application. It authenticates requests, issues and renews credentials, revokes renewable sessions, supplies booking and access-related data, and processes access confirmations and check-out operations.
 
 **AndroidApp** provides the Android user interface and native platform integration. It consumes `MobileCoreApi`, obtains the core through `MobileCoreFactory`, and provides an implementation of `SecureStorage`. BLE discovery, connection management, and terminal interaction remain native responsibilities.
 
 **IOSApp** provides the iOS user interface and native platform integration. It consumes the same shared application contract and provides the iOS implementation of protected storage and BLE interaction.
 
-#### Native Platform Design - TODO
-
+#### Native Platform Design {.unnumbered}
 The detailed native UI structure, navigation, BLE integration, protected-storage adapters, and key management will be documented in a later design step.
 
-No native class diagram is included at this stage.
+<!-- Author: Add the native class diagram when defined. -->
 
-### Detailed Module Design
+### Technical Reference
 
-This section describes the public integration package and the three architectural modules of the Mobile Core.
-
-The API package is documented through individual descriptions. Within the remaining modules, interfaces retain their detailed contracts and classes are summarized through their purpose, responsibilities, and dependencies.
-
-Application models and error representations are described with the application module. DTOs and HTTP communication are described with the communication module.
-
-The existing diagrams retain their original groupings. In the source code, `MobileCoreApi` and `SecureStorage` belong to the separate `api` package.
-
-#### API Package (`api`)
-
-The `api` package defines the public integration boundary between the Mobile Core and the native Android and iOS applications. It contains `MobileCoreApi`, `MobileCoreFactory`, and `SecureStorage`.
-
-These elements are grouped separately because they define how a native application invokes shared operations, obtains a core instance, and supplies protected storage. This separates the integration contract from the internal application services, backend communication, and token management.
-
-`SecureStorage` belongs to this package because native applications must be able to implement the storage contract independently from the internal token manager. Application models and shared error types are used by the public contract but are documented separately from the API entry points below.
-
-##### MobileCoreApi
-
-| Aspect | Description |
-|:----------------|:--------------------------------------------------------------------------|
-| **Purpose** | Define the public contract through which native Android and iOS applications invoke shared Mobile Core operations. |
-| **Responsibilities** | Expose authentication, booking, and resource-access operations; hide the internal application services; provide a stable boundary between native code and shared application logic. |
-| **Dependencies** | Application models and `MobileCoreException`. The interface is implemented by `ServiceFacade`. |
-
-###### Interface Operations {.unnumbered}
-
-- `login(identifier: String, password: String)` starts authentication with the supplied credentials. Returned authentication tokens remain internal to the core.
-
-- `logout()` ends the session and coordinates backend revocation and local credential cleanup.
-
-- `getActiveBookings()` returns the current user's active bookings as a list of `Booking` models.
-
-- `requestAccess(request: ResourceAccessRequest)` requests resource-access authorization and returns a `ResourceAccessResponse`.
-
-- `confirmAccess(confirmation: AccessConfirmation)` confirms the outcome of a previously initiated resource-access operation.
-
-- `checkOut(resourceId: String)` initiates check-out for the specified resource.
-
-These operations are asynchronous. Expected application and communication failures are represented by `MobileCoreException`.
-
-The interface uses application models rather than transport DTOs. Backend transport details and authentication credentials remain internal to the core. BLE communication is handled by the native applications.
-
-##### MobileCoreFactory
-
-| Aspect | Description |
-|:----------------|:--------------------------------------------------------------------------|
-| **Purpose** | Provide the public creation entry point for a Mobile Core instance, receiving a native `SecureStorage` implementation and returning `MobileCoreApi`. |
-| **Responsibilities** | Construct and connect the token, communication, and application-service components; create the facade implementing `MobileCoreApi`; encapsulate component construction within the shared core. |
-| **Dependencies** | `SecureStorage`, `TokenManager`, `BackendCommunication`, `AuthService`, `BookingService`, `AccessService`, and `ServiceFacade`. |
-
-###### Creation Operation {.unnumbered}
-
-`create(secureStorage: SecureStorage)` returns a `MobileCoreApi` instance backed by `ServiceFacade`.
-
-The native application is responsible for creating its concrete protected-storage adapter. The complete initialization of HTTP communication will be defined during implementation.
-
-##### SecureStorage
-
-| Aspect | Description |
-|:----------------|:--------------------------------------------------------------------------|
-| **Purpose** | Define a platform-independent contract for protected persistence of sensitive values. |
-| **Responsibilities** | Define secure key-value storage operations; abstract platform-specific protected storage; allow Android and iOS applications to supply their respective implementations. |
-| **Dependencies** | No concrete platform dependency. The implementation is supplied by the native application. |
-
-###### Interface Operations {.unnumbered}
-
-- `save(key: String, value: String)` stores a value under the specified key using protected storage.
-
-- `get(key: String)` returns the value associated with the key, or no value when the key is absent.
-
-- `remove(key: String)` removes the value associated with the key.
-
-The interface exposes generic key-value operations. Token-specific decisions, including the stored values and their keys, remain the responsibility of `TokenManager`.
-
-
-#### MobileCoreApplication
-
-The application module coordinates shared authentication, booking, and resource-access operations. `ServiceFacade` implements the contract defined by `MobileCoreApi` and delegates operations to the specialized services.
-
-![Shared Mobile Core Class Structure](assets/mobile-core-classes.png){width=95%}
-
-| Element | Description |
-|:----------------------------------------|:------------------------------------------------------------|
-| **ServiceFacade** |  **Purpose:** Implement `MobileCoreApi` and provide the entry point to application services. `\par\smallskip`{=latex} **Responsibilities:** Delegate authentication to `AuthService`, booking retrieval to `BookingService`, and access operations to `AccessService`; keep individual services behind the public contract. `\par\smallskip`{=latex} **Dependencies:** `MobileCoreApi`, `AuthService`, `BookingService`, `AccessService`. |
-| **AuthService** |  **Purpose:** Coordinate application-level authentication and session operations. `\par\smallskip`{=latex} **Responsibilities:** Handle login and logout through the communication gateway; remain independent from token storage and refresh details. `\par\smallskip`{=latex} **Dependencies:** `CommunicationGateway`. |
-| **BookingService** |  **Purpose:** Retrieve booking information for the current user. `\par\smallskip`{=latex} **Responsibilities:** Request active bookings through the gateway and expose the result as application models. `\par\smallskip`{=latex} **Dependencies:** `CommunicationGateway`, `Booking`. |
-| **AccessService** |  **Purpose:** Coordinate the application-level resource-access lifecycle. `\par\smallskip`{=latex} **Responsibilities:** Request access, confirm its outcome, and initiate check-out through the gateway. `\par\smallskip`{=latex} **Dependencies:** `CommunicationGateway`, `ResourceAccessRequest`, `ResourceAccessResponse`, `AccessConfirmation`. |
-
-##### Application Models {.unnumbered}
-
-\leavevmode\par
-
-These models form the application-facing data contract shared by the public API, application services, and communication gateway. Their detailed attributes will be refined with the access and backend contracts.
-
-| Element | Description |
-|:----------------------------------------|:------------------------------------------------------------|
-| **Booking** |  **Purpose:** Represent a booking at application level. `\par\smallskip`{=latex} **Responsibilities:** Provide booking information independently from its REST transport representation. `\par\smallskip`{=latex} **Dependencies:** None are defined in the current design. |
-| **ResourceAccessRequest** |  **Purpose:** Represent an application-level request to access a resource. `\par\smallskip`{=latex} **Responsibilities:** Carry the information required by the access flow while keeping application services independent from the transport DTO. `\par\smallskip`{=latex} **Dependencies:** None are defined in the current design. |
-| **ResourceAccessResponse** |  **Purpose:** Represent the application-level result of an access request. `\par\smallskip`{=latex} **Responsibilities:** Expose the access outcome while hiding the backend-specific transport representation. `\par\smallskip`{=latex} **Dependencies:** None are defined in the current design. |
-| **AccessConfirmation** |  **Purpose:** Represent confirmation of a resource-access operation. `\par\smallskip`{=latex} **Responsibilities:** Carry confirmation information independently from the REST DTO. `\par\smallskip`{=latex} **Dependencies:** None are defined in the current design. |
-
-##### Error Representation {.unnumbered}
-
-\leavevmode\par
-
-The shared error representation gives native applications a consistent description of application and communication failures.
-
-| Element | Description |
-|:----------------------------------------|:------------------------------------------------------------|
-| **MobileCoreException** |  **Purpose:** Represent an expected application or communication failure. `\par\smallskip`{=latex} **Responsibilities:** Carry an error code, an optional diagnostic message, and an optional underlying cause. `\par\smallskip`{=latex} **Dependencies:** `MobileCoreErrorCode`, `Exception`, and an optional `Throwable` cause. |
-| **MobileCoreErrorCode** | **Type:** Enumeration `\par\smallskip`{=latex} **Purpose:** Define the error categories exposed by the core. `\par\smallskip`{=latex} **Responsibilities:** Distinguish backend failures, connection errors, timeouts, and unrecognized failures. `\par\smallskip`{=latex} **Dependencies:** None. |
-
-#### BackendCommunication
-
-The communication module provides the boundary between application operations and the backend REST API. It contains the communication contract, its implementation, the REST client, transport DTOs, and HTTP communication infrastructure.
-
-Application models are converted to transport representations when sending requests. Received transport data is converted back into application models before it reaches the application services.
-
-![Backend Communication Class Structure](assets/mobile-communication-classes.png){width=100%}
-
-##### CommunicationGateway
-
-| Element | Description |
-|:----------------------------------------|:------------------------------------------------------------|
-| **CommunicationGateway** | **Purpose:** Define the application-facing contract for backend communication, independently from HTTP, endpoint formats, DTOs, and token-management details. `\par\smallskip`{=latex} **Responsibilities:** Expose backend capabilities using application-level types; isolate application services from transport details; hide authentication credential handling; define the boundary between application logic and backend communication. `\par\smallskip`{=latex} **Dependencies:** Application models, with no concrete HTTP dependency. The interface is implemented by `BackendCommunication`. |
-
-###### Interface Operations {.unnumbered}
-
-- `login(identifier: String, password: String)` authenticates the user. Returned credentials are handled internally by the communication and token components.
-
-- `logout()` requests backend session revocation and local credential cleanup.
-
-- `getActiveBookings()` returns active bookings as application `Booking` models.
-
-- `requestAccess(request: ResourceAccessRequest)` sends an access request and returns a `ResourceAccessResponse`.
-
-- `confirmAccess(confirmation: AccessConfirmation)` sends an access confirmation to the backend.
-
-- `checkOut(resourceId: String)` requests completion of resource usage.
-
-The operations are asynchronous. DTO creation, authentication headers, token refresh, and credential persistence remain internal concerns and are not exposed through the operation signatures.
-
-##### Classes {.unnumbered}
-
-\leavevmode\par
-
-| Element | Description |
-|:----------------------------------------|:------------------------------------------------------------|
-| **BackendCommunication** | **Purpose:** Implement `CommunicationGateway` and adapt application operations to backend communication. `\par\smallskip`{=latex} **Responsibilities:** Convert models and DTOs; coordinate login, refresh, and logout; manage credentials through `TokenManager`; retry a protected operation once after successful refresh. `\par\smallskip`{=latex} **Dependencies:** `CommunicationGateway`, `BackendApiClient`, `TokenManager`, application models, and transport DTOs. |
-| **BackendApiClient** | **Purpose:** Provide the low-level REST communication operations. `\par\smallskip`{=latex} **Responsibilities:** Send HTTP requests, exchange DTOs, attach supplied access credentials, and perform transport operations for authentication, bookings, resource access, and check-out. `\par\smallskip`{=latex} **Dependencies:** An HTTP communication system and transport DTOs. |
-
-##### Data Transfer Objects {.unnumbered}
-
-\leavevmode\par
-
-The communication module defines DTOs for the backend contract. They remain separate from application models so that transport formats can evolve independently. Their final attributes will be defined with the backend API.
-
-| Element | Description |
-|:----------------------------------------|:------------------------------------------------------------|
-| **LoginRequestDto** | Contains the user identifier and password sent to the authentication endpoint. |
-| **LoginResponseDto** | Contains the access and refresh tokens returned after successful authentication. |
-| **RefreshTokenRequestDto** | Contains the current refresh token sent to renew authentication credentials. |
-| **RefreshTokenResponseDto** | Contains the new access token and any replacement refresh token returned after successful renewal. |
-| **BookingDto** | Contains booking information received from the backend and converted into an application `Booking` model. |
-| **ResourceAccessRequestDto** | Contains the information sent to the backend to request access to a resource. |
-| **ResourceAccessResponseDto** | Contains the backend's response to an access request, converted into an application `ResourceAccessResponse` model. |
-| **AccessConfirmationRequestDto** | Contains the information sent to confirm the outcome of a resource-access operation. |
-| **CheckOutRequestDto** | Contains the information sent to complete resource usage through check-out. |
-##### HTTP Communication {.unnumbered}
-
-\leavevmode\par
-
-The communication module will use an HTTP communication system to exchange requests and responses with the backend. This system will support request execution, authentication headers, transport-data conversion, timeouts, and communication-error handling.
-
-The concrete HTTP library, platform configuration, and client initialization are implementation choices and will be documented in Chapter 5. They do not define additional architectural modules in this design.
-
-#### TokenManager
-
-The token-management module owns local authentication credentials. It uses the public `SecureStorage` contract supplied by the native application and remains independent from backend communication.
-
-The interface is defined in the `api` package. The existing diagram retains the relationship between the token manager and this external storage contract.
-
-![Token Management Class Structure](assets/mobile-token-classes.png){width=80%}
-
-| Element | Description |
-|:----------------------------------------|:------------------------------------------------------------|
-| **TokenManager** | **Purpose:** Manage local authentication credentials. `\par\smallskip`{=latex} **Responsibilities:** Keep the access token in memory; persist and retrieve the refresh token through protected storage; replace credentials after login or refresh; clear credentials when the session ends. `\par\smallskip`{=latex} **Dependencies:** `SecureStorage`. |
-
-The component provides operations to obtain the access token, obtain the refresh token, store replacement credentials, and clear local credentials. Token renewal itself is coordinated by `BackendCommunication`.
+The [mobile reference](08-appendices.md#mobile-interfaces-classes-and-dtos) contains API signatures, class diagrams, models, DTOs and detailed responsibilities. These contracts support the design below and the implementation discussion in Chapter 5.
 
 ### Authentication and Token Lifecycle
 
@@ -727,8 +226,7 @@ Authentication is coordinated by `BackendCommunication` and `TokenManager`. The 
 
 The following flows describe the intended behavior. Authentication credentials remain internal to the core.
 
-#### Login Flow
-
+#### Login Flow {.unnumbered}
 1. The native application calls `MobileCoreApi.login(identifier, password)`.
 2. `ServiceFacade` delegates the operation to `AuthService`.
 3. `AuthService` invokes `CommunicationGateway.login(...)`.
@@ -737,10 +235,9 @@ The following flows describe the intended behavior. Authentication credentials r
 6. `BackendCommunication` stores the credentials through `TokenManager.storeTokens(...)`.
 7. The password is not persisted or reused for automatic authentication.
 
-![Mobile Login Flow](assets/mobile-login-flow.png){width=100%}
+![Mobile Login Flow](../assets/mobile/mobile-login-flow.png){#fig-mobile-login-flow width=100%}
 
-#### Access Token Refresh
-
+#### Access Token Refresh {.unnumbered}
 Refresh is transparent to callers and is not part of `MobileCoreApi` or `CommunicationGateway`.
 
 1. `BackendCommunication` obtains the access token from `TokenManager`.
@@ -751,10 +248,9 @@ Refresh is transparent to callers and is not part of `MobileCoreApi` or `Communi
 6. The protected operation is performed with the new token, or retried once if previously rejected.
 7. If the refresh token is invalid, expired, or revoked, local credentials are cleared and authentication is required again.
 
-![Mobile Token Refresh Flow](assets/mobile-token-refresh-flow.png){width=95%}
+![Mobile Token Refresh Flow](../assets/mobile/mobile-token-refresh-flow.png){#fig-mobile-token-refresh-flow width=95%}
 
-#### Logout Flow
-
+#### Logout Flow {.unnumbered}
 1. The native application calls `MobileCoreApi.logout()`.
 2. The operation reaches `BackendCommunication` through the facade, authentication service, and communication gateway.
 3. The communication component obtains the refresh token from `TokenManager`.
@@ -763,8 +259,7 @@ Refresh is transparent to callers and is not part of `MobileCoreApi` or `Communi
 
 Backend revocation prevents the renewable credential from being used to obtain new access credentials.
 
-#### Token and Session Lifecycle
-
+#### Token and Session Lifecycle {.unnumbered}
 **Password.** Used for the initial authentication operation and not persisted.
 
 **Access token.** Used to authenticate protected backend requests. It is short-lived and retained in memory.
@@ -773,7 +268,9 @@ Backend revocation prevents the renewable credential from being used to obtain n
 
 ### Design Decisions and Assumptions
 
-#### Design Decisions
+#### Design Decisions {.unnumbered}
+
+<a id="tbl-03-04"></a>
 
 | Decision | Rationale |
 |:--------------------------|:------------------------------------------------------|
@@ -788,8 +285,10 @@ Backend revocation prevents the renewable credential from being used to obtain n
 | Protected credentials | Preserve renewable sessions without storing the password. |
 | Native adapters | Integrate platform-specific functionality through native applications and shared contracts. |
 
-#### Assumptions
+: Design Decisions — decision, rationale {#tbl-03-04}
 
+
+#### Assumptions {.unnumbered}
 - The backend provides REST endpoints for authentication, bookings, and resource-access operations.
 - Login returns a short-lived access token and a long-lived refresh token.
 - Refresh may rotate the refresh token; any replacement is stored immediately.
@@ -799,77 +298,40 @@ Backend revocation prevents the renewable credential from being used to obtain n
 - Check-out uses `resourceId`; its transport representation may evolve independently.
 - A protected operation is retried at most once after successful token renewal.
 
-
 ## Database Design
 
-<!-- ![ER Diagram](assets/erd.png) error -->
+The data model links users, devices, renewable sessions and one-time tokens to resources, bookings, terminal receipts and invoices. Availability represents resource time windows and permitted roles; audit records identify actors and outcomes. A locked booking price and invoice records preserve the rate associated with usage. The [database reference](08-appendices.md#database-schema-and-constraints) contains fields, relationships and constraints, including the unresolved terminal cardinality.
 
-### 1. Core Entities
+### Database Trigger Evaluation
 
-#### User
-`id`, `email`, `password_hash` (VARCHAR, **nullable** – supports external or token-based authentication providers), `role` (VARCHAR), `status` (VARCHAR), `created_at` (TIMESTAMPTZ), `first_name`, `last_name`, `start_semester`, `field_of_study`, `failed_attempts`, `locked_until` (TIMESTAMPTZ)
+During the architectural design phase of the persistence layer, the application of database triggers was evaluated to determine whether system responsibilities (e.g., integrity checks, audit logging, or state transitions) should be delegated to the database level.
 
-#### Device
-`id`, `user_id` (FK), `name`, `public_key`, `created_at` (TIMESTAMPTZ), `revoked_at` (TIMESTAMPTZ)
+#### Evaluation & Trade-offs {.unnumbered}
+- **Database Triggers (Pros & Cons):** While triggers guarantee data-level consistency regardless of the accessing client and reduce network overhead, they introduce significant architectural drawbacks. They hide core business logic within the database schema, complicate unit and integration testing, obscure debugging workflows, and introduce risks during database migrations.
+- **Application Logic (Pros & Cons):** Handling system responsibilities within the Java/Spring Boot application layer keeps domain rules explicit, fully testable, and version-controlled within the primary codebase.
 
-#### RefreshToken
-`id`, `user_id` (FK), `token_hash`, `expires_at` (TIMESTAMPTZ), `revoked_at` (TIMESTAMPTZ)
+#### Architectural Decision {.unnumbered}
+**Decision:** The team decided **against using database triggers** in the system architecture. All domain responsibilities, including booking availability validation, concurrent access controls, audit logging, and lifecycle timestamps, are assigned by this decision to the application service layer (Java / Spring Boot).
 
-#### OneTimeToken
-`id`, `user_id` (FK), `token_hash`, `purpose` (VARCHAR), `expires_at` (TIMESTAMPTZ), `used_at` (TIMESTAMPTZ), `created_by_user_id` (FK)
+The stated intent is separation of concerns, maintainability and testability across the booking lifecycle; this rationale is not execution evidence.
 
-#### Resource
-`id`, `name`, `description`, `price_per_hour` (DECIMAL), `status` (VARCHAR), `type` (VARCHAR), `position` (VARCHAR)
-
-#### Terminal
-`id`, `public_key`, `status` (VARCHAR), `resource_id` (FK, UNIQUE)
-
-#### Booking
-`id`, `user_id` (FK), `resource_id` (FK), `start_time` (TIMESTAMPTZ), `end_time` (TIMESTAMPTZ), `status` (VARCHAR), `locked_price` (DECIMAL)
-* **Constraints:** Enforces `CHECK (end_time > start_time)` and a PostgreSQL `EXCLUDE USING gist` constraint to prevent overlapping active bookings for the same resource.
-
-#### Receipt
-`id` (UUID), `booking_id` (FK), `terminal_id` (FK), `ticket_id`, `type` (VARCHAR), `receipt_time` (TIMESTAMPTZ), `signature`, `received_at` (TIMESTAMPTZ)
-
-#### Invoice
-`id`, `invoice_number`, `booking_id` (FK, UNIQUE), `user_id` (FK), `final_price` (DECIMAL), `pdf_file_path`, `status` (VARCHAR), `created_at` (TIMESTAMPTZ), `type` (VARCHAR), `qr_reference`, `due_date`, `paid_at` (TIMESTAMPTZ), `currency` (VARCHAR)
-
-#### Availability
-`id`, `resource_id` (FK), `day_of_week` (SMALLINT), `start_time`, `end_time`, `permitted_role` (VARCHAR)
-
-#### AuditLog
-`id`, `actor_user_id` (FK), `action` (VARCHAR), `target_entity` (VARCHAR), `timestamp` (TIMESTAMPTZ), `details` (JSONB), `target_id`, `outcome` (VARCHAR), `ip_address` (VARCHAR)
-
-### 2. Relationships & Cardinalities
-
-- **User -> Booking ($1 : n$):** A user can place multiple bookings over time.
-- **User -> Device ($1 : n$):** A user can register multiple authentication devices.
-- **User -> RefreshToken ($1 : n$):** A user can maintain multiple active authentication sessions.
-- **User -> OneTimeToken ($1 : n$):** A user can have multiple tokens issued for or by them (`created_by_user_id`).
-- **User -> Invoice ($1 : n$):** A user is assigned to all invoices generated for their bookings.
-- **User -> AuditLog ($1 : n$):** A user triggers multiple logged system actions (`actor_user_id`).
-- **Resource -> Booking ($1 : n$):** A bookable resource can have multiple scheduled bookings.
-- **Resource -> Availability ($1 : n$):** A resource defines multiple time-window access rules across days of the week.
-- **Terminal -> Resource ($1 : 1$):** Each hardware terminal is assigned to exactly one physical resource (`resource_id` in `terminal`).
-- **Terminal -> Receipt ($1 : n$):** A physical terminal generates and signs multiple access receipts.
-- **Booking -> Receipt ($1 : n$):** A single booking session tracks check-in and check-out receipts.
-- **Booking -> Invoice ($1 : 1$):** Every completed/billable booking correlates to exactly one invoice (`UNIQUE` constraint on `booking_id`).
+---
 
 ## Booking and Usage Lifecycle
 
-- *Show the proposed states and transitions for bookings and resource usage.*
-- *Summarize the main policies for booking conflicts, walk-in access, no-shows, overtime, and missing check-out.*
+![Booking status transitions](../assets/backend/booking-status.png){#fig-booking-status width=60%}
+
+The backend design defines no-show detection 15 minutes after the start, charging until the scheduled end when check-out is missing, and invoice creation from booking events. The design decisions below retain their exact policies; differences from the requirements are listed in [cross-component conflicts](#integration-conflicts).
 
 ## BLE Access and Security Concept
 
-Status: design proposal for T-003, ready for team review.
+T-003 is a design proposal ready for team review.
 
 ### Purpose and Scope
 
 This concept describes how the mobile app on the smartphone communicates with the door terminal over BLE to authorize access and record check-in/check-out. The terminal is assigned to the booked resource. The flow follows the backend's ticket approach.
 
-#### The idea in short
-
+#### The idea in short {.unnumbered}
 Before check-in, the app fetches a signed ticket from the backend. The terminal can check this ticket completely offline. With a challenge-response step, the app proves that it holds the matching private key, so simply copying the ticket to another smartphone is not enough. If everything succeeds, the terminal saves the event and issues a signed receipt, which the app uploads to the backend. Check-out works the same way, with its own ticket.
 
 **Not in scope:** BLE and firmware implementation, mobile classes, final data formats and cryptographic algorithms, detailed synchronization, and performance optimization.
@@ -878,11 +340,17 @@ Before check-in, the app fetches a signed ticket from the backend. The terminal 
 
 Three parties are involved. Only the first two take part in the BLE exchange.
 
+
+<a id="tbl-03-05"></a>
+
 | Actor | Role |
 |---|---|
 | Mobile app on the smartphone | BLE central / GATT client. Verifies the terminal, sends the ticket, proves the device key, and uploads receipts. |
 | Door terminal (assumed ESP32) | BLE peripheral / GATT server. Checks tickets offline, saves events, and returns signed receipts. |
 | Backend | Registers devices, issues tickets, and processes receipts. It takes no part in the BLE exchange. |
+
+: Actors and Prerequisites — actor, role {#tbl-03-05}
+
 
 Before a check-in or check-out can start, four things must be in place:
 
@@ -901,8 +369,7 @@ The proposed design decisions are summarized below.
 
 Check-in and check-out use the same exchange. Each needs its own ticket.
 
-#### The five steps
-
+#### The five steps {.unnumbered}
 1. **Connect and verify the terminal.** The app finds the terminal over BLE and connects. The terminal proves that it is the trusted terminal for this resource, and both sides set up a protected connection. *Message: handshake and terminal proof.*
 2. **Send the ticket.** The app sends the signed ticket and an operation ID. The terminal checks the backend signature, resource, action, and time window. *Message: authorization request.*
 3. **Prove the device key.** The terminal sends a fresh challenge, and the app signs it with the device key named in the ticket. *Messages: challenge and device proof.*
@@ -911,16 +378,21 @@ Check-in and check-out use the same exchange. Each needs its own ticket.
 
 Under the backend's ticket proposal, a check-out ticket is issued only after the backend has accepted the check-in receipt. The upload in step 5 is therefore required to obtain that ticket.
 
-![BLE connection, identification, check-in and check-out](../assets/ble-normal-flow.png){width=100%}
+![BLE connection, identification, check-in and check-out](../assets/architecture/ble-normal-flow.png){#fig-ble-normal-flow width=100%}
 
 The message names describe purposes, not final names or formats. GATT characteristics, UUIDs, framing, and packet sizes are left for implementation.
 
-#### What the terminal checks and saves
+#### What the terminal checks and saves {.unnumbered}
+
+<a id="tbl-03-06"></a>
 
 | Action | Required local state | Result |
 |---|---|---|
 | `CHECK_IN` | The booking may start. No conflicting use, and this booking was not started before. | One start event. The booking is in use. |
 | `CHECK_OUT` | The same booking is currently in use. | One end event. The use is ended. |
+
+: What the terminal checks and saves — action, required local state {#tbl-03-06}
+
 
 The terminal follows three rules:
 
@@ -938,9 +410,11 @@ Every failed attempt ends in one of three results for the app. Which one depends
 - **Rejected:** the terminal answered with a rejection. This attempt saved nothing.
 - **Unknown:** the app started sending the device proof but holds neither a valid receipt nor a final rejection. The terminal may have saved the event.
 
-![BLE failure handling and initial recovery](../assets/ble-failure-flow.png){width=100%}
+![BLE failure handling and initial recovery](../assets/architecture/ble-failure-flow.png){#fig-ble-failure-flow width=100%}
 
-#### Failure cases
+#### Failure cases {.unnumbered}
+
+<a id="tbl-03-07"></a>
 
 | Where it fails | Result | What the app does |
 |---|---|---|
@@ -950,8 +424,10 @@ Every failed attempt ends in one of three results for the app. Which one depends
 | Terminal rejects the action (conflicting use, check-out without active use, full event queue, or a storage failure that clearly saved nothing) | Rejected | Do not show success or signal access. |
 | No valid receipt after the app has started sending the device proof (connection lost, response missing, receipt invalid, or a storage failure with an unclear result) | Unknown | Keep the operation ID and follow the unknown-result rules below. |
 
-#### Unknown result
+: Failure cases — where it fails, result {#tbl-03-07}
 
+
+#### Unknown result {.unnumbered}
 The terminal can save an action only after it has checked the device proof. Before the app starts sending the device proof, a failed attempt is simply unsuccessful. After the app has started sending it, the result stays unknown until the app holds a verified receipt or a final rejection.
 
 This is why the operation ID matters. The app saves it before sending the request and reuses it for every retry of the same action. In the unknown case the app keeps that ID, reconnects, and asks the terminal for the saved receipt. This query only reads; it cannot perform a check-in or check-out. If no receipt comes back, that does not prove that nothing was saved. Whether a later rejection settles the earlier attempt depends on the terminal's history check; the BLE Recovery Proposal in the security appendix defines when a rejection is final. The app never creates a new operation ID to get around this.
@@ -961,6 +437,9 @@ The security appendix contains the detailed recovery and retry rules. A failed r
 ### Security Rules
 
 Each rule protects a step of the normal BLE flow.
+
+
+<a id="tbl-03-08"></a>
 
 | Rule | Protects against |
 |---|---|
@@ -973,6 +452,9 @@ Each rule protects a step of the normal BLE flow.
 | Keys stay protected. Logs hold no secrets or unnecessary personal data. | Leaked keys and personal data |
 | Message size, waiting time, and retries are limited. | Malformed messages creating events or blocking the terminal |
 
+: Security Rules — rule, protects against {#tbl-03-08}
+
+
 The terminal proof covers a fresh nonce from the app, the protocol version, the expected terminal and resource, and the handshake itself. A static ID or certificate is not enough.
 
 **Known limit:** BLE authentication does not prove physical distance. An attacker could forward the exchange from another place (relay attack). The team has to accept this or assess extra protection.
@@ -984,7 +466,9 @@ The terminal proof covers a fresh nonce from the app, the protocol version, the 
 
 The proposed flow assumes that one terminal manages local resource use and that the terminal hardware is an ESP32. Both assumptions need team confirmation.
 
-#### Proposed design decisions
+#### Proposed design decisions {.unnumbered}
+
+<a id="tbl-03-09"></a>
 
 | Decision | Reason |
 |---|---|
@@ -994,6 +478,9 @@ The proposed flow assumes that one terminal manages local resource use and that 
 | Recover with the original device key | The receipt can be fetched again without allowing a new action. |
 | Protect the connection before sending a ticket | Tickets and proofs cannot be read or changed. |
 | Same terminal for check-in and check-out | An offline terminal can check the order with its own saved state. |
+
+: Proposed design decisions — decision, reason {#tbl-03-09}
+
 
 ## Offline Operation and Synchronization
 
@@ -1020,30 +507,7 @@ The BLE synchronization proposal in Detailed Security Documentation gives the ac
 
 ### Web Application UI
 
-#### 1. Required Web Screens
-Based on the defined use cases, the web application comprises the following functional screens:
-
-* **Public & Authentication:**
-  * `S-01: Sign In Screen` (UC-01) – Authentication for all roles via credentials.
-  * `S-02: Account Registration Screen` (UC-02) – Single-use invitation link onboarding.
-  * `S-03: Password Reset Screen` (UC-01) – Password recovery flow.
-* **Ordinary User Space (Student / Lecturer):**
-  * `S-04: Resource Catalog & Availability` (UC-03) – Search, filter, and inspect availability.
-  * `S-05: Resource Detail & Booking Modal` (UC-04) – Slot selection and booking submission.
-  * `S-06: My Bookings & Linked Devices` (UC-05) – View, modify, or cancel personal active and past bookings, and view active mobile device authorizations.
-  * `S-07: My Invoices` (UC-06) – Inspect payment status (`DUE`, `PENDING`, `PAID`) and download PDF invoices.
-* **Administrative Space:**
-  * `S-08: User Management` (UC-07) – User list, role changes, deactivation, and invitation link generation.
-  * `S-09: Resource & Terminal Administration` (UC-08) – Manage resources, pricing rules, and link/decommission terminals.
-  * `S-10: Global Bookings Overview` (UC-09) – System-wide booking inspection and administrative overrides.
-  * `S-11: Billing & Invoice Management` (UC-10) – Global invoice ledger and manual payment status updates.
-  * `S-12: Audit Logs & Sync Conflicts` (UC-11) – Read-only system audit trail and offline conflict review.
-* **Responsive Mobile Web Views:**
-  * `Mobile S-04, S-05, S-06` – Mobile-optimized viewport layouts (375px) featuring hamburger navigation, stacked filters, and card-based resource/booking views.
-
----
-
-#### 2. Navigation Architecture & Role-Based Access
+#### Navigation Architecture & Role-Based Access {.unnumbered}
 Navigation is structured using a responsive sidebar/header navigation layout:
 * **Ordinary User Navigation:**
   * **Browse Resources** (`S-04`)
@@ -1059,7 +523,7 @@ Navigation is structured using a responsive sidebar/header navigation layout:
 
 ---
 
-#### 3. Essential UI Screen States
+#### Essential UI Screen States {.unnumbered}
 To ensure a robust user interface design, all screens represent five fundamental interaction states:
 1. **Success State:** Renders data items or displays positive action feedback (e.g., booking confirmed).
 2. **Validation / Input Error State:** Highlights invalid form inputs and displays clear guidance (e.g., overlapping time slot selected).
@@ -1067,20 +531,194 @@ To ensure a robust user interface design, all screens represent five fundamental
 4. **Access Denied State:** Renders appropriate restriction feedback when unauthorized users access restricted paths (`403 Forbidden`).
 5. **System / Network Error State:** Displays error boundaries with retry actions when backend operations fail.
 
-*Figma Prototype:* [BLE Booking System Figma Prototype](https://www.figma.com/design/QzahEEhEJQ6pndblTa12Vl/UI-prototype?node-id=3-17762&t=Y9g1sM36tJAp3LoM-1)
-
-#### Key Screen Wireframes
-![Sign In Screen](../assets/web-ui/s01-signin.png)
-![Resource Catalog & Availability](../assets/web-ui/s04-catalog.png)
-![My Bookings](../assets/web-ui/s06-my-bookings.png)
-![Admin User Management](../assets/web-ui/s08-admin-users.png)
+The [screen catalogue and wireframes](08-appendices.md#web-interface-reference) preserve the screen IDs, use-case mappings and supplied mockups.
 
 ### Mobile Application UI
 
-- *Include wireframes for the main mobile screens: login, current booking/access entitlement, BLE connection, and check-in/check-out.*
-- *Show navigation and feedback for successful or denied access, disconnection, and offline operation.*
+<!-- Author: Include wireframes for the main mobile screens: login, current booking/access entitlement, BLE connection, and check-in/check-out. -->
+<!-- Author: Show navigation and feedback for successful or denied access, disconnection, and offline operation. -->
 
-## Design Choices
+## Door Terminal Design
 
-- *Summarize the important choices in architecture, technologies, mobile integration, and BLE communication, with their reasons.*
-- *Record unresolved design questions; describe the final implemented structures and any changes in Chapter 5.*
+T-016 · EN-03.02 · Design proposal · 17 October 2026.
+
+### Purpose and scope
+
+We divide the terminal software into modules with clear responsibilities. One controller coordinates access; separate services handle BLE, security, storage, time and hardware. This lets us test the access rules without a connected servo or smartphone.
+
+The design follows the [BLE communication flow](03-ideas-and-concepts.md#ble-access-and-security-concept) (T-003) and the [hardware selection](03-ideas-and-concepts.md#terminal-hardware-selection) (T-015): a Nano ESP32, MG90S servo latch, door contact, DS3231 clock, RGB LED and active buzzer. One terminal manages one equipment compartment.
+
+This spike defines responsibilities, dependencies and the main interfaces. The implementation language, firmware and detailed method implementations remain outside its scope. The names below describe the proposed structure; they are not existing terminal code.
+
+### Modules and responsibilities
+
+The smartphone talks to the BLE module. Access control coordinates the checks and calls the other services. Startup and setup connect these components and check that the terminal is ready.
+
+![Terminal modules and their dependencies](../assets/terminal/terminal-modules.png){#fig-terminal-modules width=100%}
+
+*Solid arrows show communication with the smartphone or dependencies between modules. The dotted arrows show startup coordination.*
+
+The controller owns access decisions; BLE and protocol handle the smartphone connection. Storage, security, time, door control and feedback are separate services. Startup and setup connect them and check readiness. Their [classes and dependencies](08-appendices.md#terminal-modules-and-interfaces) are catalogued in the technical reference.
+
+The USB setup path is a proposal for the prototype. It is separate from normal BLE access and needs its own authorization before it can change configuration or keys.
+
+### Dependencies and communication
+
+`BleProtocol` passes requests to `TerminalController` and sends its answers back to the app. The controller uses the service interfaces listed above, so its access rules do not depend on GPIO pins or a particular BLE or storage library.
+
+Messages may exceed the size of one [BLE write or notification](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host/attribute-protocol--att-.html). `BleTransport` sends suitable chunks, and `BleProtocol` checks their order, total size and completeness before passing the reassembled message to the controller. Final framing and limits belong to T-003.
+
+Only the controller decides whether an access request is allowed. Door control carries out its commands and reports the door contact; a contact change alone cannot start or end a loan. Hardware and library calls stay inside the service implementations.
+
+We propose one event queue for BLE messages, connection changes and door-contact readings. Callbacks add events to the queue; the main loop processes them. Only one action may reach the state-changing part of the flow at a time. A second action receives a busy result instead of running alongside it. Feedback must not block that loop while a beep is playing.
+
+The supervisor creates the services and connects them at startup. Configuration holds the terminal/resource identifiers and agreed limits such as message size, challenge lifetime and storage capacity. Their final values follow the BLE contract.
+
+Security supplies secure random values. The controller uses them to create session-bound challenges and discards each challenge after use, disconnect or expiry. Diagnostic logs must exclude keys, tickets and proofs.
+
+### Check-in, check-out and recovery
+
+#### Normal actions {.unnumbered}
+Both actions use the same BLE authorization flow:
+
+1. `BleProtocol` establishes the protected connection with help from `SecurityService`. The app verifies the terminal before sending its ticket.
+2. `TerminalController` checks the ticket signature, resource, action and validity using Security and Time. It issues a fresh challenge and verifies the device proof.
+3. After a valid proof, the controller checks the operation ID and saved loan state. For a new operation, it checks the action-specific conditions below, signs the receipt and asks Storage to save the new state, event and receipt together.
+4. Only after a successful save does it command the latch, signal the result and return the signed receipt through BLE.
+
+
+<a id="tbl-03-10"></a>
+
+| Action | Condition for a new operation | After saving |
+|---|---|---|
+| `CHECK_IN` | Valid authorization; no conflicting loan; this booking has not already started. | Mark the booking as in use and release the latch. It stays released throughout the loan. |
+| `CHECK_OUT` | Valid authorization for the same active booking; door contact reports closed. | End the local loan and command the latch to lock. |
+
+: Normal actions — action, condition for a new operation {#tbl-03-10}
+
+
+If the operation ID already exists with the same booking, resource, action, terminal and device key, the controller returns the original receipt. It creates no event and issues no new servo command. Reusing that ID with different details is rejected. A retry with an agreed replacement ticket keeps the original operation ID.
+
+The compartment holds one assigned item. The door is moved by hand. Closing it during a loan does not lock it or check the user out. As in T-015, the user confirms the return: the prototype has no sensor that verifies the equipment is inside. Equipment left in the compartment after check-in, or returned without check-out, remains accessible.
+
+Saving the loan event and moving the mechanism are separate steps. The receipt confirms the saved event; the door contact cannot confirm that the latch moved. If a hardware fault is detected after saving, the terminal keeps the record and reports the fault rather than silently undoing the event.
+
+The [terminal operation guide](08-appendices.md#terminal-operation) gives the detailed startup, failure and receipt-recovery rules. An unreliable saved state, clock or missing key blocks new actions; startup restores the latch from the loan state without generating a new usage event.
+
+### Architectural decisions
+
+
+<a id="tbl-03-11"></a>
+
+| Decision | Reason |
+|---|---|
+| One controller coordinates actions; hardware sits behind interfaces. | The access rules can be tested with simulated storage, clock and door readings. |
+| One state-changing action at a time. | Two phones must not both start a loan against the same local state. |
+| Save loan state, event and signed receipt together before success or latch commands. | Recovery must find one consistent result after a restart. The flash implementation must provide this guarantee; choosing flash alone does not provide it. |
+| Use a stable operation ID and check its associated details. | Retries and replacement tickets must not cause a second event or servo action. |
+| Use the saved loan state to control the latch; keep door position separate. | This matches T-015. Closing the door alone does not end the loan. |
+| Keep setup separate from the BLE access protocol. | A normal access request must not replace trusted keys, identifiers or time settings. |
+| Let the smartphone carry receipts and proposed acknowledgments. | This follows the backend and BLE concepts and keeps terminal Wi-Fi outside the initial prototype. |
+
+: Architectural decisions — decision, reason {#tbl-03-11}
+
+
+### Integration and remaining decisions
+
+The terminal uses the backend's ticket and receipt contracts. The following points need coordination with the other components.
+
+
+<a id="tbl-03-12"></a>
+
+| Area | Integration point or remaining decision |
+|---|---|
+| Backend | The backend checks account, role and booking eligibility when issuing tickets. The terminal checks the signed permission locally. The proposed requirement to upload an accepted check-in receipt before obtaining a check-out ticket remains a team dependency. |
+| Mobile | BLE belongs to the native Android/iOS applications. Agree how `requestAccess`, `confirmAccess` and `checkOut(resourceId)` coordinate tickets and receipts; the current access-service methods are still placeholders. |
+| Database | `Device` and `Receipt` already exist in the central design. Agree how the operation ID and terminal retry records map to uploaded receipts; the terminal does not maintain a copy of the backend database. |
+| Resource assignment | This prototype uses one terminal per compartment. The backend allows several terminals per resource, while the database currently makes `terminal.resource_id` unique. Multi-terminal coordination needs a separate agreement. |
+| T-003 alignment | Align T-003 and mobile with the closed-door condition and the door-open rejection identifier for new check-outs. |
+| BLE security and synchronization | Session protection, trust provisioning, recovery limits, acknowledgment delivery and retention follow the open T-003 decisions. This document assigns them to modules without finalizing their formats or algorithms. |
+
+: Integration and remaining decisions — area, integration point or remaining decision {#tbl-03-12}
+
+
+#### Platform security {.unnumbered}
+We assume controlled physical access during development, subject to team confirmation. Protection of stored keys and firmware still needs a platform configuration covering [NVS encryption](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/storage/nvs_encryption.html), [Secure Boot](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/security/secure-boot-v2.html) and download/debug restrictions; this protection has not yet been demonstrated.
+
+## Terminal Hardware Selection
+
+**T-015 · 14 October 2026 · Enabler EN-03.02**
+
+*Document updated: 22 October 2026.*
+
+We chose an Arduino Nano ESP32 (ABX00083) for our equipment lending station. A smartphone sends access requests over BLE, an MG90S servo moves the latch, and a magnetic contact detects whether the door is closed. The prototype uses a plywood body with printed holders and fittings.
+
+The purchases total **CHF 131.80** against a CHF 200 budget. The 3D printer, filament, assembly screws and nuts are privately available. The [purchase record](08-appendices.md#terminal-purchases) gives the items and prices.
+
+This spike covers the hardware choice and planned setup. Firmware implementation, language selection, detailed CAD and production hardware are outside its scope.
+
+### Selection criteria
+
+The criteria follow the [project requirements](08-appendices.md#full-requirements-register), particularly FR-05.01 to FR-05.04 on BLE access and offline event recording.
+
+
+<a id="tbl-03-13"></a>
+
+| Criterion | Requirement for the prototype |
+|---|---|
+| BLE | Exchange tickets, device proofs and receipts with the smartphone. |
+| Local storage | Retain settings, keys, usage state and pending events after a restart. |
+| Network connectivity | The smartphone uploads receipts in the proposed BLE flow. Terminal Wi-Fi is available for later extensions. |
+| Connections | Support a servo, door contact, I2C clock and buzzer. |
+| Development | Documented interfaces, development tools and examples. |
+| Size and cost | Fit inside a compact enclosure and keep the complete prototype within CHF 200. |
+
+: Selection criteria — criterion, requirement for the prototype {#tbl-03-13}
+
+
+### Hardware alternatives
+
+All four boards support BLE and Wi-Fi. We compared their size, connections, price and delivery time. The prices and delivery times below refer to the offers we considered when ordering.
+
+
+<a id="tbl-03-14"></a>
+
+| Platform | Main specifications | Fit for the prototype |
+|---|---|---|
+| **[Arduino Nano ESP32 with headers](https://store.arduino.cc/products/nano-esp32-with-headers)** | ESP32-S3; 16 MB flash; 8 MB PSRAM; USB-C; 45 x 18 mm. | Compact board with fitted headers and enough connections for the planned components. CHF 19.50 at Galaxus, with pickup in Wohlen. |
+| **[ESP32-S3-DevKitC-1-N8R8](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/user_guide_v1.1.html)** | ESP32-S3; 8 MB flash; 8 MB PSRAM; more exposed GPIO pins. | Also covers the planned functions, but needs more mounting space. The offer we compared cost about twice as much as the Nano and would have arrived around a week and a half later. |
+| **[M5Stack Atom Lite](https://docs.m5stack.com/en/core/Atom-Lite)** | ESP32-PICO-D4; 4 MB flash; USB-C; 24 x 24 mm enclosure. | Compact board with an enclosure and RGB LED. It exposes fewer GPIO pins than the Nano, leaving less room for additional components. |
+| **[Raspberry Pi Zero 2 W](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/)** | Quad-core 1 GHz processor; 512 MB RAM; microSD storage; 65 x 30 mm. | Provides a Linux environment for Python development. We would also need to set up and maintain the operating system on a microSD card. |
+
+: Hardware alternatives — platform, main specifications {#tbl-03-14}
+
+
+### Selected board: Arduino Nano ESP32
+
+We chose the Nano ESP32 because it covers our requirements in a compact board. Compared with the DevKit offer, its lower price and earlier availability mattered more to us than additional GPIO pins.
+
+We selected the version with fitted headers to avoid soldering them ourselves. For setup and programming, we can use Arduino's [Nano ESP32 guides](https://docs.arduino.cc/hardware/nano-esp32/) and Espressif's [Arduino-ESP32 documentation](https://docs.espressif.com/projects/arduino-esp32/en/latest/getting_started.html).
+
+## Cross-Component Conflicts and Open Decisions {#integration-conflicts}
+
+The following differences remain in the project sources and require agreement; the report preserves the original identifiers.
+
+
+<a id="tbl-03-15"></a>
+
+| Topic | Source statements to reconcile |
+|---|---|
+| Roles | FR-01.01 and web use cases use Student, Lecturer and Admin; the backend design uses `STUDENT`, `STAFF`, `ADMIN`. A Lecturer-to-`STAFF` mapping is not explicitly agreed. |
+| Booking status and modification | UC-04 creates `CONFIRMED`; the backend API permits changes only in `BOOKED`. FR-04.03 and UC-05 permit modification during use. The backend design and the requirements therefore differ on modification after check-in. |
+| Terminal cardinality | Backend responsibilities and decision 10 allow several terminals per resource; the database design and V1 migration make `terminal.resource_id` unique. T-015/T-016 use one terminal per compartment. |
+| Checkout condition | T-015/T-016 require the door to be closed for a new check-out. T-003's local-state table only requires active use; its door-open rejection identifier remains to be agreed. |
+| Checkout integration | Mobile `checkOut(resourceId)` and the backend `/bookings/{id}/check-out` receipt endpoint use different boundaries. T-016 leaves their coordination open. |
+| Offline completion | FR-05.03 requires offline event recording. The proposed ticket flow needs an accepted uploaded check-in receipt before issuing a check-out ticket. Fully offline start and end require a further authorization policy. |
+| Database enforcement | The trigger decision describes concurrency and audit responsibilities as application-layer work; the schema and backend design also use a database exclusion constraint. The distinction between service validation and database integrity needs confirmation. |
+| Scope labels | ER-01, ER-10 and ER-13 retain NFC/BLE wording from the assignment; FR-05.01 and the repository scope explicitly exclude NFC implementation. |
+| Session revocation | UC-07 describes immediate loss of online session access; the backend design specifies 15-minute access JWTs and refresh-token invalidation. How existing access tokens are rejected after deactivation is not specified. |
+
+: Cross-Component Conflicts and Open Decisions — topic, source statements to reconcile {#tbl-03-15}
+
+
+Implementation-source discrepancies concerning database versions, schema names and CI are recorded in [implementation limits](05-implementation.md#implementation-discrepancies). None of these differences is resolved by changing an identifier during migration.

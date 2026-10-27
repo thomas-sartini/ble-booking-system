@@ -1,28 +1,25 @@
 # Problem, Research Question, and Vision
 
-- *Brief introduction to the project; detailed design, implementation, and evaluation follow in later chapters.*
-
 ## Background and Problem Statement
 
-- *Introduce the scenario: users reserve and access shared resources, such as rooms or equipment.*
-- *Explain the problem: connecting reservations, secure access, actual usage, and billing, including access when the terminal is offline.*
+The BLE Booking System is an IIP project at Lucerne University of Applied Sciences and Arts (HSLU). It aims to connect reservations of shared rooms or equipment with secure identification, actual resource use, and billing. The project combines user management, booking, access control, usage tracking and an audit trail.
 
 ## Project Objectives and Questions
 
-- *State the goal: develop a secure BLE booking and access-control prototype with user management, check-in/check-out, and billing.*
-- *Briefly identify the main project questions concerning secure access and reliable offline operation.*
+The objective is to design and prototype secure resource reservation and BLE check-in/check-out, with usage-based cost calculation, PDF invoices and payment status. The expected outcomes and their proposed verification are recorded in the [expected-results register](08-appendices.md#expected-results).
+
+<!-- Author: Formulate the agreed research questions. -->
 
 ## Target Users and Roles
 
-- *Introduce Student and Lecturer as resource users, and Admin as the role managing accounts, resources, and system records.*
-- *Clarify that these are intended users of the school-project scenario if no real users are involved.*
+The requirements identify Student, Lecturer and Admin. Students and Lecturers use permitted resources; Admins manage accounts, resources, payment status and audit records. The backend uses the identifiers `STUDENT`, `STAFF` and `ADMIN`; the unresolved terminology is recorded with the [integration conflicts](03-ideas-and-concepts.md#integration-conflicts).
 
 ## Scope and Constraints
 
-- *Summarize the included system: web and mobile applications, backend, database, and BLE door terminal, with offline access and synchronization.*
-- *State the main boundaries: NFC is excluded; mention relevant time, hardware, and device constraints.*
+The intended system comprises a web application, native Android and iOS applications with a shared Kotlin Multiplatform core, a backend, PostgreSQL and a BLE terminal. NFC is excluded by FR-05.01. The terminal prototype is an equipment lending compartment based on the selected Arduino Nano ESP32, within a CHF 200 hardware budget. The terminal checks permissions locally; the smartphone carries tickets and receipts between it and the backend.
 
 ## Requirements Overview
 
-- *Give a short overview of the functional requirements and the main security/privacy requirements, without repeating their complete descriptions.*
-- *Explain Must and Optional priorities; include the complete requirements and expected-results registers in Appendix A.1 and A.2.*
+The functional requirements cover accounts and sessions, web and mobile access, resources and availability, booking lifecycle, BLE and offline operation, billing, email and audit records. Security requirements cover authenticated encrypted transport, password hashing, credential expiry and revocation, replay resistance, bounded offline authorization and restricted data access.
+
+The register distinguishes Must requirements from Optional password reset (FR-01.05) and mobile resource/booking information (FR-03.04). The [complete register](08-appendices.md#full-requirements-register) preserves the identifiers, priorities and versions. All ER-01 through ER-22 remain recorded as Planned; their status is not a claim of delivery.

@@ -1,0 +1,14 @@
+classDiagram
+    direction LR
+    class Booking
+    class ResourceAccessRequest
+    class ResourceAccessResponse
+    class AccessConfirmation
+    class BookingDto
+    class ResourceAccessRequestDto
+    class ResourceAccessResponseDto
+    class AccessConfirmationRequestDto
+    BookingDto ..> Booking : maps to
+    ResourceAccessRequest ..> ResourceAccessRequestDto : maps to
+    ResourceAccessResponseDto ..> ResourceAccessResponse : maps to
+    AccessConfirmation ..> AccessConfirmationRequestDto : maps to

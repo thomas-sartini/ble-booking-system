@@ -1,151 +1,111 @@
 # Implementation
 
-- *Describe the system actually built, its important implementation decisions, and any changes from the design in Chapter 3.*
+<!-- Author: Describe the system actually built, its important implementation decisions, and any changes from the design in Chapter 3. -->
 
 ## Final System Architecture
 
-- *Show the final component architecture and the technologies actually selected for Web, Backend, Database, Shared Mobile Core, Android, iOS, and Door Terminal.*
-- *Explain important changes from the proposed architecture and how the implemented components connect.*
+<!-- Author: Show the final component architecture and the technologies actually selected for Web, Backend, Database, Shared Mobile Core, Android, iOS, and Door Terminal. -->
+<!-- Author: Explain important changes from the proposed architecture and how the implemented components connect. -->
 
 ## Web Application
 
-- *Describe the implemented modules/components, their responsibilities, and how the application communicates with the backend.*
-- *Include screenshots of the main user and administrator screens, explaining navigation, role-dependent actions, and error feedback.*
+<!-- Author: Describe the implemented modules/components, their responsibilities, and how the application communicates with the backend. -->
+<!-- Author: Include screenshots of the main user and administrator screens, explaining navigation, role-dependent actions, and error feedback. -->
 
 ## Backend
 
 ### Modules and Classes
 
-- *Show the implemented backend module structure and the important classes, including their responsibilities, dependencies, and internal interfaces.*
-- *Explain important implementation decisions or changes from the proposed design; include updated diagrams where needed.*
+<!-- Author: Show the implemented backend module structure and the important classes, including their responsibilities, dependencies, and internal interfaces. -->
+<!-- Author: Explain important implementation decisions or changes from the proposed design; include updated diagrams where needed. -->
 
 ### Main Functions
 
-- *Explain how accounts, roles, sessions, resources, terminals, bookings, and usage are handled, including availability checks and concurrent requests.*
-- *Describe cost calculation, PDF invoices, payment status, email notifications, and audit logging, including the agreed exceptional-case policies.*
+<!-- Author: Explain how accounts, roles, sessions, resources, terminals, bookings, and usage are handled, including availability checks and concurrent requests. -->
+<!-- Author: Describe cost calculation, PDF invoices, payment status, email notifications, and audit logging, including the agreed exceptional-case policies. -->
 
 ## Database and Persistence
 
-### Database Trigger Evaluation 
+The report documents local PostgreSQL provisioning through Docker Compose and schema initialization through Flyway. The migration is `backend/src/main/resources/db/migration/V1__initial_schema.sql`; later changes are intended as new versioned migrations. JPA validates the schema rather than creating it. The detailed [local setup](08-appendices.md#local-database-setup) includes configuration and lifecycle commands.
 
-During the architectural design phase of the persistence layer, the application of database triggers was evaluated to determine whether system responsibilities (e.g., integrity checks, audit logging, or state transitions) should be delegated to the database level.
-
-#### Evaluation & Trade-offs
-- **Database Triggers (Pros & Cons):** While triggers guarantee data-level consistency regardless of the accessing client and reduce network overhead, they introduce significant architectural drawbacks. They hide core business logic within the database schema, complicate unit and integration testing, obscure debugging workflows, and introduce risks during database migrations.
-- **Application Logic (Pros & Cons):** Handling system responsibilities within the Java/Spring Boot application layer keeps domain rules explicit, fully testable, and version-controlled within the primary codebase.
-
-#### Architectural Decision
-**Decision:** The team decided **against using database triggers** in the system architecture. All domain responsibilities, including booking availability validation, concurrent access controls, audit logging, and lifecycle timestamps, are explicitly implemented within the application service layer (Java / Spring Boot). 
-
-This decision ensures strict separation of concerns, high maintainability, and seamless end-to-end testability across the entire booking lifecycle.
-
----
-
-### Database Container Setup (Task T-014)
-
-To ensure a consistent, isolated, and reproducible local development environment across all developer machines prior to cloud deployment, the local database infrastructure is provisioned using Docker Compose.
-
-#### Technical Configuration
-The local prototype utilizes PostgreSQL 16 Alpine within a container. To adhere to security best practices and prevent hardcoded credentials, sensitive configuration values are injected securely via an environment file (`.env`), which is excluded from version control via `.gitignore`.
-
-The container setup declared in `docker-compose.yml` at the project root references these environment variables:
-
-```yaml
-services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: ble_booking_db_container
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
-```
-### Key Architecture & Configuration Decisions
-
-* **Container Image:** `postgres:16-alpine` was chosen for local execution to minimize resource consumption and speed up container startup times.
-* **Port Mapping:** The container exposes port `5432` internally, mapped to host port `5433` (`5433:5432`) to prevent port collisions with pre-existing local PostgreSQL services on developers' workstations.
-* **Security & Environment Separation:** Database credentials and configuration parameters are externalized into a local `.env` file (based on a template `.env.example`). Hardcoded plain-text passwords within the repository are strictly avoided.
-* **Persistence:** A named Docker volume (`postgres_data`) preserves data across local container restarts, ensuring development state isn't lost.
-* **Scope (Local vs. Cloud):** While production deployment will leverage cloud-managed database services, this containerized setup bridges local developer environments with production parity.
-
-### Execution & Management
-
-Developers can manage the local database lifecycle via Docker CLI:
-
-* **Start Database:** `docker compose up -d`
-* **Stop Database:** `docker compose down`
-
-### Database Setup & Initialization Script 
-
-To ensure that the local development database can be provisioned automatically, cleanly, and in a reproducible manner from a fresh state, an automated initialization script mechanism has been implemented.
-
-#### Implementation & Structure
-- **Location:** The initial schema is located at `backend/src/main/resources/db/migration/V1__initial_schema.sql`.
-- **Automatic Execution:** The PostgreSQL 18 Alpine container only provides an empty database. Flyway applies the migrations when the backend starts. Each migration runs only once; later schema changes are added as new migrations (`V2__...`).
-*   **Schema & Verification:** The `V1__initial_schema.sql` migration sets up the initial baseline schema and tables (e.g., `sample_bookings`) required for the application's starting state.
+The container image, environment separation, port mapping and named-volume rationale are documented with that procedure. The trigger decision belongs to [database design](03-ideas-and-concepts.md#database-trigger-evaluation).
 
 ## Mobile Application
 
 ### Shared Mobile Core
 
-- *Describe the implemented shared modules and important classes for REST communication, sessions, protocol messages, and access logic.*
-- *Explain the interfaces connecting shared logic to native BLE and protected-storage adapters.*
+<!-- Author: Describe the implemented shared modules and important classes for REST communication, sessions, protocol messages, and access logic. -->
+<!-- Author: Explain the interfaces connecting shared logic to native BLE and protected-storage adapters. -->
 
 ### Android Application
 
-- *Describe the Android implementation, its integration with the shared core, and its BLE and protected-storage adapters.*
-- *Include main screen examples and explain permissions, connection handling, access feedback, and relevant platform limitations.*
+<!-- Author: Describe the Android implementation, its integration with the shared core, and its BLE and protected-storage adapters. -->
+<!-- Author: Include main screen examples and explain permissions, connection handling, access feedback, and relevant platform limitations. -->
 
 ### iOS Application
 
-- *Describe the iOS implementation, its integration with the shared core, and its BLE and protected-storage adapters.*
-- *Include main screen examples and explain permissions, connection handling, access feedback, and relevant platform limitations.*
+<!-- Author: Describe the iOS implementation, its integration with the shared core, and its BLE and protected-storage adapters. -->
+<!-- Author: Include main screen examples and explain permissions, connection handling, access feedback, and relevant platform limitations. -->
 
 ## Door Terminal
 
 ### Hardware and Firmware Structure
 
-- *Describe the actual terminal hardware, door/actuator connection, and firmware modules, classes, or data structures.*
-- *Explain their responsibilities, local storage, initialization, and recovery after restart or interrupted operations.*
+<!-- Author: Describe the actual terminal hardware, door/actuator connection, and firmware modules, classes, or data structures. -->
+<!-- Author: Explain their responsibilities, local storage, initialization, and recovery after restart or interrupted operations. -->
 
 ### BLE Communication and Door Control
 
-- *Explain how the terminal processes BLE messages, verifies authorization, and controls the door.*
-- *Describe how check-in/check-out events are created and stored, including denied access and communication failures.*
+<!-- Author: Explain how the terminal processes BLE messages, verifies authorization, and controls the door. -->
+<!-- Author: Describe how check-in/check-out events are created and stored, including denied access and communication failures. -->
 
 ## Interfaces and Communication
 
-- *Document the main REST endpoints and shared-core/native adapter interfaces, including data models, authentication, and errors.*
-- *Describe the implemented BLE contract and terminal-to-backend synchronization route.*
+<!-- Author: Document the main REST endpoints and shared-core/native adapter interfaces, including data models, authentication, and errors. -->
+<!-- Author: Describe the implemented BLE contract and terminal-to-backend synchronization route. -->
 
 ## Offline Operation and Synchronization
 
-- *Explain the implemented offline authorization window, credential expiry, durable event queue, and delayed effect of central revocation.*
-- *Describe synchronization, retries, duplicate prevention, and conflict handling, including how repeated events avoid duplicate usage records or charges.*
+<!-- Author: Explain the implemented offline authorization window, credential expiry, durable event queue, and delayed effect of central revocation. -->
+<!-- Author: Describe synchronization, retries, duplicate prevention, and conflict handling, including how repeated events avoid duplicate usage records or charges. -->
 
 ## Main Interaction Flows
 
-- *Include technical Sequence Diagrams for the main implemented flows: login, booking, BLE check-in, and check-out with billing.*
-- *Show offline synchronization and important alternative/error flows using the actual components and interfaces.*
+<!-- Author: Include technical Sequence Diagrams for the main implemented flows: login, booking, BLE check-in, and check-out with billing. -->
+<!-- Author: Show offline synchronization and important alternative/error flows using the actual components and interfaces. -->
 
 ## Security Implementation
 
-- *Describe the actual controls for encrypted communication, password hashing, sessions, role enforcement, and protected mobile credentials/keys.*
-- *Explain BLE replay protection, device/terminal revocation, restricted data access, and protection of secrets and audit records.*
+<!-- Author: Describe the actual controls for encrypted communication, password hashing, sessions, role enforcement, and protected mobile credentials/keys. -->
+<!-- Author: Explain BLE replay protection, device/terminal revocation, restricted data access, and protection of secrets and audit records. -->
 
 ## Setup and Deployment
 
-- *Summarize how the components are built, configured, connected, and started, including terminal provisioning.*
-- *Include complete setup and operating instructions in Appendix A.5 so the delivered prototype can be reproduced.*
+<!-- Author: Summarize how the components are built, configured, connected, and started, including terminal provisioning. -->
+<!-- Author: Include complete setup and operating instructions in Appendix A.5 so the delivered prototype can be reproduced. -->
 
 ## Decisions, Difficulties, and Limitations
 
-- *Explain the important technical trade-offs and integration problems encountered, with the solutions chosen.*
-- *State known implementation limitations and unfinished functions; evaluate their impact in Chapter 6 and discuss future work in Chapter 7.*
+<!-- Author: Explain the important technical trade-offs and integration problems encountered, with the solutions chosen. -->
+<!-- Author: State known implementation limitations and unfinished functions; evaluate their impact in Chapter 6 and discuss future work in Chapter 7. -->
+
+## Implementation-Source Discrepancies {#implementation-discrepancies}
+
+
+<a id="tbl-05-01"></a>
+
+| Topic | Documentation and repository evidence |
+|---|---|
+| PostgreSQL container | T-014's setup text specifies `postgres:16-alpine` and `/var/lib/postgresql/data`; the later initialization paragraph specifies PostgreSQL 18, and `docker-compose.yml` uses `postgres:18-alpine` with `/var/lib/postgresql`. Both accounts are retained in the setup appendix. |
+| Initial schema | The old initialization paragraph names `sample_bookings`; V1 instead creates `user`, `resource`, `terminal`, `booking`, `device`, `refresh_token`, `one_time_token`, `receipt`, `invoice`, `availability` and `audit_log`. The example name does not describe the supplied migration. |
+| Overlap scope | The design describes an exclusion constraint for active bookings. V1's exclusion has no status predicate, so its declared scope also includes cancelled/completed rows. This is a source discrepancy, not an executed database result. |
+| Table ownership names | The backend narrative uses plural table names in one ownership table and singular names in its package table. V1 uses singular names. The technical reference preserves both source conventions explicitly. |
+| Trigger decision maturity | The original trigger decision says all domain responsibilities are implemented in services. No implementation account or execution evidence accompanies that broad claim; it is retained as a design responsibility, not proof that those functions work. |
+| CI and schema initialization | The test concept names `database/init.sql` and CI triggers for `backend/` or `database/`. The repository instead supplies Flyway V1, and `.github/workflows/backend.yml` filters `backend/**` and the workflow itself. Branch protection cannot be established from that file. |
+| Deployment | T-014 anticipates a cloud-managed production database; the backend test concept says the prototype is not deployed and specifies no automatic deployment. The available material does not establish a production deployment. |
+| Mobile setup | `mobile/README.md` mentions `sharedUI` and a `:sharedUI:testAndroidHostTest` task. The supplied project contains `sharedLogic`, `androidApp` and `iosApp`; the guide retains only applicable commands and preserves this discrepancy here. |
+
+: Implementation-Source Discrepancies — topic, documentation and repository evidence {#tbl-05-01}
+
+
+The mobile architecture describes the current core as a structural foundation, and T-016 identifies its access-service methods as placeholders. The terminal documents define hardware selection and proposed software interfaces; they do not document implemented firmware. Detailed implementation descriptions remain author tasks in the corresponding source sections.
