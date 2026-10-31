@@ -1,6 +1,10 @@
 # Environment variables
 .env
 
+# Dependencies & Package Managers
+node_modules/
+*/node_modules/
+
 # IDE / Editor files
 .vscode/
 .idea/
@@ -13,8 +17,10 @@ Thumbs.db
 
 # Java / Maven build output
 target/
+**/target/
 *.class
 *.log
 
-# Spring Initializr leftovers
-backend/HELP.md
+# Documentation/Helpers
+HELP.md
+**/HELP.md

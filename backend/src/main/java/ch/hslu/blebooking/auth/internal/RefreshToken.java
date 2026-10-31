@@ -32,6 +32,13 @@ public class RefreshToken {
 		// for JPA
 	}
 
+	public RefreshToken(Long userId, String tokenHash, Instant expiresAt) {
+		this.userId = userId;
+		this.tokenHash = tokenHash;
+		this.expiresAt = expiresAt;
+		this.revokedAt = null;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -52,4 +59,15 @@ public class RefreshToken {
 		return revokedAt;
 	}
 
+	public boolean isExpired() {
+		return Instant.now().isAfter(expiresAt);
+	}
+
+	public boolean isRevoked() {
+		return revokedAt != null;
+	}
+
+	public void revoke() {
+		this.revokedAt = Instant.now();
+	}
 }
