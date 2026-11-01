@@ -24,7 +24,6 @@ internal class ServiceFacade(
     private val bookingService: BookingService,
     private val accessService: AccessService
 ) : MobileCoreApi {
-
     override suspend fun login(
         identifier: String,
         password: String

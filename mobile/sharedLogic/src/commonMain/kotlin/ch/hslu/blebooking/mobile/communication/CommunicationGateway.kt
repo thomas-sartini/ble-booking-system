@@ -1,7 +1,6 @@
 
 package ch.hslu.blebooking.mobile.communication
 
-import ch.hslu.blebooking.mobile.communication.dto.RefreshTokenRequestDto
 import ch.hslu.blebooking.mobile.model.AccessConfirmation
 import ch.hslu.blebooking.mobile.model.Booking
 import ch.hslu.blebooking.mobile.model.ResourceAccessRequest

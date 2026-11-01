@@ -4,22 +4,23 @@ import ch.hslu.blebooking.mobile.api.SecureStorage
 
 internal class TokenManager(
     private val secureStorage: SecureStorage
-) {
+) : TokenStorage{
     private var accessToken: String? = null
 
-    fun getAccessToken(): String? {
+    override fun getAccessToken(): String? {
         TODO("Not yet implemented")
     }
 
-    fun getRefreshToken(): String? {
+    override fun getRefreshToken(): String? {
         TODO("Not yet implemented")
     }
 
-    fun storeTokens(accessToken: String, refreshToken: String) {
-        TODO("Not yet implemented")
+    override fun storeTokens(accessToken: String, refreshToken: String) {
+        secureStorage.save("accessToken", accessToken);
+        secureStorage.save("refreshToken", refreshToken);
     }
 
-    fun clearTokens() {
+    override fun clearTokens() {
         TODO("Not yet implemented")
     }
 }
