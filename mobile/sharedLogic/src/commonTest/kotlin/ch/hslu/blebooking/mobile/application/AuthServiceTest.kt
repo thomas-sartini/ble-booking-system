@@ -13,6 +13,7 @@ import kotlin.test.Test
 import dev.mokkery.mock
 import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifySuspend
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -20,11 +21,10 @@ import kotlin.test.assertTrue
 class AuthServiceTest {
 
     @Test
-    @Ignore // AuthService not implemented yet
     fun testLoginSuccess() = runTest {
         // Arrange
         val gateway = mock<CommunicationGateway>()
-        val identifier = "testuser"
+        val identifier = "test@user.com"
         val password = "testpassword"
 
         everySuspend {
@@ -35,7 +35,7 @@ class AuthServiceTest {
 
         // Act
         val result = runCatching {
-            service.login("user", "password")
+            service.login(identifier, password)
         }
 
         // Assert
@@ -48,11 +48,78 @@ class AuthServiceTest {
     }
 
     @Test
-    @Ignore // AuthService not implemented yet
+    fun testLoginWithInvalidMail() = runTest {
+        // Arrange
+        val gateway = mock<CommunicationGateway>()
+        val identifier = "invalid-mail"
+        val password = "testpassword"
+
+        everySuspend {
+            gateway.login(identifier, password)
+        } returns Unit
+
+        val service = AuthService(gateway)
+
+        // Act & Assert
+        val actualException = assertFailsWith<MobileCoreException> {
+            service.login(identifier, password)
+        }
+        // Assert
+        assertEquals(
+            MobileCoreErrorCode.VALIDATION_ERROR,
+            actualException.code
+        )
+
+        assertEquals(
+            "Invalid email",
+            actualException.message
+        )
+
+        // Verify
+        verifySuspend(VerifyMode.exactly(0)) {
+            gateway.login(identifier, password)
+        }
+    }
+
+    @Test
+    fun testLoginWithEmptyMail() = runTest {
+        // Arrange
+        val gateway = mock<CommunicationGateway>()
+        val identifier = ""
+        val password = "testpassword"
+
+        everySuspend {
+            gateway.login(identifier, password)
+        } returns Unit
+
+        val service = AuthService(gateway)
+
+        // Act & Assert
+        val actualException = assertFailsWith<MobileCoreException> {
+            service.login(identifier, password)
+        }
+        // Assert
+        assertEquals(
+            MobileCoreErrorCode.VALIDATION_ERROR,
+            actualException.code
+        )
+
+        assertEquals(
+            "Invalid email",
+            actualException.message
+        )
+
+        // Verify
+        verifySuspend(VerifyMode.exactly(0)) {
+            gateway.login(identifier, password)
+        }
+    }
+
+    @Test
     fun testLoginThrowsOnGatewayError() = runTest {
         // Arrange
         val gateway = mock<CommunicationGateway>()
-        val identifier = "testuser"
+        val identifier = "test@user.com"
         val password = "wrongpassword"
 
         val expectedException = MobileCoreException(
@@ -111,7 +178,7 @@ class AuthServiceTest {
         val gateway = mock<CommunicationGateway>()
 
         val expectedException = MobileCoreException(
-            code = MobileCoreErrorCode.CONNECTION_ERROR,
+            code = MobileCoreErrorCode.NETWORK_ERROR,
             message = "Backend unavailable"
         )
 

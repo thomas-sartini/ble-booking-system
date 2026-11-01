@@ -101,7 +101,7 @@ class BookingServiceTest {
         val gateway = mock<CommunicationGateway>()
 
         val expectedException = MobileCoreException(
-            code = MobileCoreErrorCode.CONNECTION_ERROR,
+            code = MobileCoreErrorCode.NETWORK_ERROR,
             message = "Backend unavailable"
         )
 

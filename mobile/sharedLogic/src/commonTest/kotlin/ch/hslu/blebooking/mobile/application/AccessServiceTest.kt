@@ -141,7 +141,7 @@ AccessServiceTest {
         )
 
         val expectedException = MobileCoreException(
-            code = MobileCoreErrorCode.INVALID_RECEIPT,
+            code = MobileCoreErrorCode.VALIDATION_ERROR,
             message = "Invalid access receipt"
         )
 
@@ -198,7 +198,7 @@ AccessServiceTest {
         val resourceId = "resource-123"
 
         val expectedException = MobileCoreException(
-            code = MobileCoreErrorCode.CONNECTION_ERROR,
+            code = MobileCoreErrorCode.NETWORK_ERROR,
             message = "Backend unavailable"
         )
 
