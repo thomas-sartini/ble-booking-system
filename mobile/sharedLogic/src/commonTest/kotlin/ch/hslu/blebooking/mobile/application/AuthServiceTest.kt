@@ -146,7 +146,6 @@ class AuthServiceTest {
     }
 
     @Test
-    @Ignore // AuthService not implemented yet
     fun testLogoutSuccess() = runTest {
         // Arrange
         val gateway = mock<CommunicationGateway>()
@@ -172,7 +171,6 @@ class AuthServiceTest {
     }
 
     @Test
-    @Ignore // AuthService not implemented yet
     fun testLogoutThrowsOnGatewayError() = runTest {
         // Arrange
         val gateway = mock<CommunicationGateway>()

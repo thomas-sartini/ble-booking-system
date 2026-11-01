@@ -1,6 +1,7 @@
 package ch.hslu.blebooking.mobile.communication
 
 import ch.hslu.blebooking.mobile.communication.dto.request.LoginRequestDto
+import ch.hslu.blebooking.mobile.communication.dto.request.LogoutRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.response.LoginResponseDto
 import ch.hslu.blebooking.mobile.communication.networking.ApiClient
 import ch.hslu.blebooking.mobile.communication.networking.ApiResult
@@ -310,5 +311,185 @@ class BackendCommunicationTest {
             )
         }
     }
+
+
+    @Test
+    fun testLogoutSuccessClearsTokens() = runTest {
+        val apiClient = mock<ApiClient>()
+        val tokenStorage = mock<TokenStorage>()
+
+        val request = LogoutRequestDto("refresh-token")
+
+        every {
+            tokenStorage.getRefreshToken()
+        } returns "refresh-token"
+
+        everySuspend {
+            apiClient.logout(request)
+        } returns ApiResult.Success(
+            status = HttpStatusCode.OK,
+            data = Unit
+        )
+
+        every {
+            tokenStorage.clearTokens()
+        } returns Unit
+
+        val communication = BackendCommunication(
+            tokenStorage = tokenStorage,
+            apiClient = apiClient
+        )
+
+        communication.logout()
+
+        verifySuspend(VerifyMode.exactly(1)) {
+            apiClient.logout(request)
+        }
+
+        verify(VerifyMode.exactly(1)) {
+            tokenStorage.clearTokens()
+        }
+    }
+
+    @Test
+    fun testLogoutWithoutRefreshToken() = runTest {
+        val apiClient = mock<ApiClient>()
+        val tokenStorage = mock<TokenStorage>()
+
+        every {
+            tokenStorage.getRefreshToken()
+        } returns null
+
+        every {
+            tokenStorage.clearTokens()
+        } returns Unit
+
+        val communication = BackendCommunication(
+            tokenStorage = tokenStorage,
+            apiClient = apiClient
+        )
+
+        communication.logout()
+
+        verifySuspend(VerifyMode.exactly(0)) {
+            apiClient.logout(any())
+        }
+
+        verify(VerifyMode.exactly(1)) {
+            tokenStorage.clearTokens()
+        }
+    }
+
+    @Test
+    fun testLogoutWithBlankRefreshToken() = runTest {
+        val apiClient = mock<ApiClient>()
+        val tokenStorage = mock<TokenStorage>()
+
+        every {
+            tokenStorage.getRefreshToken()
+        } returns "   "
+
+        every {
+            tokenStorage.clearTokens()
+        } returns Unit
+
+        val communication = BackendCommunication(
+            tokenStorage = tokenStorage,
+            apiClient = apiClient
+        )
+
+        communication.logout()
+
+        verifySuspend(VerifyMode.exactly(0)) {
+            apiClient.logout(any())
+        }
+
+        verify(VerifyMode.exactly(1)) {
+            tokenStorage.clearTokens()
+        }
+    }
+
+    @Test
+    fun testLogoutServerErrorDoesNotClearTokens() = runTest {
+        val apiClient = mock<ApiClient>()
+        val tokenStorage = mock<TokenStorage>()
+
+        val request = LogoutRequestDto("refresh-token")
+
+        every {
+            tokenStorage.getRefreshToken()
+        } returns "refresh-token"
+
+        everySuspend {
+            apiClient.logout(request)
+        } returns ApiResult.Error(
+            status = HttpStatusCode.InternalServerError,
+            message = "Internal server error"
+        )
+
+        val communication = BackendCommunication(
+            tokenStorage = tokenStorage,
+            apiClient = apiClient
+        )
+
+        val exception = assertFailsWith<MobileCoreException> {
+            communication.logout()
+        }
+
+        assertEquals(
+            MobileCoreErrorCode.SERVER_ERROR,
+            exception.code
+        )
+
+        verifySuspend(VerifyMode.exactly(1)) {
+            apiClient.logout(request)
+        }
+
+        verify(VerifyMode.exactly(0)) {
+            tokenStorage.clearTokens()
+        }
+    }
+
+    @Test
+    fun testLogoutNetworkErrorDoesNotClearTokens() = runTest {
+        val apiClient = mock<ApiClient>()
+        val tokenStorage = mock<TokenStorage>()
+
+        val request = LogoutRequestDto("refresh-token")
+
+        every {
+            tokenStorage.getRefreshToken()
+        } returns "refresh-token"
+
+        everySuspend {
+            apiClient.logout(request)
+        } returns ApiResult.Error(
+            status = HttpStatusCode.ServiceUnavailable,
+            message = "Unable to connect to the server"
+        )
+
+        val communication = BackendCommunication(
+            tokenStorage = tokenStorage,
+            apiClient = apiClient
+        )
+
+        val exception = assertFailsWith<MobileCoreException> {
+            communication.logout()
+        }
+
+        assertEquals(
+            MobileCoreErrorCode.NETWORK_ERROR,
+            exception.code
+        )
+
+        verifySuspend(VerifyMode.exactly(1)) {
+            apiClient.logout(request)
+        }
+
+        verify(VerifyMode.exactly(0)) {
+            tokenStorage.clearTokens()
+        }
+    }
+
 
 }

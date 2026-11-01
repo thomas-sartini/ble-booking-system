@@ -2,6 +2,7 @@
 package ch.hslu.blebooking.mobile.communication.networking
 
 import ch.hslu.blebooking.mobile.communication.dto.request.LoginRequestDto
+import ch.hslu.blebooking.mobile.communication.dto.request.LogoutRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.response.LoginResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -262,4 +263,84 @@ class BackendApiClientTest {
             error.message
         )
     }
+
+    @Test
+    fun testLogoutSuccess() = runTest {
+        mockStatus = HttpStatusCode.OK
+        mockBody = """{"message":"Logged out successfully"}"""
+
+        val result = apiClient.logout(
+            LogoutRequestDto("refresh-token")
+        )
+
+        val success = assertIs<ApiResult.Success<Unit>>(result)
+
+        assertEquals(HttpStatusCode.OK, success.status)
+        assertEquals(Unit, success.data)
+    }
+
+    @Test
+    fun testLogoutNoContent() = runTest {
+        mockStatus = HttpStatusCode.NoContent
+        mockBody = ""
+
+        val result = apiClient.logout(
+            LogoutRequestDto("refresh-token")
+        )
+
+        val success = assertIs<ApiResult.Success<Unit>>(result)
+
+        assertEquals(HttpStatusCode.NoContent, success.status)
+        assertEquals(Unit, success.data)
+    }
+
+    @Test
+    fun testLogoutServerError() = runTest {
+        mockStatus = HttpStatusCode.InternalServerError
+        mockBody = """{"message":"Internal server error"}"""
+
+        val result = apiClient.logout(
+            LogoutRequestDto("refresh-token")
+        )
+
+        val error = assertIs<ApiResult.Error>(result)
+
+        assertEquals(
+            HttpStatusCode.InternalServerError,
+            error.status
+        )
+
+        assertEquals(mockBody, error.message)
+    }
+
+    @Test
+    fun testLogoutRequestBody() = runTest {
+        mockStatus = HttpStatusCode.OK
+        mockBody = """{"message":"Logged out successfully"}"""
+
+        val result = apiClient.logout(
+            LogoutRequestDto("refresh-token")
+        )
+
+        assertIs<ApiResult.Success<Unit>>(result)
+
+        assertEquals(HttpMethod.Post, receivedMethod)
+
+        assertEquals(
+            "https://mock.test/api/logout",
+            receivedUrl
+        )
+
+        val body = Json.parseToJsonElement(
+            assertNotNull(receivedBody)
+        ).jsonObject
+
+        assertEquals(
+            "refresh-token",
+            body["refreshToken"]?.jsonPrimitive?.content
+        )
+
+        assertEquals(1, body.size)
+    }
+
 }
