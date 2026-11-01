@@ -1,15 +1,8 @@
 package ch.hslu.blebooking.mobile.communication.networking
 
 import ch.hslu.blebooking.mobile.communication.dto.model.BookingDto
-import ch.hslu.blebooking.mobile.communication.dto.request.AccessConfirmationRequestDto
-import ch.hslu.blebooking.mobile.communication.dto.request.CheckOutRequestDto
-import ch.hslu.blebooking.mobile.communication.dto.request.LoginRequestDto
-import ch.hslu.blebooking.mobile.communication.dto.request.RefreshTokenRequestDto
-import ch.hslu.blebooking.mobile.communication.dto.request.ResourceAccessRequestDto
-import ch.hslu.blebooking.mobile.communication.dto.response.LoginResponseDto
-import ch.hslu.blebooking.mobile.communication.dto.response.RefreshTokenResponseDto
-import ch.hslu.blebooking.mobile.communication.dto.response.ResourceAccessResponseDto
-
+import ch.hslu.blebooking.mobile.communication.dto.request.*
+import ch.hslu.blebooking.mobile.communication.dto.response.*
 
 internal interface ApiClient {
 
@@ -19,29 +12,28 @@ internal interface ApiClient {
 
     suspend fun refresh(
         request: RefreshTokenRequestDto
-    ): RefreshTokenResponseDto
+    ): ApiResult<RefreshTokenResponseDto>
 
     suspend fun logout(
-        refreshToken: String
-    )
+        request: LogoutRequestDto
+    ): ApiResult<Unit>
 
     suspend fun getActiveBookings(
         token: String
-    ): List<BookingDto>
+    ): ApiResult<List<BookingDto>>
 
     suspend fun requestAccess(
         token: String,
         request: ResourceAccessRequestDto
-    ): ResourceAccessResponseDto
+    ): ApiResult<ResourceAccessResponseDto>
 
     suspend fun confirmAccess(
         token: String,
         request: AccessConfirmationRequestDto
-    )
+    ): ApiResult<Unit>
 
     suspend fun checkOut(
         token: String,
         request: CheckOutRequestDto
-    )
+    ): ApiResult<Unit>
 }
-

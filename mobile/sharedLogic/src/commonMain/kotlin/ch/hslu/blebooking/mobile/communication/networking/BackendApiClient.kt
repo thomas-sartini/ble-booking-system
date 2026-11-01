@@ -4,6 +4,7 @@ import ch.hslu.blebooking.mobile.communication.dto.request.AccessConfirmationReq
 import ch.hslu.blebooking.mobile.communication.dto.model.BookingDto
 import ch.hslu.blebooking.mobile.communication.dto.request.CheckOutRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.request.LoginRequestDto
+import ch.hslu.blebooking.mobile.communication.dto.request.LogoutRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.response.LoginResponseDto
 import ch.hslu.blebooking.mobile.communication.dto.request.RefreshTokenRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.response.RefreshTokenResponseDto
@@ -47,37 +48,41 @@ internal class BackendApiClient(
     }
 
 
-    override suspend fun refresh(request: RefreshTokenRequestDto): RefreshTokenResponseDto {
+    override suspend fun refresh(request: RefreshTokenRequestDto): ApiResult<RefreshTokenResponseDto> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun logout(refreshToken: String) {
-        TODO("Not yet implemented")
+    override suspend fun logout(request: LogoutRequestDto): ApiResult<Unit> = executeRequest {
+        httpClient.post("logout"){
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
     }
 
-    override suspend fun getActiveBookings(token: String): List<BookingDto> {
+    override suspend fun getActiveBookings(token: String): ApiResult<List<BookingDto>> {
         TODO("Not yet implemented")
     }
 
     override suspend fun requestAccess(
         token: String,
         request: ResourceAccessRequestDto
-    ): ResourceAccessResponseDto {
+    ): ApiResult<ResourceAccessResponseDto> {
         TODO("Not yet implemented")
     }
 
     override suspend fun confirmAccess(
         token: String,
         request: AccessConfirmationRequestDto
-    ) {
+    ): ApiResult<Unit> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun checkOut(token: String, request: CheckOutRequestDto) {
+    override suspend fun checkOut(
+        token: String,
+        request: CheckOutRequestDto
+    ): ApiResult<Unit> {
         TODO("Not yet implemented")
     }
-
-
 
 
 

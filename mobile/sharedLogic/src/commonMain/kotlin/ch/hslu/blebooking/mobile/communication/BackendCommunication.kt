@@ -2,6 +2,7 @@
 package ch.hslu.blebooking.mobile.communication
 
 import ch.hslu.blebooking.mobile.communication.dto.request.LoginRequestDto
+import ch.hslu.blebooking.mobile.communication.dto.request.LogoutRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.request.RefreshTokenRequestDto
 import ch.hslu.blebooking.mobile.communication.networking.ApiClient
 import ch.hslu.blebooking.mobile.communication.networking.ApiResult
@@ -58,7 +59,22 @@ internal class BackendCommunication(
     }
 
     override suspend fun logout() {
-        TODO("Not yet implemented")
+        val rt = tokenStorage.getRefreshToken()
+        if(rt.isNullOrBlank()){
+            tokenStorage.clearTokens()
+            return
+        }
+        val request = LogoutRequestDto(
+            refreshToken = rt
+        )
+        when (val result = apiClient.logout(request)) {
+            is ApiResult.Success -> {
+                tokenStorage.clearTokens()
+            }
+            is ApiResult.Error -> {
+                throw result.toMobileCoreException()
+            }
+        }
     }
 
     override suspend fun getActiveBookings(): List<Booking> {

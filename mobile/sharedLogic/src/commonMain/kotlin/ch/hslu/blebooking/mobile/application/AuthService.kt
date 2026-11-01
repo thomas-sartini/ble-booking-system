@@ -26,7 +26,7 @@ internal class AuthService(
     }
 
     suspend fun logout() {
-        TODO("Not yet implemented")
+        communicationGateway.logout()
     }
 
     private fun String.isValidEmail(): Boolean {
