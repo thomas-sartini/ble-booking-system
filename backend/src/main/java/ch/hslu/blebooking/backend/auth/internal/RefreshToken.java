@@ -28,8 +28,8 @@ public class RefreshToken {
 	@Column(name = "revoked_at")
 	private Instant revokedAt;
 
-	protected RefreshToken() {
-		// for JPA
+	public RefreshToken() {
+		// for JPA and test fixtures
 	}
 
 	public Long getId() {
@@ -40,16 +40,32 @@ public class RefreshToken {
 		return userId;
 	}
 
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
 	public String getTokenHash() {
 		return tokenHash;
+	}
+
+	public void setTokenHash(String tokenHash) {
+		this.tokenHash = tokenHash;
 	}
 
 	public Instant getExpiresAt() {
 		return expiresAt;
 	}
 
+	public void setExpiresAt(Instant expiresAt) {
+		this.expiresAt = expiresAt;
+	}
+
 	public Instant getRevokedAt() {
 		return revokedAt;
+	}
+
+	public void setRevokedAt(Instant revokedAt) {
+		this.revokedAt = revokedAt;
 	}
 
 }
