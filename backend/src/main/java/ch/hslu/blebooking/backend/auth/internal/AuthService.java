@@ -1,7 +1,9 @@
 package ch.hslu.blebooking.backend.auth.internal;
 
+import java.time.Duration;
 import java.time.Instant;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,22 +28,28 @@ import ch.hslu.blebooking.backend.user.UserStatus;
 public class AuthService {
 
 	private static final String GENERIC_AUTH_ERROR = "Invalid credentials";
-	// Timing safety: valid Argon2 hash of "dummy" to prevent timing attacks when user doesn't exist
-	private static final String DUMMY_PASSWORD_HASH = "$argon2id$v=19$m=16384,t=2,p=1$dummysaltdummysaltdummysa$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
 	private final UserAuthService userAuthService;
 	private final TokenService tokenService;
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final long accessTokenTtlSeconds;
+
+	// Timing safety: valid Argon2 hash created at startup to prevent timing attacks when user doesn't exist
+	private final String dummyPasswordHash;
 
 	public AuthService(UserAuthService userAuthService,
 			TokenService tokenService,
 			RefreshTokenRepository refreshTokenRepository,
-			PasswordEncoder passwordEncoder) {
+			PasswordEncoder passwordEncoder,
+			@Value("${app.jwt.access-token-ttl}") Duration accessTokenTtl) {
 		this.userAuthService = userAuthService;
 		this.tokenService = tokenService;
 		this.refreshTokenRepository = refreshTokenRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.accessTokenTtlSeconds = accessTokenTtl.toSeconds();
+		// Generate a valid dummy hash once at startup for timing-safe operations
+		this.dummyPasswordHash = passwordEncoder.encode("dummy-password-for-timing-safety");
 	}
 
 	/**
@@ -56,8 +64,8 @@ public class AuthService {
 	public LoginResponse login(String identifier, String password) {
 		AuthUserDetails user = userAuthService.findByIdentifier(identifier).orElse(null);
 
-		// Timing-safe: always hash a password even if user doesn't exist
-		String passwordHash = user != null ? user.passwordHash() : DUMMY_PASSWORD_HASH;
+		// Timing-safe: always hash a password even if user doesn't exist or has no password (INVITED)
+		String passwordHash = (user != null && user.passwordHash() != null) ? user.passwordHash() : dummyPasswordHash;
 		boolean passwordMatches = passwordEncoder.matches(password, passwordHash);
 
 		// Check all failure conditions with the same error
@@ -93,15 +101,15 @@ public class AuthService {
 			user.id(),
 			user.email(),
 			user.username(),
-			null, // firstName - will add later when we populate it
-			null, // lastName
+			user.firstName(),
+			user.lastName(),
 			user.role()
 		);
 
 		return new LoginResponse(
 			accessToken,
 			"Bearer",
-			900L, // 15 minutes in seconds (matches PT15M)
+			accessTokenTtlSeconds,
 			refreshData.rawToken(),
 			userDto
 		);

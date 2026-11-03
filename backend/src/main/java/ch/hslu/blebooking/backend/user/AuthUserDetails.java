@@ -14,6 +14,8 @@ public record AuthUserDetails(
 	Role role,
 	UserStatus status,
 	Long failedAttempts,
-	Instant lockedUntil
+	Instant lockedUntil,
+	String firstName,
+	String lastName
 ) {
 }

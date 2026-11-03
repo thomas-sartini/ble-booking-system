@@ -66,7 +66,9 @@ class UserAuthServiceImpl implements UserAuthService {
 			user.getRole(),
 			user.getStatus(),
 			user.getFailedAttempts(),
-			user.getLockedUntil()
+			user.getLockedUntil(),
+			user.getFirstName(),
+			user.getLastName()
 		);
 	}
 
