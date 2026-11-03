@@ -1,0 +1,1 @@
+[{"name":"ch.hslu.blebooking.auth.AuthController","methods":[{"name":"refreshAccessToken","signature":"refreshAccessToken(java.util.Map)","comment":"Refreshes the access token using a valid refresh token."},{"name":"logout","signature":"logout(java.util.Map)","comment":"Revokes the refresh token during logout."}]}]
