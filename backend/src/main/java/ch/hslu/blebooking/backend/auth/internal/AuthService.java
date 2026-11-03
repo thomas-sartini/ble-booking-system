@@ -8,7 +8,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.hslu.blebooking.backend.auth.TokenRevocationService;
 import ch.hslu.blebooking.backend.auth.dto.LoginResponse;
+import ch.hslu.blebooking.backend.auth.dto.RefreshTokenResponse;
 import ch.hslu.blebooking.backend.common.error.ApiException;
 import ch.hslu.blebooking.backend.common.error.ErrorCode;
 import ch.hslu.blebooking.backend.user.AuthUserDetails;
@@ -17,15 +19,15 @@ import ch.hslu.blebooking.backend.user.UserDto;
 import ch.hslu.blebooking.backend.user.UserStatus;
 
 /**
- * Handles login and logout with security best practices:
+ * Handles login, logout and token refresh with security best practices:
  * - Generic error messages (no user enumeration)
  * - Timing-safe password verification
  * - Account lockout after failed attempts
- * - Refresh token management
+ * - Refresh token management with rotation and reuse detection
  */
 @Service
 @Transactional
-public class AuthService {
+public class AuthService implements TokenRevocationService {
 
 	private static final String GENERIC_AUTH_ERROR = "Invalid credentials";
 
@@ -131,6 +133,73 @@ public class AuthService {
 			token.setRevokedAt(Instant.now());
 		});
 		// No error if token not found - prevents information leakage
+	}
+
+	/**
+	 * Refresh an access token using a refresh token.
+	 * Implements token rotation: the presented refresh token is revoked and a new one is issued.
+	 * Implements reuse detection: if a revoked token is presented, all user tokens are revoked.
+	 *
+	 * Uses noRollbackFor to ensure token revocations (including reuse detection) are persisted
+	 * even when throwing ApiException. This is critical for security.
+	 *
+	 * @param rawRefreshToken the refresh token
+	 * @return new access token and new refresh token
+	 * @throws ApiException with INVALID_REFRESH_TOKEN for any failure (generic error)
+	 */
+	@Transactional(noRollbackFor = ApiException.class)
+	public RefreshTokenResponse refreshAccessToken(String rawRefreshToken) {
+		String hash = tokenService.hashRefreshToken(rawRefreshToken);
+
+		// Lock the token row to prevent concurrent refresh with the same token
+		RefreshToken token = refreshTokenRepository.findByTokenHashForUpdate(hash)
+			.orElseThrow(() -> new ApiException(ErrorCode.INVALID_REFRESH_TOKEN, "Invalid or expired refresh token"));
+
+		// Check if token was already revoked (possible reuse attack)
+		if (token.getRevokedAt() != null) {
+			// Reuse detection: revoke all active tokens for this user
+			revokeAllForUser(token.getUserId());
+			throw new ApiException(ErrorCode.INVALID_REFRESH_TOKEN, "Invalid or expired refresh token");
+		}
+
+		// Check expiry
+		if (token.getExpiresAt().isBefore(Instant.now())) {
+			throw new ApiException(ErrorCode.INVALID_REFRESH_TOKEN, "Invalid or expired refresh token");
+		}
+
+		// Verify user is still ACTIVE
+		AuthUserDetails user = userAuthService.findById(token.getUserId())
+			.orElseThrow(() -> new ApiException(ErrorCode.INVALID_REFRESH_TOKEN, "Invalid or expired refresh token"));
+
+		if (user.status() != UserStatus.ACTIVE) {
+			throw new ApiException(ErrorCode.INVALID_REFRESH_TOKEN, "Invalid or expired refresh token");
+		}
+
+		// Rotation: revoke the presented token
+		token.setRevokedAt(Instant.now());
+
+		// Create new tokens
+		String newAccessToken = tokenService.createAccessToken(token.getUserId(), user.role());
+		TokenService.RefreshTokenData newRefreshData = tokenService.createRefreshToken(token.getUserId());
+		refreshTokenRepository.save(newRefreshData.entity());
+
+		return new RefreshTokenResponse(
+			newAccessToken,
+			"Bearer",
+			accessTokenTtlSeconds,
+			newRefreshData.rawToken()
+		);
+	}
+
+	/**
+	 * Revoke all active refresh tokens for a user.
+	 * Implements TokenRevocationService for use by other modules.
+	 *
+	 * @param userId the user ID
+	 */
+	@Override
+	public void revokeAllForUser(Long userId) {
+		refreshTokenRepository.revokeAllActiveByUserId(userId, Instant.now());
 	}
 
 }

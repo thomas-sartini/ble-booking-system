@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.hslu.blebooking.backend.auth.dto.LoginRequest;
 import ch.hslu.blebooking.backend.auth.dto.LoginResponse;
 import ch.hslu.blebooking.backend.auth.dto.LogoutRequest;
+import ch.hslu.blebooking.backend.auth.dto.RefreshTokenRequest;
+import ch.hslu.blebooking.backend.auth.dto.RefreshTokenResponse;
 import ch.hslu.blebooking.backend.auth.internal.AuthService;
 import jakarta.validation.Valid;
 
 /**
- * Authentication endpoints for web login/logout.
+ * Authentication endpoints for web and mobile login/logout/refresh.
  * No authentication required (endpoints under /auth/** are permitted by SecurityConfig).
  */
 @RestController
@@ -36,6 +38,17 @@ class AuthController {
 	@PostMapping("/login")
 	LoginResponse login(@RequestBody @Valid LoginRequest request) {
 		return authService.login(request.identifier(), request.password());
+	}
+
+	/**
+	 * Refresh an access token using a refresh token (mobile and web).
+	 * Implements token rotation: returns new access token and new refresh token.
+	 * The old refresh token is revoked.
+	 * Returns 401 INVALID_REFRESH_TOKEN for any failure (expired, revoked, invalid).
+	 */
+	@PostMapping("/refresh")
+	RefreshTokenResponse refresh(@RequestBody @Valid RefreshTokenRequest request) {
+		return authService.refreshAccessToken(request.refreshToken());
 	}
 
 	/**

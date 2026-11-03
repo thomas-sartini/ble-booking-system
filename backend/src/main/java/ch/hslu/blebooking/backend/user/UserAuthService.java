@@ -16,6 +16,13 @@ public interface UserAuthService {
 	Optional<AuthUserDetails> findByIdentifier(String identifier);
 
 	/**
+	 * Find a user by ID.
+	 * @param userId the user ID
+	 * @return user details if found
+	 */
+	Optional<AuthUserDetails> findById(Long userId);
+
+	/**
 	 * Record a failed login attempt. Increments failed_attempts and locks the account
 	 * if the threshold is exceeded.
 	 * @param userId the user ID
