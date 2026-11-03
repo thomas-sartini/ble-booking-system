@@ -57,10 +57,14 @@ public class AuthService {
 	 * Returns access token, refresh token and user details on success.
 	 * Throws AUTHENTICATION_FAILED for any failure (wrong password, unknown user, disabled account, lockout).
 	 *
+	 * Uses noRollbackFor to ensure failed login attempts are persisted even when throwing ApiException.
+	 * This is critical for account lockout to work in production.
+	 *
 	 * @param identifier email or username (case-insensitive)
 	 * @param password plaintext password
 	 * @return login response with tokens and user data
 	 */
+	@Transactional(noRollbackFor = ApiException.class)
 	public LoginResponse login(String identifier, String password) {
 		AuthUserDetails user = userAuthService.findByIdentifier(identifier).orElse(null);
 

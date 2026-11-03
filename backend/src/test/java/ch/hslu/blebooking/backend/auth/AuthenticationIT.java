@@ -40,11 +40,13 @@ import ch.hslu.blebooking.backend.user.internal.UserRepository;
 /**
  * Integration tests for web authentication (login/logout).
  * Tests cover security requirements FR-01.04, FR-01.06, NFR-01.01, NFR-01.02, NFR-01.05.
+ *
+ * Note: @Transactional is NOT used to ensure tests verify real database commits.
+ * This is critical for testing failed login attempt tracking and account lockout.
  */
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
-@Transactional
 class AuthenticationIT {
 
 	@Autowired
@@ -72,10 +74,26 @@ class AuthenticationIT {
 	void setUp() {
 		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
+		// Clean up any existing test data
+		cleanupTestData();
+
 		// Create test users with different statuses
 		activeUser = createUser("active@test.com", "active", "password123", UserStatus.ACTIVE);
 		invitedUser = createUser("invited@test.com", "invited", "password123", UserStatus.INVITED);
 		disabledUser = createUser("disabled@test.com", "disabled", "password123", UserStatus.DISABLED);
+	}
+
+	@org.junit.jupiter.api.AfterEach
+	void tearDown() {
+		// Clean up test data after each test to ensure isolation
+		cleanupTestData();
+	}
+
+	private void cleanupTestData() {
+		// Delete refresh tokens first (foreign key to user)
+		refreshTokenRepository.deleteAll();
+		// Then delete users
+		userRepository.deleteAll();
 	}
 
 	@Test
@@ -462,6 +480,41 @@ class AuthenticationIT {
 		// If the dummy hash were invalid, Argon2PasswordEncoder.matches() would
 		// throw an exception or log errors. The fact that we get a clean 401 proves
 		// the timing-safe dummy hash is valid.
+	}
+
+	@Test
+	void failedLoginAttemptsArePersistedDespiteException() throws Exception {
+		// This test proves that @Transactional(noRollbackFor = ApiException.class)
+		// correctly persists failed_attempts even when login throws ApiException.
+		// This is critical for account lockout to work in production.
+
+		String body = """
+			{"identifier": "active@test.com", "password": "wrong"}
+			""";
+
+		// Initial failed_attempts should be 0
+		User userBefore = userRepository.findById(activeUser.getId()).orElseThrow();
+		assertThat(userBefore.getFailedAttempts()).isZero();
+
+		// Attempt login with wrong password (throws ApiException)
+		mvc.perform(post("/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(body))
+			.andExpect(status().isUnauthorized());
+
+		// Read user from database again - failed_attempts should be incremented
+		// This proves the transaction committed despite the exception
+		User userAfter = userRepository.findById(activeUser.getId()).orElseThrow();
+		assertThat(userAfter.getFailedAttempts()).isEqualTo(1);
+
+		// Try again
+		mvc.perform(post("/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(body))
+			.andExpect(status().isUnauthorized());
+
+		User userAfterSecond = userRepository.findById(activeUser.getId()).orElseThrow();
+		assertThat(userAfterSecond.getFailedAttempts()).isEqualTo(2);
 	}
 
 	// Helper methods
