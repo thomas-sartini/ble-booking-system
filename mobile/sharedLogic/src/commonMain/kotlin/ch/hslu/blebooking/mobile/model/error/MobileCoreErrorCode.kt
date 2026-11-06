@@ -1,16 +1,14 @@
-
 package ch.hslu.blebooking.mobile.model.error
 
 /**
  * Platform-independent error codes exposed by MobileCoreApi.
  */
-
 enum class MobileCoreErrorCode(
     val httpStatus: Int?,
     val message: String
 ) {
 
-    //Communication errors
+    // Communication errors
     BAD_REQUEST(400, "Invalid request"),
     UNAUTHORIZED(401, "Unauthorized"),
     FORBIDDEN(403, "Access forbidden"),
@@ -22,9 +20,11 @@ enum class MobileCoreErrorCode(
     NETWORK_ERROR(503, "Network error"),
     UNKNOWN_ERROR(null, "Unknown error"),
 
+    // Logic errors
+    VALIDATION_ERROR(null, "Validation error"),
 
-    // logic errors
-    VALIDATION_ERROR(null, "Validation error");
+    // Storage errors
+    STORAGE_ERROR(null, "Secure storage failure");
 
     companion object {
         fun fromHttpStatus(status: Int): MobileCoreErrorCode {
@@ -36,6 +36,4 @@ enum class MobileCoreErrorCode(
             }
         }
     }
-
 }
-

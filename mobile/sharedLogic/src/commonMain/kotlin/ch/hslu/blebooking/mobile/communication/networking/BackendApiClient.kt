@@ -48,8 +48,13 @@ internal class BackendApiClient(
     }
 
 
-    override suspend fun refresh(request: RefreshTokenRequestDto): ApiResult<RefreshTokenResponseDto> {
-        TODO("Not yet implemented")
+    override suspend fun refresh(
+        request: RefreshTokenRequestDto
+    ): ApiResult<RefreshTokenResponseDto> = executeRequest {
+        httpClient.post("refresh"){
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
     }
 
     override suspend fun logout(request: LogoutRequestDto): ApiResult<Unit> = executeRequest {

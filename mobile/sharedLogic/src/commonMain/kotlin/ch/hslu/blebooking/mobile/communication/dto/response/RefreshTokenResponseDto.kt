@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RefreshTokenResponseDto(
-    val id: Int // TODO: define DTO attributes
+    val accessToken: String,
+    val refreshToken: String
 )

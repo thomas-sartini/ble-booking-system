@@ -103,15 +103,31 @@ internal class BackendCommunication(
      * Requests a new access token from the backend
      * using a valid refresh token.
      *
-     * @param request The refresh token request containing
      * the credentials required for token renewal.
      * @throws MobileCoreException If the refresh token is
      * invalid, expired, or a communication error occurs.
      */
-    internal suspend fun refreshAccessToken(
-        request: RefreshTokenRequestDto
-    ) {
-        TODO("Not yet implemented")
+    internal suspend fun refreshAccessToken() {
+        val rt = tokenStorage.getRefreshToken()
+        if(rt.isNullOrBlank()){
+            tokenStorage.clearTokens()
+            return
+        }
+        val request = RefreshTokenRequestDto(
+            refreshToken = rt
+        )
+        when (val result = apiClient.refresh(request)) {
+            is ApiResult.Success -> {
+                tokenStorage.clearTokens()
+                tokenStorage.storeTokens(
+                    accessToken = result.data.accessToken,
+                    refreshToken = result.data.refreshToken
+                )
+            }
+            is ApiResult.Error -> {
+                throw result.toMobileCoreException()
+            }
+        }
     }
 
     private fun ApiResult.Error.toMobileCoreException(): MobileCoreException {

@@ -29,15 +29,20 @@ object MobileCoreFactory {
      *
      * @param secureStorage Platform-specific secure storage
      * implementation provided by the native application.
+     * @param baseUrl API base URL including the auth path, e.g. https://host/auth/.
      * @param httpClientEngine Optional platform-specific [HttpClientEngine]
      * (e.g. OkHttp on Android, Darwin on iOS) or mock engine for tests.
      * @return A configured [MobileCoreApi] instance.
      */
     fun create(
         secureStorage: SecureStorage,
+        baseUrl: String,
         httpClientEngine: HttpClientEngine? = null
     ): MobileCoreApi {
-        val httpClient: HttpClient = HttpClientFactory.create(httpClientEngine)
+        val httpClient: HttpClient = HttpClientFactory.create(
+            engine = httpClientEngine,
+            baseUrl = baseUrl.trimEnd('/') + "/"
+        )
         val backendApiClient = BackendApiClient(httpClient)
         val tokenManager = TokenManager(secureStorage)
         val communicationGateway: CommunicationGateway =
