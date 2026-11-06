@@ -1,7 +1,14 @@
 
 package ch.hslu.blebooking.mobile.application
 
-import ch.hslu.blebooking.mobile.communication.CommunicationGateway
+import ch.hslu.blebooking.mobile.communication.networking.ApiClient
+import ch.hslu.blebooking.mobile.communication.networking.ApiResult
+import ch.hslu.blebooking.mobile.communication.dto.request.LoginRequestDto
+import ch.hslu.blebooking.mobile.communication.dto.request.LogoutRequestDto
+import ch.hslu.blebooking.mobile.communication.dto.response.LoginResponseDto
+import ch.hslu.blebooking.mobile.token.TokenStorage
+import dev.mokkery.every
+import io.ktor.http.HttpStatusCode
 import ch.hslu.blebooking.mobile.model.error.MobileCoreErrorCode
 import ch.hslu.blebooking.mobile.model.error.MobileCoreException
 import dev.mokkery.answering.returns
@@ -23,15 +30,19 @@ class AuthServiceTest {
     @Test
     fun testLoginSuccess() = runTest {
         // Arrange
-        val gateway = mock<CommunicationGateway>()
+        val apiClient = mock<ApiClient>()
+        val storage = mock<TokenStorage>()
+        every { storage.getRefreshToken() } returns "refresh-token"
+        every { storage.storeTokens("access-token", "refresh-token") } returns Unit
+        every { storage.clearTokens() } returns Unit
         val identifier = "test@user.com"
         val password = "testpassword"
 
         everySuspend {
-            gateway.login(identifier, password)
-        } returns Unit
+            apiClient.login(LoginRequestDto(identifier, password))
+        } returns ApiResult.Success(HttpStatusCode.OK, LoginResponseDto("access-token", "refresh-token"))
 
-        val service = AuthService(gateway)
+        val service = AuthService(storage, apiClient)
 
         // Act
         val result = runCatching {
@@ -41,24 +52,28 @@ class AuthServiceTest {
         // Assert
         assertTrue(result.isSuccess)
 
-        // Verify that the gateway method was called
+        // Verify that the API client method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.login(identifier, password)
+            apiClient.login(LoginRequestDto(identifier, password))
         }
     }
 
     @Test
     fun testLoginWithInvalidMail() = runTest {
         // Arrange
-        val gateway = mock<CommunicationGateway>()
+        val apiClient = mock<ApiClient>()
+        val storage = mock<TokenStorage>()
+        every { storage.getRefreshToken() } returns "refresh-token"
+        every { storage.storeTokens("access-token", "refresh-token") } returns Unit
+        every { storage.clearTokens() } returns Unit
         val identifier = "invalid-mail"
         val password = "testpassword"
 
         everySuspend {
-            gateway.login(identifier, password)
-        } returns Unit
+            apiClient.login(LoginRequestDto(identifier, password))
+        } returns ApiResult.Success(HttpStatusCode.OK, LoginResponseDto("access-token", "refresh-token"))
 
-        val service = AuthService(gateway)
+        val service = AuthService(storage, apiClient)
 
         // Act & Assert
         val actualException = assertFailsWith<MobileCoreException> {
@@ -77,22 +92,26 @@ class AuthServiceTest {
 
         // Verify
         verifySuspend(VerifyMode.exactly(0)) {
-            gateway.login(identifier, password)
+            apiClient.login(LoginRequestDto(identifier, password))
         }
     }
 
     @Test
     fun testLoginWithEmptyMail() = runTest {
         // Arrange
-        val gateway = mock<CommunicationGateway>()
+        val apiClient = mock<ApiClient>()
+        val storage = mock<TokenStorage>()
+        every { storage.getRefreshToken() } returns "refresh-token"
+        every { storage.storeTokens("access-token", "refresh-token") } returns Unit
+        every { storage.clearTokens() } returns Unit
         val identifier = ""
         val password = "testpassword"
 
         everySuspend {
-            gateway.login(identifier, password)
-        } returns Unit
+            apiClient.login(LoginRequestDto(identifier, password))
+        } returns ApiResult.Success(HttpStatusCode.OK, LoginResponseDto("access-token", "refresh-token"))
 
-        val service = AuthService(gateway)
+        val service = AuthService(storage, apiClient)
 
         // Act & Assert
         val actualException = assertFailsWith<MobileCoreException> {
@@ -111,14 +130,18 @@ class AuthServiceTest {
 
         // Verify
         verifySuspend(VerifyMode.exactly(0)) {
-            gateway.login(identifier, password)
+            apiClient.login(LoginRequestDto(identifier, password))
         }
     }
 
     @Test
-    fun testLoginThrowsOnGatewayError() = runTest {
+    fun testLoginThrowsOnApiClientError() = runTest {
         // Arrange
-        val gateway = mock<CommunicationGateway>()
+        val apiClient = mock<ApiClient>()
+        val storage = mock<TokenStorage>()
+        every { storage.getRefreshToken() } returns "refresh-token"
+        every { storage.storeTokens("access-token", "refresh-token") } returns Unit
+        every { storage.clearTokens() } returns Unit
         val identifier = "test@user.com"
         val password = "wrongpassword"
 
@@ -128,10 +151,10 @@ class AuthServiceTest {
         )
 
         everySuspend {
-            gateway.login(identifier, password)
+            apiClient.login(LoginRequestDto(identifier, password))
         } throws expectedException
 
-        val service = AuthService(gateway)
+        val service = AuthService(storage, apiClient)
 
         // Act & Assert
         val actualException = assertFailsWith<MobileCoreException> {
@@ -139,22 +162,26 @@ class AuthServiceTest {
         }
         assertSame(expectedException, actualException)
 
-        // Verify that the gateway method was called
+        // Verify that the API client method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.login(identifier, password)
+            apiClient.login(LoginRequestDto(identifier, password))
         }
     }
 
     @Test
     fun testLogoutSuccess() = runTest {
         // Arrange
-        val gateway = mock<CommunicationGateway>()
+        val apiClient = mock<ApiClient>()
+        val storage = mock<TokenStorage>()
+        every { storage.getRefreshToken() } returns "refresh-token"
+        every { storage.storeTokens("access-token", "refresh-token") } returns Unit
+        every { storage.clearTokens() } returns Unit
 
         everySuspend {
-            gateway.logout()
-        } returns Unit
+            apiClient.logout(LogoutRequestDto("refresh-token"))
+        } returns ApiResult.Success(HttpStatusCode.OK, Unit)
 
-        val service = AuthService(gateway)
+        val service = AuthService(storage, apiClient)
 
         // Act
         val result = runCatching {
@@ -164,16 +191,20 @@ class AuthServiceTest {
         // Assert
         assertTrue(result.isSuccess)
 
-        // Verify that the gateway method was called
+        // Verify that the API client method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.logout()
+            apiClient.logout(LogoutRequestDto("refresh-token"))
         }
     }
 
     @Test
-    fun testLogoutThrowsOnGatewayError() = runTest {
+    fun testLogoutThrowsOnApiClientError() = runTest {
         // Arrange
-        val gateway = mock<CommunicationGateway>()
+        val apiClient = mock<ApiClient>()
+        val storage = mock<TokenStorage>()
+        every { storage.getRefreshToken() } returns "refresh-token"
+        every { storage.storeTokens("access-token", "refresh-token") } returns Unit
+        every { storage.clearTokens() } returns Unit
 
         val expectedException = MobileCoreException(
             code = MobileCoreErrorCode.NETWORK_ERROR,
@@ -181,10 +212,10 @@ class AuthServiceTest {
         )
 
         everySuspend {
-            gateway.logout()
+            apiClient.logout(LogoutRequestDto("refresh-token"))
         } throws expectedException
 
-        val service = AuthService(gateway)
+        val service = AuthService(storage, apiClient)
 
         // Act & Assert
         val actualException = assertFailsWith<MobileCoreException> {
@@ -192,9 +223,9 @@ class AuthServiceTest {
         }
         assertSame(expectedException, actualException)
 
-        // Verify that the gateway method was called
+        // Verify that the API client method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.logout()
+            apiClient.logout(LogoutRequestDto("refresh-token"))
         }
     }
 

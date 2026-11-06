@@ -2,6 +2,8 @@
 package ch.hslu.blebooking.mobile.application
 
 import ch.hslu.blebooking.mobile.api.MobileCoreApi
+import ch.hslu.blebooking.mobile.communication.networking.ApiClient
+import ch.hslu.blebooking.mobile.token.TokenStorage
 import ch.hslu.blebooking.mobile.model.AccessConfirmation
 import ch.hslu.blebooking.mobile.model.Booking
 import ch.hslu.blebooking.mobile.model.ResourceAccessRequest
@@ -10,8 +12,8 @@ import ch.hslu.blebooking.mobile.model.ResourceAccessResponse
 /**
  * Internal implementation of [MobileCoreApi].
  *
- * Acts as a facade by delegating operations to the
- * corresponding application services.
+ * Creates the application services internally and delegates
+ * operations to them.
  *
  * Hides internal service orchestration from native
  * Android and iOS applications.
@@ -20,10 +22,13 @@ import ch.hslu.blebooking.mobile.model.ResourceAccessResponse
  * to the caller through the public MobileCore API.
  */
 internal class ServiceFacade(
-    private val authService: AuthService,
-    private val bookingService: BookingService,
-    private val accessService: AccessService
+    tokenStorage: TokenStorage,
+    apiClient: ApiClient
 ) : MobileCoreApi {
+    private val authService = AuthService(tokenStorage, apiClient)
+    private val bookingService = BookingService(apiClient)
+    private val accessService = AccessService(apiClient)
+
     override suspend fun login(
         identifier: String,
         password: String

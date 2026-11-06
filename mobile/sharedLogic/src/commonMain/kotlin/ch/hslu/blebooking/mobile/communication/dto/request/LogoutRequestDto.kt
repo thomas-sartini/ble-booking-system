@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class LogoutRequestDto(
+internal data class LogoutRequestDto(
     val refreshToken: String
 )

@@ -114,7 +114,7 @@ class BackendApiClientTest {
 
         val result = apiClient.login(loginRequest())
 
-        val error = assertIs<ApiResult.Error>(result)
+        val error = assertIs<ApiResult.HttpError>(result)
 
         assertEquals(HttpStatusCode.Unauthorized, error.status)
         assertEquals(mockBody, error.message)
@@ -127,7 +127,7 @@ class BackendApiClientTest {
 
         val result = apiClient.login(loginRequest())
 
-        val error = assertIs<ApiResult.Error>(result)
+        val error = assertIs<ApiResult.HttpError>(result)
 
         assertEquals(
             HttpStatusCode.InternalServerError,
@@ -143,9 +143,9 @@ class BackendApiClientTest {
 
         val result = apiClient.login(loginRequest())
 
-        val error = assertIs<ApiResult.Error>(result)
+        val error = assertIs<ApiResult.DecodingError>(result)
 
-        assertEquals(HttpStatusCode.BadGateway, error.status)
+        assertNotNull(error.cause)
         assertEquals("Failed to process the server response", error.message)
     }
 
@@ -161,9 +161,9 @@ class BackendApiClientTest {
 
         val result = apiClient.login(loginRequest())
 
-        val error = assertIs<ApiResult.Error>(result)
+        val error = assertIs<ApiResult.DecodingError>(result)
 
-        assertEquals(HttpStatusCode.BadGateway, error.status)
+        assertNotNull(error.cause)
         assertEquals("Failed to process the server response", error.message)
     }
 
@@ -230,12 +230,10 @@ class BackendApiClientTest {
 
         val result = apiClient.login(loginRequest())
 
-        val error = assertIs<ApiResult.Error>(result)
+        val error = assertIs<ApiResult.NetworkError>(result)
 
-        assertEquals(
-            HttpStatusCode.ServiceUnavailable,
-            error.status
-        )
+        assertEquals(mockFailure!!::class, error.cause::class)
+        assertEquals(mockFailure!!.message, error.cause.message)
 
         assertEquals(
             "Unable to connect to the server",
@@ -251,12 +249,10 @@ class BackendApiClientTest {
 
         val result = apiClient.login(loginRequest())
 
-        val error = assertIs<ApiResult.Error>(result)
+        val error = assertIs<ApiResult.Timeout>(result)
 
-        assertEquals(
-            HttpStatusCode.GatewayTimeout,
-            error.status
-        )
+        assertEquals(mockFailure!!::class, error.cause::class)
+        assertEquals(mockFailure!!.message, error.cause.message)
 
         assertEquals(
             "Connection to the server timed out",
@@ -303,7 +299,7 @@ class BackendApiClientTest {
             LogoutRequestDto("refresh-token")
         )
 
-        val error = assertIs<ApiResult.Error>(result)
+        val error = assertIs<ApiResult.HttpError>(result)
 
         assertEquals(
             HttpStatusCode.InternalServerError,
@@ -343,4 +339,30 @@ class BackendApiClientTest {
         assertEquals(1, body.size)
     }
 
+
+    @Test
+    fun testActual503RemainsHttpError() = runTest {
+        mockStatus = HttpStatusCode.ServiceUnavailable
+        mockBody = "Maintenance"
+        val error = assertIs<ApiResult.HttpError>(apiClient.login(loginRequest()))
+        assertEquals(HttpStatusCode.ServiceUnavailable, error.status)
+        assertEquals("Maintenance", error.message)
+    }
+
+    @Test
+    fun testUnexpectedFailureRetainsCause() = runTest {
+        val cause = IllegalStateException("Unexpected client failure")
+        mockFailure = cause
+        val error = assertIs<ApiResult.UnexpectedError>(apiClient.login(loginRequest()))
+        assertIs<IllegalStateException>(error.cause)
+        assertEquals(cause.message, error.cause.message)
+    }
+
+    @Test
+    fun testCancellationIsPropagated() = runTest {
+        mockFailure = kotlin.coroutines.cancellation.CancellationException("Cancelled")
+        kotlin.test.assertFailsWith<kotlin.coroutines.cancellation.CancellationException> {
+            apiClient.login(loginRequest())
+        }
+    }
 }

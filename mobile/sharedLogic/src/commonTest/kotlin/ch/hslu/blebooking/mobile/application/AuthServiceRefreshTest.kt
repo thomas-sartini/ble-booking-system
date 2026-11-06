@@ -1,4 +1,4 @@
-package ch.hslu.blebooking.mobile.communication
+package ch.hslu.blebooking.mobile.application
 
 import ch.hslu.blebooking.mobile.communication.dto.request.RefreshTokenRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.response.RefreshTokenResponseDto
@@ -13,7 +13,7 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
 
-class RefreshCommunicationTest {
+class AuthServiceRefreshTest {
     @Test
     fun refreshStoresRotatedTokens() = runTest {
         val api = mock<ApiClient>()
@@ -24,7 +24,7 @@ class RefreshCommunicationTest {
         everySuspend { api.refresh(RefreshTokenRequestDto("old")) } returns
             ApiResult.Success(HttpStatusCode.OK, RefreshTokenResponseDto("new-access", "new-refresh"))
 
-        BackendCommunication(storage, api).refreshAccessToken()
+        AuthService(storage, api).refreshAccessToken()
 
         verify { storage.storeTokens("new-access", "new-refresh") }
         verifySuspend(VerifyMode.exactly(1)) { api.refresh(RefreshTokenRequestDto("old")) }
@@ -38,7 +38,7 @@ class RefreshCommunicationTest {
             every { storage.getRefreshToken() } returns token
             every { storage.clearTokens() } returns Unit
 
-            BackendCommunication(storage, api).refreshAccessToken()
+            AuthService(storage, api).refreshAccessToken()
 
             verify(VerifyMode.exactly(1)) { storage.clearTokens() }
             verifySuspend(VerifyMode.exactly(0)) { api.refresh(any()) }
@@ -51,17 +51,17 @@ class RefreshCommunicationTest {
         val cases = listOf(
             HttpStatusCode.Unauthorized to MobileCoreErrorCode.UNAUTHORIZED,
             HttpStatusCode.InternalServerError to MobileCoreErrorCode.SERVER_ERROR,
-            HttpStatusCode.ServiceUnavailable to MobileCoreErrorCode.NETWORK_ERROR
+            HttpStatusCode.ServiceUnavailable to MobileCoreErrorCode.SERVER_ERROR
         )
         for ((status, code) in cases) {
             val api = mock<ApiClient>()
             val storage = mock<TokenStorage>()
             every { storage.getRefreshToken() } returns "old"
             everySuspend { api.refresh(RefreshTokenRequestDto("old")) } returns
-                ApiResult.Error(status, "refresh failed")
+                ApiResult.HttpError(status, "refresh failed")
 
             val error = assertFailsWith<MobileCoreException> {
-                BackendCommunication(storage, api).refreshAccessToken()
+                AuthService(storage, api).refreshAccessToken()
             }
 
             assertEquals(code, error.code)

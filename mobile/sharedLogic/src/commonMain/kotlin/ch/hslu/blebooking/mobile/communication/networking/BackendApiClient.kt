@@ -21,7 +21,6 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.ContentConvertException
 import io.ktor.util.network.UnresolvedAddressException
@@ -29,7 +28,6 @@ import kotlinx.serialization.SerializationException
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * Low-level REST client used by [ch.hslu.blebooking.mobile.communication.BackendCommunication].
  *
  * Executes HTTP requests using transport DTOs.
  */
@@ -102,29 +100,17 @@ internal class BackendApiClient(
 
         } catch (e: Exception) {
             when (e) {
-                is UnresolvedAddressException -> ApiResult.Error(
-                    status = HttpStatusCode.ServiceUnavailable,
-                    message = "Unable to connect to the server"
-                )
+                is UnresolvedAddressException -> ApiResult.NetworkError(e)
 
                 is ConnectTimeoutException,
                 is HttpRequestTimeoutException,
-                is SocketTimeoutException -> ApiResult.Error(
-                    status = HttpStatusCode.GatewayTimeout,
-                    message = "Connection to the server timed out"
-                )
+                is SocketTimeoutException -> ApiResult.Timeout(e)
 
                 is ContentConvertException,
                 is SerializationException,
-                is NoTransformationFoundException -> ApiResult.Error(
-                    status = HttpStatusCode.BadGateway,
-                    message = "Failed to process the server response"
-                )
+                is NoTransformationFoundException -> ApiResult.DecodingError(e)
 
-                else -> ApiResult.Error(
-                    status = HttpStatusCode.InternalServerError,
-                    message = e.message ?: "An unexpected error occurred"
-                )
+                else -> ApiResult.UnexpectedError(e)
             }
         }
     }
@@ -140,7 +126,7 @@ internal class BackendApiClient(
                 data = response.body<T>()
             )
         } else {
-            ApiResult.Error(
+            ApiResult.HttpError(
                 status = response.status,
                 message = response.bodyAsText()
             )

@@ -14,14 +14,14 @@ class RefreshApiClientTest {
     fun refreshSendsJsonAndReadsRotatedTokens() = runTest {
         val engine = MockEngine { request ->
             assertEquals(HttpMethod.Post, request.method)
-            assertEquals("https://mock.test/auth/refresh", request.url.toString())
+            assertEquals("https://mock.test/refresh", request.url.toString())
             assertTrue(request.body.contentType?.match(ContentType.Application.Json) == true)
             assertEquals(buildJsonObject { put("refreshToken", "old-refresh") },
                 Json.parseToJsonElement(request.body.toByteArray().decodeToString()))
             respond("""{"accessToken":"new-access","refreshToken":"new-refresh","expiresIn":900}""",
                 HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
-        val client = HttpClientFactory.create(engine, "https://mock.test/auth/")
+        val client = HttpClientFactory.create(engine, "https://mock.test/")
         try {
             val result = assertIs<ApiResult.Success<RefreshTokenResponseDto>>(
                 BackendApiClient(client).refresh(RefreshTokenRequestDto("old-refresh")))
@@ -35,11 +35,11 @@ class RefreshApiClientTest {
         for (body in listOf("{ invalid", """{"accessToken":"new-access"}""")) {
             val client = HttpClientFactory.create(MockEngine {
                 respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
-            }, "https://mock.test/auth/")
+            }, "https://mock.test/")
             try {
-                val result = assertIs<ApiResult.Error>(
+                val result = assertIs<ApiResult.DecodingError>(
                     BackendApiClient(client).refresh(RefreshTokenRequestDto("old")))
-                assertEquals(HttpStatusCode.BadGateway, result.status)
+                assertNotNull(result.cause)
             } finally { client.close() }
         }
     }
@@ -49,9 +49,9 @@ class RefreshApiClientTest {
         for (status in listOf(HttpStatusCode.Unauthorized, HttpStatusCode.InternalServerError)) {
             val client = HttpClientFactory.create(MockEngine {
                 respond("refresh failed", status)
-            }, "https://mock.test/auth/")
+            }, "https://mock.test/")
             try {
-                val result = assertIs<ApiResult.Error>(
+                val result = assertIs<ApiResult.HttpError>(
                     BackendApiClient(client).refresh(RefreshTokenRequestDto("old")))
                 assertEquals(status, result.status)
                 assertEquals("refresh failed", result.message)
@@ -62,11 +62,11 @@ class RefreshApiClientTest {
     @Test
     fun refreshMapsNetworkFailure() = runTest {
         val client = HttpClientFactory.create(MockEngine { throw UnresolvedAddressException() },
-            "https://mock.test/auth/")
+            "https://mock.test/")
         try {
-            val result = assertIs<ApiResult.Error>(
+            val result = assertIs<ApiResult.NetworkError>(
                 BackendApiClient(client).refresh(RefreshTokenRequestDto("old")))
-            assertEquals(HttpStatusCode.ServiceUnavailable, result.status)
+            assertIs<UnresolvedAddressException>(result.cause)
         } finally { client.close() }
     }
 }

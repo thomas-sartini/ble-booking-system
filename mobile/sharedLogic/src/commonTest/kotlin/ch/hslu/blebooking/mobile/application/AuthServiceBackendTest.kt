@@ -1,4 +1,4 @@
-package ch.hslu.blebooking.mobile.communication
+package ch.hslu.blebooking.mobile.application
 
 import ch.hslu.blebooking.mobile.communication.dto.request.LoginRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.request.LogoutRequestDto
@@ -25,7 +25,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertSame
 
-class BackendCommunicationTest {
+class AuthServiceBackendTest {
 
     @Test
     fun testLoginSuccessStoresTokens() = runTest {
@@ -60,7 +60,7 @@ class BackendCommunicationTest {
             )
         } returns Unit
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenManager,
             apiClient = apiClient
         )
@@ -94,12 +94,12 @@ class BackendCommunicationTest {
 
         everySuspend {
             apiClient.login(request)
-        } returns ApiResult.Error(
+        } returns ApiResult.HttpError(
             status = HttpStatusCode.Unauthorized,
             message = "Invalid credentials"
         )
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenManager,
             apiClient = apiClient
         )
@@ -137,12 +137,12 @@ class BackendCommunicationTest {
 
         everySuspend {
             apiClient.login(request)
-        } returns ApiResult.Error(
+        } returns ApiResult.HttpError(
             status = HttpStatusCode.InternalServerError,
             message = "Internal server error"
         )
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenManager,
             apiClient = apiClient
         )
@@ -180,12 +180,9 @@ class BackendCommunicationTest {
 
         everySuspend {
             apiClient.login(request)
-        } returns ApiResult.Error(
-            status = HttpStatusCode.ServiceUnavailable,
-            message = "Unable to connect to the server"
-        )
+        } returns ApiResult.NetworkError(IllegalStateException("Network unavailable"))
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenManager,
             apiClient = apiClient
         )
@@ -223,12 +220,12 @@ class BackendCommunicationTest {
 
         everySuspend {
             apiClient.login(request)
-        } returns ApiResult.Error(
+        } returns ApiResult.HttpError(
             status = HttpStatusCode(418, "I'm a teapot"),
             message = "Unexpected response"
         )
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenManager,
             apiClient = apiClient
         )
@@ -287,7 +284,7 @@ class BackendCommunicationTest {
             )
         } throws expectedException
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenManager,
             apiClient = apiClient
         )
@@ -335,7 +332,7 @@ class BackendCommunicationTest {
             tokenStorage.clearTokens()
         } returns Unit
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenStorage,
             apiClient = apiClient
         )
@@ -364,7 +361,7 @@ class BackendCommunicationTest {
             tokenStorage.clearTokens()
         } returns Unit
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenStorage,
             apiClient = apiClient
         )
@@ -393,7 +390,7 @@ class BackendCommunicationTest {
             tokenStorage.clearTokens()
         } returns Unit
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenStorage,
             apiClient = apiClient
         )
@@ -422,12 +419,12 @@ class BackendCommunicationTest {
 
         everySuspend {
             apiClient.logout(request)
-        } returns ApiResult.Error(
+        } returns ApiResult.HttpError(
             status = HttpStatusCode.InternalServerError,
             message = "Internal server error"
         )
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenStorage,
             apiClient = apiClient
         )
@@ -463,12 +460,9 @@ class BackendCommunicationTest {
 
         everySuspend {
             apiClient.logout(request)
-        } returns ApiResult.Error(
-            status = HttpStatusCode.ServiceUnavailable,
-            message = "Unable to connect to the server"
-        )
+        } returns ApiResult.NetworkError(IllegalStateException("Network unavailable"))
 
-        val communication = BackendCommunication(
+        val communication = AuthService(
             tokenStorage = tokenStorage,
             apiClient = apiClient
         )
@@ -492,4 +486,26 @@ class BackendCommunicationTest {
     }
 
 
+
+    @Test
+    fun testLocalFailuresAreMappedOnlyByServiceAndRetainCause() = runTest {
+        val cause = IllegalStateException("Local failure")
+        val cases = listOf(
+            ApiResult.NetworkError(cause) to MobileCoreErrorCode.NETWORK_ERROR,
+            ApiResult.Timeout(cause) to MobileCoreErrorCode.NETWORK_ERROR,
+            ApiResult.DecodingError(cause) to MobileCoreErrorCode.UNKNOWN_ERROR,
+            ApiResult.UnexpectedError(cause) to MobileCoreErrorCode.UNKNOWN_ERROR
+        )
+        for ((failure, code) in cases) {
+            val api = mock<ApiClient>()
+            val storage = mock<TokenStorage>()
+            everySuspend { api.login(any()) } returns failure
+            val error = assertFailsWith<MobileCoreException> {
+                AuthService(storage, api).login("test@user.com", "password")
+            }
+            assertEquals(code, error.code)
+            assertSame(cause, error.cause)
+            verify(VerifyMode.exactly(0)) { storage.storeTokens(any(), any()) }
+        }
+    }
 }

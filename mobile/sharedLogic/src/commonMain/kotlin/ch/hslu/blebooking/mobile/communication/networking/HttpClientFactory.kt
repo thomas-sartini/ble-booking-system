@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 /**
  * Factory responsible for creating and configuring [HttpClient] instances.
  */
-object HttpClientFactory {
+internal object HttpClientFactory {
 
 
     /**

@@ -1,11 +1,6 @@
 package ch.hslu.blebooking.mobile.api
 
-import ch.hslu.blebooking.mobile.application.AccessService
-import ch.hslu.blebooking.mobile.application.AuthService
-import ch.hslu.blebooking.mobile.application.BookingService
 import ch.hslu.blebooking.mobile.application.ServiceFacade
-import ch.hslu.blebooking.mobile.communication.BackendCommunication
-import ch.hslu.blebooking.mobile.communication.CommunicationGateway
 import ch.hslu.blebooking.mobile.communication.networking.BackendApiClient
 import ch.hslu.blebooking.mobile.communication.networking.HttpClientFactory
 import ch.hslu.blebooking.mobile.token.TokenManager
@@ -29,7 +24,7 @@ object MobileCoreFactory {
      *
      * @param secureStorage Platform-specific secure storage
      * implementation provided by the native application.
-     * @param baseUrl API base URL including the auth path, e.g. https://host/auth/.
+     * @param baseUrl Backend base URL, e.g. https://host/. Endpoint paths are set by the API client.
      * @param httpClientEngine Optional platform-specific [HttpClientEngine]
      * (e.g. OkHttp on Android, Darwin on iOS) or mock engine for tests.
      * @return A configured [MobileCoreApi] instance.
@@ -45,13 +40,10 @@ object MobileCoreFactory {
         )
         val backendApiClient = BackendApiClient(httpClient)
         val tokenManager = TokenManager(secureStorage)
-        val communicationGateway: CommunicationGateway =
-            BackendCommunication(tokenManager, backendApiClient)
 
         return ServiceFacade(
-            authService = AuthService(communicationGateway),
-            bookingService = BookingService(communicationGateway),
-            accessService = AccessService(communicationGateway)
+            tokenStorage = tokenManager,
+            apiClient = backendApiClient
         )
     }
 }

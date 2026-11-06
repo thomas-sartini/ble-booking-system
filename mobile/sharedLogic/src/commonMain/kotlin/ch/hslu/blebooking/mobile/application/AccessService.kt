@@ -1,7 +1,7 @@
 
 package ch.hslu.blebooking.mobile.application
 
-import ch.hslu.blebooking.mobile.communication.CommunicationGateway
+import ch.hslu.blebooking.mobile.communication.networking.ApiClient
 import ch.hslu.blebooking.mobile.model.AccessConfirmation
 import ch.hslu.blebooking.mobile.model.ResourceAccessRequest
 import ch.hslu.blebooking.mobile.model.ResourceAccessResponse
@@ -13,7 +13,7 @@ import ch.hslu.blebooking.mobile.model.ResourceAccessResponse
  * and check-out operations.
  */
 internal class AccessService(
-    private val communicationGateway: CommunicationGateway
+    private val apiClient: ApiClient
 ) {
 
     suspend fun requestAccess(
