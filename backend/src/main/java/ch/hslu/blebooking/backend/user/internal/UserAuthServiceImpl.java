@@ -38,6 +38,12 @@ class UserAuthServiceImpl implements UserAuthService {
 	}
 
 	@Override
+	public Optional<AuthUserDetails> findById(Long userId) {
+		return userRepository.findById(userId)
+			.map(this::toAuthUserDetails);
+	}
+
+	@Override
 	public void recordFailedAttempt(Long userId) {
 		userRepository.findById(userId).ifPresent(user -> {
 			long newCount = (user.getFailedAttempts() == null ? 0 : user.getFailedAttempts()) + 1;
