@@ -56,6 +56,20 @@ class SecurityIT {
 	}
 
 	@Test
+	void actuatorHealthDoesNotNeedToken() throws Exception {
+		mvc.perform(get("/actuator/health"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("UP"));
+	}
+
+	@Test
+	void otherActuatorEndpointsAreNotExposed() throws Exception {
+		// Other actuator endpoints are not exposed, even with a valid token
+		mvc.perform(get("/actuator/metrics").header(HttpHeaders.AUTHORIZATION, bearer(TestJwt.token(secret, "STUDENT"))))
+			.andExpect(status().isNotFound());
+	}
+
+	@Test
 	void validTokenIsAccepted() throws Exception {
 		mvc.perform(get("/test/authenticated").header(HttpHeaders.AUTHORIZATION, bearer(TestJwt.token(secret, "STUDENT"))))
 			.andExpect(status().isOk());
