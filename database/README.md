@@ -14,10 +14,10 @@ Developers can initialize, reset, and verify the database lifecycle cleanly usin
     ```bash
     docker compose up -d
     ```
-    (PostgreSQL starts up, detects `database/init.sql`, and executes it automatically against the fresh database instance).
+    (PostgreSQL starts up with an empty database. The schema is created by Flyway when the backend starts, from `backend/src/main/resources/db/migration`).
 
 3.  **Verification:**
-    Developers can connect to the container via `psql` to verify the initialized schema:
+    After the backend has started once, developers can connect to the container via `psql` to verify the schema:
     ```bash
     docker exec -it ble_booking_db_container psql -U postgres -d ble_booking_db
     ```

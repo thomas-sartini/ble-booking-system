@@ -1,0 +1,46 @@
+name: Mobile
+
+on:
+  pull_request:
+    paths:
+      - "mobile/**"
+      - ".github/workflows/mobile.yml"
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/mobile.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Run Android host tests (includes commonTest).
+      # Note: iOS tests (iosSimulatorArm64Test) are not run in CI as they require a macOS runner.
+      # To run iOS tests locally: ./gradlew :sharedLogic:iosSimulatorArm64Test
+      - name: Run Android host tests
+        run: ./gradlew :sharedLogic:testAndroidHostTest
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: mobile/sharedLogic/build/reports/tests/
+          retention-days: 7

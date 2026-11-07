@@ -6,7 +6,20 @@
 .idea/
 *.swp
 *.swo
+**/.claude/settings.local.json
 
 # OS files
 Thumbs.db
 .DS_Store
+
+# Java / Maven build output
+**/target/
+*.class
+*.log
+
+# Node / Frontend build output
+node_modules/
+web/dist/
+
+# Spring Initializr leftovers
+backend/HELP.md

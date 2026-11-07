@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="1000" viewBox="0 0 1000 500" role="img" aria-labelledby="title desc">
+<title id="title">One external five-volt adapter powers the equipment lending station</title>
+<desc id="desc">A regulated five-volt four-ampere plug-in supply remains outside the enclosure. Its DC output feeds a jack and two power branches. One powers the Nano through USB-C; the other powers the servo directly. All grounds are shared. The Nano supplies the clock at 3.3 volts, reads the magnetic door contact and controls the active buzzer through a 3.3-volt output. Signal wiring is omitted.</desc>
+<defs><style>text{font-family:Arial,Helvetica,sans-serif;fill:#283749}.h{font-size:23px;font-weight:bold}.t{font-size:18px;font-weight:bold}.s{font-size:14px;fill:#536a80}.p{fill:none;stroke:#cc7230;stroke-width:3}</style>
+<marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#cc7230"/></marker></defs>
+<rect width="1000" height="500" fill="white"/><text x="40" y="43" class="h">Continuous supply from one 5 V adapter</text>
+<text x="40" y="72" class="s">The terminal stays on and available over BLE while plugged in.</text>
+<rect x="40" y="190" width="220" height="110" rx="7" fill="#e8edf5" stroke="#96abc3"/>
+<text x="150" y="223" text-anchor="middle" class="t">5 V / 4 A adapter</text><text x="150" y="250" text-anchor="middle" class="s">Outside the enclosure</text><text x="150" y="277" text-anchor="middle" class="s">5.5 / 2.1 mm DC plug</text>
+<path d="M260 245 H340" class="p" marker-end="url(#a)"/>
+<rect x="350" y="190" width="200" height="110" rx="7" fill="#edf0f4" stroke="#9aa9ba"/>
+<text x="450" y="223" text-anchor="middle" class="t">Rear lower DC jack</text><text x="450" y="250" text-anchor="middle" class="s">5 V distribution</text><text x="450" y="277" text-anchor="middle" class="s">Two supply branches</text>
+<path d="M550 245 H610 V135 H690" class="p" marker-end="url(#a)"/><path d="M610 245 V350 H690" class="p" marker-end="url(#a)"/><circle cx="610" cy="245" r="4" fill="#cc7230"/>
+<text x="624" y="238" class="s">5 V</text>
+<rect x="700" y="80" width="250" height="110" rx="7" fill="#e5efef" stroke="#90b3b1"/>
+<text x="825" y="113" text-anchor="middle" class="t">Nano ESP32</text><text x="825" y="140" text-anchor="middle" class="s">FIT0993 screw terminals → USB-C</text><text x="825" y="167" text-anchor="middle" class="s">3.3 V: clock, contact and buzzer</text>
+<rect x="700" y="300" width="250" height="110" rx="7" fill="#e5edf5" stroke="#94aec6"/>
+<text x="825" y="333" text-anchor="middle" class="t">MG90S servo</text><text x="825" y="360" text-anchor="middle" class="s">Direct 5 V supply</text><text x="825" y="387" text-anchor="middle" class="s">1000 µF capacitor nearby</text>
+<path d="M40 439 H950" stroke="#d5dee7"/><text x="40" y="465" class="s">Shared ground. Servo current bypasses the Nano and breadboard.</text>
+<text x="40" y="488" class="s">Supply overview only; control signals and connector pin numbers are omitted.</text></svg>

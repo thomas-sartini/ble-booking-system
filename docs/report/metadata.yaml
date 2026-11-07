@@ -1,6 +1,10 @@
 title: BLE Booking System with Secure User Management
 subtitle: Project Report - Draft
-author: Thomas Sartini, Nicola Anghileri, Julian Hoffer, Oguzhan Akyol
+author:
+  - Thomas Sartini
+  - Nicola Anghileri
+  - Julian Hoffer
+  - Oguzhan Akyol
 date: 28 September 2026
 lang: en-GB
 toc-title: Table of Contents
@@ -10,22 +14,95 @@ classoption:
   - a4paper
   - 11pt
   - oneside
-mainfont: TeX Gyre Termes
+mainfont: TeX Gyre Heros
 sansfont: TeX Gyre Heros
+monofont: TeX Gyre Cursor
+monofontoptions:
+  - Scale=0.95
 geometry:
-  - left=30mm
+  - left=25mm
   - right=25mm
   - top=27mm
   - bottom=27mm
-linestretch: 1.15
+linestretch: 1.12
 colorlinks: true
-linkcolor: blue
-urlcolor: blue
-toccolor: black
-abstract: |
-  **Draft.** Once the work is complete, summarise the problem, method,
-  principal findings, and conclusion here.
+linkcolor: ReportLink
+urlcolor: ReportLink
+toccolor: ReportInk
+citecolor: ReportLink
+# Add the abstract once the findings and conclusion are available.
+secnumdepth: 2
+nocite: '@hsluReportGuide2025'
 header-includes:
   - |
       \usepackage{float}
+      \usepackage{fvextra}
+      \fvset{breaklines=true,breakanywhere=true}
+      \setlength{\emergencystretch}{3em}
+      \usepackage[normalem]{ulem}
+      \renewcommand{\ULthickness}{0.4pt}
+      \usepackage{etoolbox}
+      \AtBeginEnvironment{longtable}{\small}
       \floatplacement{figure}{H}
+      \usepackage[font=small,labelfont=bf]{caption}
+
+  - |
+      \definecolor{ReportLink}{HTML}{2F6655}
+      \definecolor{ReportInk}{HTML}{242A30}
+      \definecolor{ReportAccent}{HTML}{345B66}
+      \definecolor{ReportMuted}{HTML}{626D76}
+      \definecolor{ReportRule}{HTML}{D6DDE1}
+      \KOMAoptions{parskip=half}
+      \usepackage[automark,headsepline=0.4pt,footsepline=0.4pt]{scrlayer-scrpage}
+      \clearpairofpagestyles
+      \automark{chapter}
+      \setkomafont{pageheadfoot}{\normalfont\sffamily\fontsize{8}{10}\selectfont\color{ReportMuted}}
+      \setkomafont{pagenumber}{\normalfont\sffamily\bfseries\color{ReportInk}}
+      \setkomafont{headsepline}{\color{ReportRule}}
+      \setkomafont{footsepline}{\color{ReportRule}}
+      \ihead*{\parbox[b]{0.72\textwidth}{\raggedright\headmark}}
+      \ohead*{BLE Booking System}
+      \ifoot*{Project Report}
+      \ofoot*{\pagemark}
+      \pagestyle{scrheadings}
+      \renewcommand*{\chapterpagestyle}{scrheadings}
+      \setlength{\headheight}{24pt}
+      \setlength{\footskip}{34pt}
+      \setkomafont{disposition}{\normalfont\sffamily\bfseries\color{ReportInk}}
+      \setkomafont{chapter}{\fontsize{25}{30}\selectfont}
+      \setkomafont{section}{\fontsize{15}{19}\selectfont}
+      \setkomafont{subsection}{\fontsize{12}{16}\selectfont}
+      \setkomafont{subsubsection}{\normalsize}
+      \RedeclareSectionCommand[beforeskip=12pt,afterskip=24pt]{chapter}
+      \RedeclareSectionCommand[beforeskip=20pt,afterskip=8pt]{section}
+      \RedeclareSectionCommand[beforeskip=14pt,afterskip=6pt]{subsection}
+      \captionsetup{font={small,sf},labelfont={bf},justification=raggedright,singlelinecheck=false}
+      \AtBeginDocument{\color{ReportInk}}
+      \makeatletter
+      \renewcommand*{\@pnumwidth}{2.5em}
+      \renewcommand*{\@tocrmarg}{3.5em}
+      \DeclareTOCStyleEntry[numwidth=3.5em]{tocline}{figure}
+      \DeclareTOCStyleEntry[numwidth=3.5em]{tocline}{table}
+      \renewcommand*{\chapterlinesformat}[3]{\markboth{#2#3}{#2#3}\@hangfrom{#2}{#3}}
+      \renewcommand{\maketitle}{%
+        \begin{titlepage}
+        \thispagestyle{empty}
+        \sffamily\raggedright
+        {\color{ReportAccent}\fontsize{11}{14}\selectfont PROJECT REPORT\par}
+        \vspace{10mm}
+        {\color{ReportAccent}\noindent\rule{\textwidth}{1.5pt}\par}
+        \vspace{24mm}
+        {\color{ReportInk}\bfseries\fontsize{34}{40}\selectfont\@title\par}
+        \vspace{10mm}
+        {\color{ReportMuted}\fontsize{14}{19}\selectfont\@subtitle\par}
+        \vfill
+        {\color{ReportAccent}\fontsize{9}{12}\selectfont AUTHORS\par}
+        \vspace{4mm}
+        {\fontsize{12}{20}\selectfont\def\and{\par}\@author\par}
+        \vspace{15mm}
+        {\color{ReportRule}\noindent\rule{\textwidth}{0.5pt}\par}
+        \vspace{5mm}
+        {\color{ReportMuted}\fontsize{10}{14}\selectfont\@date\par}
+        \end{titlepage}%
+      }
+      \makeatother
