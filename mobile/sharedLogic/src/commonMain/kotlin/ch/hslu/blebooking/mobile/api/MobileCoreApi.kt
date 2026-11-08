@@ -6,6 +6,7 @@ import ch.hslu.blebooking.mobile.model.ResourceAccessRequest
 import ch.hslu.blebooking.mobile.model.ResourceAccessResponse
 import ch.hslu.blebooking.mobile.model.AccessConfirmation
 import ch.hslu.blebooking.mobile.model.error.MobileCoreException
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Public API exposed by the shared Mobile Core to native
@@ -36,7 +37,7 @@ interface MobileCoreApi {
      * @throws MobileCoreException If authentication fails
      * or a communication error occurs.
      */
-    @Throws(MobileCoreException::class)
+    @Throws(MobileCoreException::class, CancellationException::class)
     suspend fun login(
         identifier: String,
         password: String
@@ -50,7 +51,7 @@ interface MobileCoreApi {
      *
      * @throws MobileCoreException If the operation fails.
      */
-    @Throws(MobileCoreException::class)
+    @Throws(MobileCoreException::class, CancellationException::class)
     suspend fun logout()
 
     /**
@@ -60,7 +61,7 @@ interface MobileCoreApi {
      * or an empty list if no active bookings exist.
      * @throws MobileCoreException If the operation fails.
      */
-    @Throws(MobileCoreException::class)
+    @Throws(MobileCoreException::class, CancellationException::class)
     suspend fun getActiveBookings(): List<Booking>
 
     /**
@@ -71,7 +72,7 @@ interface MobileCoreApi {
      * @throws MobileCoreException If the request is
      * rejected or a communication error occurs.
      */
-    @Throws(MobileCoreException::class)
+    @Throws(MobileCoreException::class, CancellationException::class)
     suspend fun requestAccess(
         request: ResourceAccessRequest
     ): ResourceAccessResponse
@@ -83,7 +84,7 @@ interface MobileCoreApi {
      * @throws MobileCoreException If the confirmation
      * is rejected or cannot be completed.
      */
-    @Throws(MobileCoreException::class)
+    @Throws(MobileCoreException::class, CancellationException::class)
     suspend fun confirmAccess(
         confirmation: AccessConfirmation
     )
@@ -95,7 +96,7 @@ interface MobileCoreApi {
      * @throws MobileCoreException If check-out is
      * rejected or cannot be completed.
      */
-    @Throws(MobileCoreException::class)
+    @Throws(MobileCoreException::class, CancellationException::class)
     suspend fun checkOut(
         resourceId: String
     )
