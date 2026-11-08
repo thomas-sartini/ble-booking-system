@@ -22,6 +22,7 @@ interface SecureStorage {
      * @param key Unique identifier for the stored entry.
      * @param value The sensitive string data to persist securely.
      */
+    @Throws(Exception::class)
     fun save(key: String, value: String)
 
     /**
@@ -30,6 +31,7 @@ interface SecureStorage {
      * @param key Unique identifier for the stored entry.
      * @return The stored value, or null if no value exists for the key.
      */
+    @Throws(Exception::class)
     fun get(key: String): String?
 
     /**
@@ -38,5 +40,6 @@ interface SecureStorage {
      *
      * @param key Unique identifier for the entry to delete.
      */
+    @Throws(Exception::class)
     fun remove(key: String)
 }
