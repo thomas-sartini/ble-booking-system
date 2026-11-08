@@ -1,3 +1,22 @@
 <resources>
-    <string name="app_name">Mobile</string>
+    <string name="app_name">BLE Access</string>
+    <string name="login_brand">BLE Access</string>
+    <string name="login_title">Your space.\nUnlocked.</string>
+    <string name="login_subtitle">Sign in to manage bookings and use your digital key.</string>
+    <string name="login_email">Email</string>
+    <string name="login_email_hint">you@company.com</string>
+    <string name="login_password">Password</string>
+    <string name="login_password_hint">Enter your password</string>
+    <string name="login_show">Show</string>
+    <string name="login_hide">Hide</string>
+    <string name="login_forgot">Forgot password?</string>
+    <string name="login_sign_in">Sign In</string>
+    <string name="login_error_required_fields">Please enter your email and password.</string>
+    <string name="login_error_failed">Unable to sign in. Please try again.</string>
+    <string name="home_title">Your access</string>
+    <string name="home_login_success">Login successful</string>
+    <string name="menu_options">More options</string>
+    <string name="logout">Logout</string>
+    <string name="logout_error">Unable to log out. Please try again.</string>
+    <string name="logout_success">Logout successful</string>
 </resources>

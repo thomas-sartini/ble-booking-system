@@ -24,19 +24,17 @@ object MobileCoreFactory {
      *
      * @param secureStorage Platform-specific secure storage
      * implementation provided by the native application.
-     * @param baseUrl Backend base URL, e.g. https://host/. Endpoint paths are set by the API client.
      * @param httpClientEngine Optional platform-specific [HttpClientEngine]
      * (e.g. OkHttp on Android, Darwin on iOS) or mock engine for tests.
      * @return A configured [MobileCoreApi] instance.
      */
     fun create(
         secureStorage: SecureStorage,
-        baseUrl: String,
         httpClientEngine: HttpClientEngine? = null
     ): MobileCoreApi {
         val httpClient: HttpClient = HttpClientFactory.create(
             engine = httpClientEngine,
-            baseUrl = baseUrl.trimEnd('/') + "/"
+            baseUrl = ApiConfig.BASE_URL
         )
         val backendApiClient = BackendApiClient(httpClient)
         val tokenManager = TokenManager(secureStorage)
