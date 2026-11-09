@@ -10,6 +10,8 @@ public enum ErrorCode {
 
 	VALIDATION_ERROR(HttpStatus.BAD_REQUEST),
 	INVALID_RECEIPT(HttpStatus.BAD_REQUEST),
+	AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED),
+	INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED),
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED),
 	FORBIDDEN(HttpStatus.FORBIDDEN),
 	NOT_FOUND(HttpStatus.NOT_FOUND),
@@ -32,7 +34,7 @@ public enum ErrorCode {
 	static String forStatus(HttpStatusCode status) {
 		return switch (status.value()) {
 			case 400 -> VALIDATION_ERROR.name();
-			case 401 -> UNAUTHORIZED.name();
+			case 401 -> UNAUTHORIZED.name();  // Spring's default, not AUTHENTICATION_FAILED
 			case 403 -> FORBIDDEN.name();
 			case 404 -> NOT_FOUND.name();
 			case 500 -> INTERNAL_ERROR.name();
