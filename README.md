@@ -35,6 +35,68 @@ The final scope, priorities, and verification criteria belong in the [requiremen
 
 Component-specific setup instructions should be kept in the respective component directories as the implementation takes shape.
 
+## Docker Setup
+
+The project uses Docker Compose for local development and deployment. The setup includes PostgreSQL and the Spring Boot backend.
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- `.env` file in the project root (copy from `.env.example` and adjust values)
+
+### Running with Docker Compose
+
+**Start all services (database + backend):**
+```bash
+docker compose up --build
+```
+
+**Start only the database (for local backend development):**
+```bash
+docker compose up -d postgres
+```
+
+**Stop all services:**
+```bash
+docker compose down
+```
+
+### Backend Docker Image
+
+The backend uses a multi-stage Dockerfile:
+- **Build stage:** Uses `eclipse-temurin:25-jdk-alpine` with Maven wrapper to build the application
+- **Runtime stage:** Uses `eclipse-temurin:25-jre-alpine` with a non-root user for security
+- **JVM options:** Configured with `-XX:MaxRAMPercentage=75.0` for container environments
+
+### Environment Variables
+
+The backend container requires these environment variables (defined in `.env`):
+
+| Variable | Description | Example |
+|:--|:--|:--|
+| `DB_HOST` | PostgreSQL host | `postgres` (in Docker), `localhost` (local) |
+| `DB_PORT` | PostgreSQL port | `5432` (in Docker), `5433` (local) |
+| `POSTGRES_DB` | Database name | `ble_booking_db` |
+| `POSTGRES_USER` | Database user | `postgres` |
+| `POSTGRES_PASSWORD` | Database password | (set securely) |
+| `JWT_SECRET` | JWT signing key (min 32 chars) | (generate randomly) |
+| `APP_CORS_ALLOWED_ORIGINS` | CORS allowed origins | `http://localhost:5173` |
+| `SPRING_PROFILES_ACTIVE` | Spring profile | `dev` |
+| `DEV_USER_PASSWORD` | Dev user password (dev profile only) | (set securely) |
+| `PORT` | Application port (optional) | `8080` (default) |
+
+### Health Check
+
+The backend exposes a health endpoint at `/actuator/health` (no authentication required):
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+Expected response:
+```json
+{"status":"UP"}
+```
+
 ## Planning and work tracking
 
 Requirements and expected results are maintained in `planning/`. Epics are described in the [product backlog](planning/product-backlog.md), which also indexes user stories. Detailed user stories, tasks, and spikes are managed as GitHub Issues; tasks and spikes are not duplicated in Markdown.
