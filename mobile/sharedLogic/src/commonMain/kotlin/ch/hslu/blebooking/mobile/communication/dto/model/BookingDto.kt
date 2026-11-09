@@ -1,8 +1,8 @@
-package ch.hslu.blebooking.mobile.communication.dto
+package ch.hslu.blebooking.mobile.communication.dto.model
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LoginResponseDto(
+internal data class BookingDto(
     val id: Int // TODO: define DTO attributes
 )

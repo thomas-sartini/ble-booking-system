@@ -1,7 +1,12 @@
 
 package ch.hslu.blebooking.mobile.application
 
-import ch.hslu.blebooking.mobile.communication.CommunicationGateway
+import ch.hslu.blebooking.mobile.communication.networking.ApiClient
+import ch.hslu.blebooking.mobile.communication.networking.ApiResult
+import ch.hslu.blebooking.mobile.communication.dto.model.BookingDto
+import ch.hslu.blebooking.mobile.communication.dto.response.ResourceAccessResponseDto
+import dev.mokkery.matcher.any
+import io.ktor.http.HttpStatusCode
 import ch.hslu.blebooking.mobile.model.AccessConfirmation
 import ch.hslu.blebooking.mobile.model.ResourceAccessRequest
 import ch.hslu.blebooking.mobile.model.ResourceAccessResponse
@@ -28,8 +33,8 @@ AccessServiceTest {
     @Test
     @Ignore // AccessService not implemented yet
     fun testRequestAccessReturnsResponse() = runTest {
-        // Arrange
-        val gateway = mock<CommunicationGateway>()
+        // Arrange (DTO fixtures remain provisional until this operation is implemented.)
+        val apiClient = mock<ApiClient>()
 
         val request = ResourceAccessRequest(
             resourceId = "resource-123",
@@ -45,10 +50,10 @@ AccessServiceTest {
         )
 
         everySuspend {
-            gateway.requestAccess(request)
-        } returns expectedResponse
+            apiClient.requestAccess(any(), any())
+        } returns ApiResult.Success(HttpStatusCode.OK, ResourceAccessResponseDto(1))
 
-        val service = AccessService(gateway)
+        val service = AccessService(apiClient)
 
         // Act
         val result = service.requestAccess(request)
@@ -56,17 +61,17 @@ AccessServiceTest {
         // Assert
         assertEquals(expectedResponse, result)
 
-        // Verify that the gateway method was called
+        // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.requestAccess(request)
+            apiClient.requestAccess(any(), any())
         }
     }
 
     @Test
     @Ignore // AccessService not implemented yet
-    fun testRequestAccessThrowsOnGatewayError() = runTest {
-        // Arrange
-        val gateway = mock<CommunicationGateway>()
+    fun testRequestAccessThrowsOnApiClientError() = runTest {
+        // Arrange (DTO fixtures remain provisional until this operation is implemented.)
+        val apiClient = mock<ApiClient>()
 
         val request = ResourceAccessRequest(
             resourceId = "resource-123",
@@ -80,10 +85,10 @@ AccessServiceTest {
         )
 
         everySuspend {
-            gateway.requestAccess(request)
+            apiClient.requestAccess(any(), any())
         } throws expectedException
 
-        val service = AccessService(gateway)
+        val service = AccessService(apiClient)
 
         // Act & Assert
         val actualException =
@@ -92,17 +97,17 @@ AccessServiceTest {
             }
         assertSame(expectedException, actualException)
 
-        // Verify that the gateway method was called
+        // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.requestAccess(request)
+            apiClient.requestAccess(any(), any())
         }
     }
 
     @Test
     @Ignore // AccessService not implemented yet
     fun testConfirmAccessSuccess() = runTest {
-        // Arrange
-        val gateway = mock<CommunicationGateway>()
+        // Arrange (DTO fixtures remain provisional until this operation is implemented.)
+        val apiClient = mock<ApiClient>()
 
         val confirmation = AccessConfirmation(
             bookingId = "booking-123",
@@ -110,10 +115,10 @@ AccessServiceTest {
         )
 
         everySuspend {
-            gateway.confirmAccess(confirmation)
-        } returns Unit
+            apiClient.confirmAccess(any(), any())
+        } returns ApiResult.Success(HttpStatusCode.OK, Unit)
 
-        val service = AccessService(gateway)
+        val service = AccessService(apiClient)
 
         // Act
         val result = runCatching {
@@ -123,17 +128,17 @@ AccessServiceTest {
         // Assert
         assertTrue(result.isSuccess)
 
-        // Verify that the gateway method was called
+        // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.confirmAccess(confirmation)
+            apiClient.confirmAccess(any(), any())
         }
     }
 
     @Test
     @Ignore // AccessService not implemented yet
-    fun testConfirmAccessThrowsOnGatewayError() = runTest {
-        // Arrange
-        val gateway = mock<CommunicationGateway>()
+    fun testConfirmAccessThrowsOnApiClientError() = runTest {
+        // Arrange (DTO fixtures remain provisional until this operation is implemented.)
+        val apiClient = mock<ApiClient>()
 
         val confirmation = AccessConfirmation(
             bookingId = "booking-123",
@@ -141,15 +146,15 @@ AccessServiceTest {
         )
 
         val expectedException = MobileCoreException(
-            code = MobileCoreErrorCode.INVALID_RECEIPT,
+            code = MobileCoreErrorCode.VALIDATION_ERROR,
             message = "Invalid access receipt"
         )
 
         everySuspend {
-            gateway.confirmAccess(confirmation)
+            apiClient.confirmAccess(any(), any())
         } throws expectedException
 
-        val service = AccessService(gateway)
+        val service = AccessService(apiClient)
 
         // Act & Assert
         val actualException = assertFailsWith<MobileCoreException> {
@@ -157,24 +162,24 @@ AccessServiceTest {
         }
         assertSame(expectedException, actualException)
 
-        // Verify that the gateway method was called
+        // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.confirmAccess(confirmation)
+            apiClient.confirmAccess(any(), any())
         }
     }
 
     @Test
     @Ignore // AccessService not implemented yet
     fun testCheckOutSuccess() = runTest {
-        // Arrange
-        val gateway = mock<CommunicationGateway>()
+        // Arrange (DTO fixtures remain provisional until this operation is implemented.)
+        val apiClient = mock<ApiClient>()
         val resourceId = "resource-123"
 
         everySuspend {
-            gateway.checkOut(resourceId)
-        } returns Unit
+            apiClient.checkOut(any(), any())
+        } returns ApiResult.Success(HttpStatusCode.OK, Unit)
 
-        val service = AccessService(gateway)
+        val service = AccessService(apiClient)
 
         // Act
         val result = runCatching {
@@ -184,29 +189,29 @@ AccessServiceTest {
         // Assert
         assertTrue(result.isSuccess)
 
-        // Verify that the gateway method was called
+        // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.checkOut(resourceId)
+            apiClient.checkOut(any(), any())
         }
     }
 
     @Test
     @Ignore // AccessService not implemented yet
-    fun testCheckOutThrowsOnGatewayError() = runTest {
-        // Arrange
-        val gateway = mock<CommunicationGateway>()
+    fun testCheckOutThrowsOnApiClientError() = runTest {
+        // Arrange (DTO fixtures remain provisional until this operation is implemented.)
+        val apiClient = mock<ApiClient>()
         val resourceId = "resource-123"
 
         val expectedException = MobileCoreException(
-            code = MobileCoreErrorCode.CONNECTION_ERROR,
+            code = MobileCoreErrorCode.NETWORK_ERROR,
             message = "Backend unavailable"
         )
 
         everySuspend {
-            gateway.checkOut(resourceId)
+            apiClient.checkOut(any(), any())
         } throws expectedException
 
-        val service = AccessService(gateway)
+        val service = AccessService(apiClient)
 
         // Act & Assert
         val actualException = assertFailsWith<MobileCoreException> {
@@ -214,9 +219,9 @@ AccessServiceTest {
         }
         assertSame(expectedException, actualException)
 
-        // Verify that the gateway method was called
+        // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.checkOut(resourceId)
+            apiClient.checkOut(any(), any())
         }
     }
 }

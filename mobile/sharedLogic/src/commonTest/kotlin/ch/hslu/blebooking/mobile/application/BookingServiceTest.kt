@@ -1,7 +1,12 @@
 
 package ch.hslu.blebooking.mobile.application
 
-import ch.hslu.blebooking.mobile.communication.CommunicationGateway
+import ch.hslu.blebooking.mobile.communication.networking.ApiClient
+import ch.hslu.blebooking.mobile.communication.networking.ApiResult
+import ch.hslu.blebooking.mobile.communication.dto.model.BookingDto
+import ch.hslu.blebooking.mobile.communication.dto.response.ResourceAccessResponseDto
+import dev.mokkery.matcher.any
+import io.ktor.http.HttpStatusCode
 import ch.hslu.blebooking.mobile.model.Booking
 import ch.hslu.blebooking.mobile.model.BookingStatus
 import ch.hslu.blebooking.mobile.model.error.MobileCoreErrorCode
@@ -25,13 +30,13 @@ class BookingServiceTest {
     @Test
     @Ignore() // BookingService not implemented yet
     fun testGetActiveBookingsReturnsEmptyList() = runTest {
-        // Arrange
-        val gateway = mock<CommunicationGateway>()
+        // Arrange (DTO fixtures remain provisional until this operation is implemented.)
+        val apiClient = mock<ApiClient>()
         everySuspend {
-            gateway.getActiveBookings()
-        } returns emptyList()
+            apiClient.getActiveBookings(any())
+        } returns ApiResult.Success(HttpStatusCode.OK, emptyList())
 
-        val service = BookingService(gateway)
+        val service = BookingService(apiClient)
 
         // Act
         val result = service.getActiveBookings()
@@ -39,17 +44,17 @@ class BookingServiceTest {
         // Assert
         assertEquals(emptyList(), result)
 
-        // Verify that the gateway method was called
+        // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.getActiveBookings()
+            apiClient.getActiveBookings(any())
         }
     }
 
     @Test
     @Ignore() // BookingService not implemented yet
     fun testGetActiveBookingsReturnsMultipleBookings() = runTest {
-        // Arrange
-        val gateway = mock<CommunicationGateway>()
+        // Arrange (DTO fixtures remain provisional until this operation is implemented.)
+        val apiClient = mock<ApiClient>()
 
         val bookings = listOf(
             Booking(
@@ -76,11 +81,11 @@ class BookingServiceTest {
         )
 
         everySuspend {
-            gateway.getActiveBookings()
-        } returns bookings
+            apiClient.getActiveBookings(any())
+        } returns ApiResult.Success(HttpStatusCode.OK, bookings.map { BookingDto(it.id.toInt()) })
 
 
-        val service = BookingService(gateway)
+        val service = BookingService(apiClient)
 
         // Act
         val result = service.getActiveBookings()
@@ -88,28 +93,28 @@ class BookingServiceTest {
         // Assert
         assertEquals(bookings, result)
 
-        // Verify that the gateway method was called
+        // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.getActiveBookings()
+            apiClient.getActiveBookings(any())
         }
     }
 
     @Test
     @Ignore() // BookingService not implemented yet
-    fun testGetActiveBookingsThrowsOnGatewayError() = runTest {
-        // Arrange
-        val gateway = mock<CommunicationGateway>()
+    fun testGetActiveBookingsThrowsOnApiClientError() = runTest {
+        // Arrange (DTO fixtures remain provisional until this operation is implemented.)
+        val apiClient = mock<ApiClient>()
 
         val expectedException = MobileCoreException(
-            code = MobileCoreErrorCode.CONNECTION_ERROR,
+            code = MobileCoreErrorCode.NETWORK_ERROR,
             message = "Backend unavailable"
         )
 
         everySuspend {
-            gateway.getActiveBookings()
+            apiClient.getActiveBookings(any())
         } throws expectedException
 
-        val service = BookingService(gateway)
+        val service = BookingService(apiClient)
 
         // Act & Assert
         val actualException = assertFailsWith<MobileCoreException> {
@@ -118,7 +123,7 @@ class BookingServiceTest {
         assertSame(expectedException, actualException)
 
         verifySuspend(VerifyMode.exactly(1)) {
-            gateway.getActiveBookings()
+            apiClient.getActiveBookings(any())
         }
     }
 }

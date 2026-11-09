@@ -1,22 +1,23 @@
-
 package ch.hslu.blebooking.mobile.token
 
 import ch.hslu.blebooking.mobile.api.SecureStorage
+import ch.hslu.blebooking.mobile.model.error.MobileCoreErrorCode
+import ch.hslu.blebooking.mobile.model.error.MobileCoreException
 import dev.mokkery.answering.returns
+import dev.mokkery.answering.throws
 import dev.mokkery.every
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 class TokenManagerTest {
 
     @Test
-    @Ignore // TokenManager not implemented yet
     fun testGetAccessTokenReturnsNullInitially() {
         // Arrange
         val storage = mock<SecureStorage>()
@@ -30,13 +31,12 @@ class TokenManagerTest {
     }
 
     @Test
-    @Ignore
     fun testGetRefreshTokenReturnsStoredToken() {
         // Arrange
         val storage = mock<SecureStorage>()
         val expectedToken = "refresh-token"
         every {
-            storage.get(any())
+            storage.get("refreshToken")
         } returns expectedToken
 
         val manager = TokenManager(storage)
@@ -46,20 +46,17 @@ class TokenManagerTest {
 
         // Assert
         assertEquals(expectedToken, result)
-
         verify(VerifyMode.exactly(1)) {
-            storage.get(any())
+            storage.get("refreshToken")
         }
     }
 
     @Test
-    @Ignore
     fun testGetRefreshTokenReturnsNullWhenMissing() {
         // Arrange
         val storage = mock<SecureStorage>()
-
         every {
-            storage.get(any())
+            storage.get("refreshToken")
         } returns null
 
         val manager = TokenManager(storage)
@@ -69,21 +66,38 @@ class TokenManagerTest {
 
         // Assert
         assertNull(result)
-
         verify(VerifyMode.exactly(1)) {
-            storage.get(any())
+            storage.get("refreshToken")
         }
     }
 
     @Test
-    @Ignore
+    fun testGetRefreshTokenThrowsMobileCoreExceptionOnStorageFailure() {
+        // Arrange
+        val storage = mock<SecureStorage>()
+        every {
+            storage.get("refreshToken")
+        } throws RuntimeException("Hardware keystore error")
+
+        val manager = TokenManager(storage)
+
+        // Act & Assert
+        val exception = assertFailsWith<MobileCoreException> {
+            manager.getRefreshToken()
+        }
+        assertEquals(MobileCoreErrorCode.STORAGE_ERROR, exception.code)
+    }
+
+    @Test
     fun testStoreTokensStoresCorrectly() {
         // Arrange
         val storage = mock<SecureStorage>()
-
         every {
             storage.save(any(), any())
         } returns Unit
+        every {
+            storage.get("refreshToken")
+        } returns "refresh-token"
 
         val manager = TokenManager(storage)
 
@@ -94,22 +108,21 @@ class TokenManagerTest {
         )
 
         // Assert
-        assertEquals(
-            "access-token",
-            manager.getAccessToken()
-        )
-        assertEquals(
-            "refresh-token",
-            manager.getRefreshToken()
-        )
+        assertEquals("access-token", manager.getAccessToken())
+        assertEquals("refresh-token", manager.getRefreshToken())
+
+        verify(VerifyMode.exactly(1)) {
+            storage.save("refreshToken", "refresh-token")
+        }
+        verify(VerifyMode.exactly(0)) {
+            storage.save("accessToken", any())
+        }
     }
 
     @Test
-    @Ignore
     fun testStoreTokensReplacesExistingTokens() {
         // Arrange
         val storage = mock<SecureStorage>()
-
         every {
             storage.save(any(), any())
         } returns Unit
@@ -122,19 +135,35 @@ class TokenManagerTest {
 
         // Assert
         assertEquals("access-2", manager.getAccessToken())
-
+        verify(VerifyMode.exactly(1)) {
+            storage.save("refreshToken", "refresh-2")
+        }
     }
 
     @Test
-    @Ignore
+    fun testStoreTokensThrowsMobileCoreExceptionOnStorageFailure() {
+        // Arrange
+        val storage = mock<SecureStorage>()
+        every {
+            storage.save(any(), any())
+        } throws RuntimeException("Disk or keystore write error")
+
+        val manager = TokenManager(storage)
+
+        // Act & Assert
+        val exception = assertFailsWith<MobileCoreException> {
+            manager.storeTokens("access", "refresh")
+        }
+        assertEquals(MobileCoreErrorCode.STORAGE_ERROR, exception.code)
+    }
+
+    @Test
     fun testClearTokensRemovesTokens() {
         // Arrange
         val storage = mock<SecureStorage>()
-
         every {
             storage.save(any(), any())
         } returns Unit
-
         every {
             storage.remove(any())
         } returns Unit
@@ -147,6 +176,25 @@ class TokenManagerTest {
 
         // Assert
         assertNull(manager.getAccessToken())
+        verify(VerifyMode.exactly(1)) {
+            storage.remove("refreshToken")
+        }
+    }
 
+    @Test
+    fun testClearTokensThrowsMobileCoreExceptionOnStorageFailure() {
+        // Arrange
+        val storage = mock<SecureStorage>()
+        every {
+            storage.remove(any())
+        } throws RuntimeException("Delete error")
+
+        val manager = TokenManager(storage)
+
+        // Act & Assert
+        val exception = assertFailsWith<MobileCoreException> {
+            manager.clearTokens()
+        }
+        assertEquals(MobileCoreErrorCode.STORAGE_ERROR, exception.code)
     }
 }

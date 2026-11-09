@@ -1,28 +1,39 @@
-
 package ch.hslu.blebooking.mobile.model.error
 
 /**
  * Platform-independent error codes exposed by MobileCoreApi.
  */
-enum class MobileCoreErrorCode {
-
-    // Backend errors
-    VALIDATION_ERROR,
-    INVALID_RECEIPT,
-    UNAUTHORIZED,
-    FORBIDDEN,
-    NOT_FOUND,
-    BOOKING_OVERLAP,
-    INVALID_STATUS,
-    TOO_MANY_REQUESTS,
-    INTERNAL_ERROR,
+enum class MobileCoreErrorCode(
+    val httpStatus: Int?,
+    val message: String
+) {
 
     // Communication errors
-    CONNECTION_ERROR,
-    TIMEOUT,
+    BAD_REQUEST(400, "Invalid request"),
+    UNAUTHORIZED(401, "Unauthorized"),
+    FORBIDDEN(403, "Access forbidden"),
+    NOT_FOUND(404, "Resource not found"),
+    CONFLICT(409, "Resource conflict"),
+    TOO_MANY_REQUESTS(429, "Too many requests"),
+    SERVER_ERROR(500, "Internal server error"),
 
-    // Unrecognized errors
-    UNKNOWN_ERROR
+    NETWORK_ERROR(503, "Network error"),
+    UNKNOWN_ERROR(null, "Unknown error"),
+
+    // Logic errors
+    VALIDATION_ERROR(null, "Validation error"),
+
+    // Storage errors
+    STORAGE_ERROR(null, "Secure storage failure");
+
+    companion object {
+        fun fromHttpStatus(status: Int): MobileCoreErrorCode {
+            return entries.firstOrNull {
+                it.httpStatus == status
+            } ?: when (status) {
+                in 500..599 -> SERVER_ERROR
+                else -> UNKNOWN_ERROR
+            }
+        }
+    }
 }
-
-
