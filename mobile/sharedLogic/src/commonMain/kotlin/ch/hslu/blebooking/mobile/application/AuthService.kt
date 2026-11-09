@@ -106,7 +106,11 @@ internal class AuthService(
             is ApiResult.NetworkError, is ApiResult.Timeout -> MobileCoreErrorCode.NETWORK_ERROR
             is ApiResult.DecodingError, is ApiResult.UnexpectedError -> MobileCoreErrorCode.UNKNOWN_ERROR
         }
-        return MobileCoreException(code = code, message = message, cause = cause)
+        return MobileCoreException(
+            code = code,
+            message = message.takeIf { it.isNotBlank() } ?: code.message,
+            cause = cause,
+        )
     }
 
     private fun String.isValidEmail(): Boolean {

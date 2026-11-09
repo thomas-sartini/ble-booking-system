@@ -25,6 +25,10 @@ import io.ktor.http.contentType
 import io.ktor.serialization.ContentConvertException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -39,7 +43,7 @@ internal class BackendApiClient(
     override suspend fun login(
         request: LoginRequestDto
     ): ApiResult<LoginResponseDto> = executeRequest {
-        httpClient.post("login") {
+        httpClient.post("auth/login") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -49,14 +53,14 @@ internal class BackendApiClient(
     override suspend fun refresh(
         request: RefreshTokenRequestDto
     ): ApiResult<RefreshTokenResponseDto> = executeRequest {
-        httpClient.post("refresh"){
+        httpClient.post("auth/refresh"){
             contentType(ContentType.Application.Json)
             setBody(request)
         }
     }
 
     override suspend fun logout(request: LogoutRequestDto): ApiResult<Unit> = executeRequest {
-        httpClient.post("logout"){
+        httpClient.post("auth/logout"){
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -126,9 +130,17 @@ internal class BackendApiClient(
                 data = response.body<T>()
             )
         } else {
+            val errorBody = response.bodyAsText()
+            val detail = try {
+                val payload = Json.parseToJsonElement(errorBody) as? JsonObject
+                (payload?.get("detail") as? JsonPrimitive)
+                    ?.contentOrNull?.takeIf { it.isNotBlank() }
+            } catch (_: IllegalArgumentException) {
+                null
+            }
             ApiResult.HttpError(
                 status = response.status,
-                message = response.bodyAsText()
+                message = detail ?: errorBody
             )
         }
     }

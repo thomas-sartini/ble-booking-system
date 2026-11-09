@@ -199,7 +199,7 @@ class BackendApiClientTest {
         assertEquals(HttpMethod.Post, receivedMethod)
 
         assertEquals(
-            "https://mock.test/api/login",
+            "https://mock.test/api/auth/login",
             receivedUrl
         )
 
@@ -323,7 +323,7 @@ class BackendApiClientTest {
         assertEquals(HttpMethod.Post, receivedMethod)
 
         assertEquals(
-            "https://mock.test/api/logout",
+            "https://mock.test/api/auth/logout",
             receivedUrl
         )
 
