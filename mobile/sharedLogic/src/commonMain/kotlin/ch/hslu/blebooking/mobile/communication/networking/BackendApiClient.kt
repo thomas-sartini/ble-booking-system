@@ -140,7 +140,7 @@ internal class BackendApiClient(
             }
             ApiResult.HttpError(
                 status = response.status,
-                message = detail.orEmpty()
+                message = detail ?: errorBody
             )
         }
     }

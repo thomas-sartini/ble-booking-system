@@ -14,7 +14,7 @@ class RefreshApiClientTest {
     fun refreshSendsJsonAndReadsRotatedTokens() = runTest {
         val engine = MockEngine { request ->
             assertEquals(HttpMethod.Post, request.method)
-            assertEquals("https://mock.test/refresh", request.url.toString())
+            assertEquals("https://mock.test/auth/refresh", request.url.toString())
             assertTrue(request.body.contentType?.match(ContentType.Application.Json) == true)
             assertEquals(buildJsonObject { put("refreshToken", "old-refresh") },
                 Json.parseToJsonElement(request.body.toByteArray().decodeToString()))
