@@ -58,7 +58,7 @@ The native mobile application serves as a dedicated digital key and access verif
 *Figma Mobile Prototype:* [BLE Booking Mobile App Figma Prototype](https://www.figma.com/design/QH1wcmYcl2YjlT166uHUA8/Ohne-Namen?node-id=0-1&t=ZFzgtS7jGWUZrJUu-1)
 
 ##### Key Mobile Screen Wireframes
-![Mobile Login Screen](../assets/mobile-ui/m01-login.png)
-![Active Entitlements Screen](../assets/mobile-ui/m02-entitlements.png)
-![BLE Handshake Screen](../assets/mobile-ui/m03-ble-handshake.png)
-![Access Feedback Screen](../assets/mobile-ui/m04-access-feedback.png)
+![Mobile Login Screen](../assets/mobile/mobile-ui/m01-login.png)
+![Active Entitlements Screen](../assets/mobile/mobile-ui/m02-entitlements.png)
+![BLE Handshake Screen](../assets/mobile/mobile-ui/m03-ble-handshake.png)
+![Access Feedback Screen](../assets/mobile/mobile-ui/m04-access-feedback.png)
