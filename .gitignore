@@ -23,3 +23,7 @@ web/dist/
 
 # Spring Initializr leftovers
 backend/HELP.md
+
+# Node / Frontend build output
+dist/
+build/
