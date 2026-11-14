@@ -1,6 +1,6 @@
 # Spike Investigation Report: BLE Advertising & Discovery 
 
-- **Task:** T-069 — Research BLE advertising and discovery approach
+- **Task:** Research BLE advertising and discovery approach
 - **Related Enabler:** EN-03.05 — Define BLE advertising and discovery protocol
 - **Related Requirements:** FR-05.01, FR-05.05, NFR-01.03
 - **Status:** Completed
@@ -19,7 +19,7 @@ We recommend a **Minimal Service-UUID Advertisement Strategy**:
 
 1. **Terminal Advertising (Arduino Nano ESP32):** The terminal continuously broadcasts standard legacy BLE advertisements containing a single, custom **128-bit Service UUID** dedicated to the booking system.
 2. **Mobile Scanning & Filtering (Android & iOS):** Both mobile platforms utilize OS-level hardware scan filters configured with this specific 128-bit Service UUID to efficiently isolate valid resource terminals from surrounding ambient BLE traffic.
-3. **Deferred Metadata Exchange:** All rich terminal metadata (such as specific terminal/resource IDs, protocol version numbers, or operational status flags) is deferred until **after** a GATT connection is established (to be specified in **T-070**).
+3. **Deferred Metadata Exchange:** All rich terminal metadata (such as specific terminal/resource IDs, protocol version numbers, or operational status flags) is deferred until **after** a GATT connection is established.
 4. **Strict Separation of Discovery and Trust:** BLE advertisements are treated exclusively as an unauthenticated proximity and candidate-detection mechanism. Cryptographic identity verification happens strictly post-connection.
 
 ---
@@ -65,7 +65,7 @@ Standard BLE 4.x/5.0 legacy advertising packets are strictly capped at **31 byte
    * BLE advertising packets are broadcast in plaintext over the air and can be sniffed or cloned (spoofed) by anyone with standard BLE hardware.
    * **Rule:** Discovering a matching Service UUID only signals that a device *claims* to be a system terminal candidate. It **must never** be trusted as proof of terminal identity or used to grant access.
 2. **Cryptographic Verification Happens Post-Connection:**
-   * Once the mobile app initiates a GATT connection to a discovered candidate, the terminal and mobile app must perform a cryptographic handshake / challenge-response verification (to be detailed in **T-070**) before exchanging sensitive access tickets.
+   * Once the mobile app initiates a GATT connection to a discovered candidate, the terminal and mobile app must perform a cryptographic handshake / challenge-response verification before exchanging sensitive access tickets.
 3. **Privacy Considerations:**
    * Avoiding static terminal identifiers or user data in the public broadcast reduces passive tracking and profiling of infrastructure details by unauthorized third-party scanners.
 
@@ -82,9 +82,9 @@ Standard BLE 4.x/5.0 legacy advertising packets are strictly capped at **31 byte
 
 ---
 
-## 7. Next Steps (Transition to `T-070`)
+## 7. Next Steps
 
-With the discovery mechanism established, **T-070** will define the post-connection GATT protocol specification, including:
+With the discovery mechanism established, the post-connection GATT protocol specification will be defined, including:
 - Custom GATT Service and Characteristic UUIDs.
 - Message framing, versioning, and error codes.
 - Cryptographic authentication handshake and offline access ticket exchange.
