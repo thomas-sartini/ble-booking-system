@@ -16,7 +16,7 @@ The Ausleihbox 01 hardware concept is documented in an interactive 3D guide with
 37 assembly steps, nine wiring steps, component views, measurements and a borrowing
 simulation. The guide's interface and assembly instructions are in German.
 
-**[Open the interactive 3D model](https://thomas-sartini.github.io/ble-booking-system/ausleihbox-3d-model.html)**
+**[Open the interactive 3D model](https://thomas-sartini.github.io/ble-booking-system/3D-Modell_Ausleihbox.html)**
 
 The link becomes available after GitHub Pages is enabled and the first deployment
 completes. See the [terminal documentation](terminal/README.md) for hardware context

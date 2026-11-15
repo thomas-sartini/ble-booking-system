@@ -7,7 +7,7 @@ with 3D-printed mechanical parts and mounts.
 
 ## Interactive assembly and wiring guide
 
-**[Open the interactive 3D model](https://thomas-sartini.github.io/ble-booking-system/ausleihbox-3d-model.html)**
+**[Open the interactive 3D model](https://thomas-sartini.github.io/ble-booking-system/3D-Modell_Ausleihbox.html)**
 
 The guide includes:
 
@@ -20,7 +20,7 @@ The interface and assembly instructions are in German. The online link becomes
 available after GitHub Pages is enabled and the first deployment completes.
 
 The self-contained HTML source is
-[`website/ausleihbox/ausleihbox-3d-model.html`](../website/ausleihbox/ausleihbox-3d-model.html).
+[`website/ausleihbox/3D-Modell_Ausleihbox.html`](../website/ausleihbox/3D-Modell_Ausleihbox.html).
 See the [website documentation](../website/README.md) for publication and updates.
 
 ## Related work
