@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ausleihbox 3D-Builder</title>
+<script>
+// The light or the dark view, if chosen with the button at the top right of the picture (see toggleTheme): put on the root
+// before anything is drawn, so that the page does not start in the other colours and change a moment later. Not in
+// rendered pictures.
+(function(){ try { var v = localStorage.getItem('t015.theme'); if ((v === 'light' || v === 'dark') && !new URLSearchParams(location.search).has('render')) document.documentElement.setAttribute('data-theme', v); } catch(e){} })();
+</script>
 <style>
 /* Apple-like inspector: grey sidebar, white grouped cards with hairlines, one blue for controls, orange only for build steps */
 :root{--bg:#f5f5f7;--card:#ffffff;--panel:rgba(255,255,255,.78);--ink:#1d1d1f;--muted:#66666b;--line:#d2d2d7;--sep:#e5e5ea;--fill:#e8e8ed;--fill2:#dcdce1;
@@ -196,12 +202,12 @@ body.render #kmBar{display:none!important}
 #vtools button svg{width:19px;height:19px}
 #vtools .sep{width:4px}
 @media (max-width:520px){#vtools{top:60px}#mtool{max-width:calc(100% - 32px)}}   /* phone: below Messen / Zurücksetzen */
-/* 14.11.2026: two tools, "Drehen" and "Verschieben" (what a drag with the main button does); the chosen one is filled */
+/* 14.11.2026: the tool "Verschieben" (what a drag with the main button does); chosen, it is filled. Until 15.11.2026 there was
+   a second one, "Drehen": it did what no tool does and gave its place to the button for the light or dark view */
 #vtools button.on{background:var(--sel);color:#fff}
 #vtools{flex-wrap:wrap;justify-content:flex-end;max-width:calc(100% - 32px)}   /* too narrow for one row: a second one */
 #selbox{top:var(--vtb,64px)}   /* below the buttons, wherever they end (layoutView) */
 #view[data-tool=pan] canvas{cursor:grab} #view[data-tool=pan].drag canvas{cursor:grabbing}
-#view[data-tool=rot] canvas{cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%20viewBox%3D%22-1%20-1%2026%2026%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20stroke%3D%22%23fff%22%20stroke-width%3D%224.4%22%3E%3Cpath%20d%3D%22M12%202.6v6.6M12%2019.9v1.5%22%2F%3E%3Cpath%20d%3D%22M3.2%2012.4a8.8%204.3%200%201%200%2017.6%200a8.8%204.3%200%201%200-17.6%200%22%2F%3E%3Cpath%20d%3D%22M10.3%2014.3l2.8%202.4-2.8%202.4%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%231d1d1f%22%20stroke-width%3D%221.9%22%3E%3Cpath%20d%3D%22M12%202.6v6.6M12%2019.9v1.5%22%2F%3E%3Cpath%20d%3D%22M3.2%2012.4a8.8%204.3%200%201%200%2017.6%200a8.8%204.3%200%201%200-17.6%200%22%2F%3E%3Cpath%20d%3D%22M10.3%2014.3l2.8%202.4-2.8%202.4%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 13 13,crosshair}
 /* the picture is narrow (a wide sidebar, the wiring sheet beside it): the buttons go below Messen / Zurücksetzen, as on a phone */
 #view.narrow #vtools{top:60px} #view.narrow #mtool{max-width:calc(100% - 32px)}
 /* the wiring sheet stands beside the model (3D, wide window): buttons, the box of the chosen part and the message stand
@@ -448,21 +454,21 @@ body.render #wnums{display:none!important}
   <div id="view"><div id="msg"></div><div id="selbox"></div><div id="tip"></div><svg id="callouts"></svg><svg id="mOverlay"></svg><svg id="labs"></svg><svg id="fx"></svg>
     <div id="mtool">
       <button id="mBtn" title="Messen (Taste M)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="1.8" y="7.5" width="20.4" height="9" rx="1.2"/><path d="M5 7.5v3.6M8.3 7.5v2.2M11.6 7.5v3.6M14.9 7.5v2.2M18.2 7.5v3.6"/></svg>Messen</button>
-      <button id="rsBtn" title="Vorführung zurücksetzen: keine Ausleihe, Gerät im Ständer, Tür zu, verriegelt, Ansicht „Schräg“"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4 4v4.5h4.5"/></svg>Zurücksetzen</button>
+      <button id="rsBtn" title="Vorführung und Ansicht auf Anfang"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4 4v4.5h4.5"/></svg>Zurücksetzen</button>
       <span id="mStatus"></span>
     </div>
     <div id="vtools">
       <button id="vFs" title="Vollbild (Taste F)" aria-label="Vollbild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path id="vFsP" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
-      <button id="vCenter" title="Ansicht zentrieren: zurück zur Kamera des Schritts bzw. der Ansicht (Taste C)" aria-label="Ansicht zentrieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button>
+      <button id="vTheme" title="Zur dunklen Ansicht wechseln" aria-label="Zur dunklen Ansicht wechseln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path id="vThP" d="M20.6 13.4A8.7 8.7 0 1 1 10.6 3.4a7.4 7.4 0 0 0 10 10z"/></svg></button>
       <span class="sep"></span>
-      <button id="vRot" aria-pressed="false" title="Werkzeug Drehen: Ziehen dreht die Ansicht (wie ohne Werkzeug). Nochmals klicken: normale Bedienung" aria-label="Werkzeug Drehen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.6v6.6M12 19.9v1.5"/><path d="M3.2 12.4a8.8 4.3 0 1 0 17.6 0a8.8 4.3 0 1 0-17.6 0"/><path d="M10.3 14.3l2.8 2.4-2.8 2.4"/></svg></button>
-      <button id="vPan" aria-pressed="false" title="Werkzeug Verschieben: Ziehen schiebt die Ansicht, ohne Ctrl. Nochmals klicken: normale Bedienung" aria-label="Werkzeug Verschieben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="M9.5 5.5L12 3l2.5 2.5M9.5 18.5L12 21l2.5-2.5M5.5 9.5L3 12l2.5 2.5M18.5 9.5L21 12l-2.5 2.5"/></svg></button>
+      <button id="vCenter" title="Zentrieren (Taste C)" aria-label="Ansicht zentrieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button>
+      <button id="vPan" aria-pressed="false" title="Verschieben: Ziehen schiebt die Ansicht" aria-label="Werkzeug Verschieben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="M9.5 5.5L12 3l2.5 2.5M9.5 18.5L12 21l2.5-2.5M5.5 9.5L3 12l2.5 2.5M18.5 9.5L21 12l-2.5 2.5"/></svg></button>
       <span class="sep"></span>
       <button id="vOut" title="Verkleinern (Taste −)" aria-label="Verkleinern"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5.5 12h13"/></svg></button>
       <button id="vIn" title="Vergrössern (Taste +)" aria-label="Vergrössern"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg></button>
     </div>
     <div id="wireGrip" role="separator" aria-orientation="vertical" aria-label="Breite des Verdrahtungsblatts" tabindex="0" title="Ziehen: Blatt schmaler oder breiter · Doppelklick: wie am Anfang"></div>
-    <div id="kmBar" title="Was die Pfeiltasten und ein Presenter steuern (← → bzw. Bild↑ Bild↓); ↑ ↓ oder 1 2 3 wechselt">
+    <div id="kmBar">   <!-- no hint: the bar says itself what it does (Ogi, 15.11.2026); the presenter and the keys 1 2 3 are in the LIESMICH of the package -->
       <span class="k">← →</span><button data-m="sim" class="on">Simulation</button><button data-m="ansicht">Ansichten</button><button data-m="bau">Bauanleitung</button><span class="k">↑ ↓ wechselt</span>
     </div>
   </div>
@@ -3654,7 +3660,7 @@ controls.enableDamping = true;
 const CENTER = new THREE.Vector3(150,125,-75);
 controls.target.copy(CENTER);
 
-// ---------- touchpad, wheel and the two tools "Drehen" / "Verschieben" (14.11.2026) ----------
+// ---------- touchpad, wheel and the tool "Verschieben" (14.11.2026; until 15.11.2026 also "Drehen") ----------
 // What a browser sends. The wheel of a mouse and two fingers moved together on a touchpad both arrive as 'wheel'. A pinch
 // on a touchpad arrives as 'wheel' with ctrlKey set (Chrome, Edge, Firefox) or as gesturestart / gesturechange (Safari).
 // OrbitControls (three.js r160) took every 'wheel' as a zoom along deltaY alone: two fingers moved together zoomed, a
@@ -3708,14 +3714,16 @@ view.addEventListener('gesturestart', ev=>{ if (!onModel(ev.target) || PADK.touc
 view.addEventListener('gesturechange', ev=>{ if (!onModel(ev.target) || PADK.touches.size) return; ev.preventDefault();
   const sc = +ev.scale; if (sc > 0){ dollyBy(Math.pow(PADK.gs/sc, PADK.pinch*100)); PADK.gs = sc; } }, {capture:true, passive:false});
 view.addEventListener('gestureend', ev=>{ if (!onModel(ev.target) || PADK.touches.size) return; ev.preventDefault(); controls.dispatchEvent({type:'end'}); }, {capture:true, passive:false});
-// The two tools. None chosen (the start) is the normal handling: a drag turns, Ctrl + drag pushes. "Drehen": a drag turns.
-// "Verschieben": a drag pushes, without Ctrl. Only one at a time; a second click on it gives the normal handling back.
+// The tool. Not chosen (the start) is the normal handling: a drag turns, Ctrl + drag pushes. "Verschieben" chosen: a drag
+// pushes, without Ctrl; a second click on it gives the normal handling back. (Until 15.11.2026 there was a second tool,
+// "Drehen": a drag turns, which is what no tool does. Ogi, 15.11.2026: "das werkzeug drehen weg da kommt zentrieren da es
+// ja standartmässig so ist".)
 // What the main button does is set at every press, before OrbitControls sees it; with Ctrl (Shift, the command key of a
 // Mac) a drag pushes in every case, as it always did. The gestures of two fingers do not depend on the tool.
 let TOOL = null;
 function setTool(t){
   TOOL = TOOL === t ? null : t;
-  for (const [id, k] of [['vRot', 'rot'], ['vPan', 'pan']]){ const b = document.getElementById(id); b.classList.toggle('on', TOOL === k); b.setAttribute('aria-pressed', String(TOOL === k)); }
+  for (const [id, k] of [['vPan', 'pan']]){ const b = document.getElementById(id); b.classList.toggle('on', TOOL === k); b.setAttribute('aria-pressed', String(TOOL === k)); }
   if (TOOL) view.dataset.tool = TOOL; else delete view.dataset.tool;
   controls.touches.ONE = TOOL === 'pan' ? THREE.TOUCH.PAN : THREE.TOUCH.ROTATE;   // with "Verschieben" one finger pushes; without a tool the touchscreen is as before
 }
@@ -6580,7 +6588,7 @@ function zoomBy(f){
 }
 function recenter(){ if (HOME) flyTo(HOME.pos, HOME.tgt, HOME.fov, true); }
 $('vIn').onclick = ()=>zoomBy(0.8); $('vOut').onclick = ()=>zoomBy(1.25); $('vCenter').onclick = recenter; $('vFs').onclick = ()=>togglePresent();
-$('vRot').onclick = ()=>setTool('rot'); $('vPan').onclick = ()=>setTool('pan');
+$('vPan').onclick = ()=>setTool('pan');
 // ---------- presentation: the browser full screen (whole page), and back to the start of the demonstration ----------
 function togglePresent(on){   // the browser's full screen: the whole page (sidebar and model), without address bar and tabs
   const isFs = !!document.fullscreenElement; on = (on===undefined) ? !isFs : on;
@@ -6609,7 +6617,10 @@ function showViewHint(button){
   const x = Math.max(10, Math.min(v.width - viewHint.offsetWidth - 10, b.right - v.left - viewHint.offsetWidth));
   viewHint.style.left = x + 'px'; viewHint.style.top = (b.bottom - v.top + 9) + 'px';
 }
-for (const button of document.querySelectorAll('#vtools button')){
+// The hint of a button in the picture: the six at the top right and, since 15.11.2026, «Messen» and «Zurücksetzen» at the top
+// left (they had the tooltip of the browser, which comes late and looks different; Ogi: "messen und zurücksetzen hinweisetxt
+// wird anderst dargestellt weshalb?"). The texts are short (Ogi: "muss das soviel text sein"); the long form is in the LIESMICH.
+for (const button of document.querySelectorAll('#vtools button, #mtool button')){
   button.dataset.hint = button.title; button.removeAttribute('title');
   button.addEventListener('pointerenter', e=>{ if (e.pointerType!=='touch') showViewHint(button); });
   button.addEventListener('pointerleave', hideViewHint);
@@ -6776,6 +6787,33 @@ function resize(){ layoutView(); const r = view.getBoundingClientRect(); rendere
   renderer.render(scene, camera); }
 window.addEventListener('resize', resize); resize();
 if (!Q.has('render')){ const sw = lsGet('sideW'), ww = lsGet('wireW'); if (ww != null) wireWidth(ww, false); if (sw != null) sideWidth(sw, false); }   // the widths chosen last time
+// The light and the dark view (15.11.2026, Ogi: "wie hat es helle und dunkle ansicht also das ist gut aber kann an das als
+// user nciht slebr einsetellen", then: "wie wäre das du machst es neben dem vollbild", "mit so einem mond symbol").
+// The colours follow the device (prefers-color-scheme) until the button beside "Vollbild" is used. A click changes to the
+// other view: data-theme on the root (the style sheet has both sets of colours), and the browser keeps it (localStorage
+// t015.theme; without a store nothing is kept; a kept view is put on the root by the small script in the head, before the
+// page is drawn). A click back to what the device has anyway keeps nothing: the page follows the device again. The button
+// shows what a click gives: the moon in the light view, the sun in the dark one. The picture takes its background from the
+// colours, so it gets it anew after a click and when the device changes (until now it kept the background of its start).
+// Not in rendered pictures.
+const TH_MOON = 'M20.6 13.4A8.7 8.7 0 1 1 10.6 3.4a7.4 7.4 0 0 0 10 10z', TH_SUN = 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.55 1.55M17.15 17.15l1.55 1.55M5.3 18.7l1.55-1.55M17.15 6.85l1.55-1.55';
+const thDevice = (()=>{ try { return matchMedia('(prefers-color-scheme: dark)'); } catch(e){ return null; } })();
+function themeDark(){ const a = document.documentElement.getAttribute('data-theme'); return a === 'dark' || (a !== 'light' && !!(thDevice && thDevice.matches)); }
+function showTheme(){   // the button and the background of the picture, after a click and when the device changes
+  const d = themeDark(), b = $('vTheme'), s = d ? 'Zur hellen Ansicht wechseln' : 'Zur dunklen Ansicht wechseln';
+  $('vThP').setAttribute('d', d ? TH_SUN : TH_MOON); b.dataset.hint = s; b.setAttribute('aria-label', s);
+  scene.background = new THREE.Color(bgColor()); renderer.render(scene, camera);   // drawn at once, like after a change of the size
+}
+function toggleTheme(){
+  const want = themeDark() ? 'light' : 'dark', r = document.documentElement, same = (want === 'dark') === !!(thDevice && thDevice.matches);
+  if (same) r.removeAttribute('data-theme'); else r.setAttribute('data-theme', want);
+  try { if (same) localStorage.removeItem('t015.theme'); else localStorage.setItem('t015.theme', want); } catch(e){}
+  showTheme();
+}
+if (!Q.has('render')){
+  $('vTheme').onclick = toggleTheme; showTheme();
+  try { thDevice.addEventListener('change', showTheme); } catch(e){}
+}
 setView('Schräg', false); render(); buildList(''); renderStepBox(); navState();
 controls.addEventListener('start', ()=>{ markView(null); camAfterOpen = false; camLater = null; });   // turned by hand: no preset view any more, no camera move after the door
 let last = performance.now();
