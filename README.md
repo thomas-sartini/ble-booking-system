@@ -10,6 +10,18 @@ The original [project assignment](docs/project-assignment.pdf) is kept in `docs/
 
 The repository is being set up for development. The planning files are structures to be completed by the team, and the report chapters contain draft prompts. Features described here are project goals, not a claim that they have been implemented.
 
+## Interactive terminal build guide
+
+The Ausleihbox 01 hardware concept is documented in an interactive 3D guide with
+37 assembly steps, nine wiring steps, component views, measurements and a borrowing
+simulation. The guide's interface and assembly instructions are in German.
+
+**[Open the interactive 3D build guide](https://thomas-sartini.github.io/ble-booking-system/)**
+
+The link becomes available after GitHub Pages is enabled and the first deployment
+completes. See the [terminal documentation](terminal/README.md) for hardware context
+and the [website documentation](website/README.md) for source and publishing details.
+
 ## System overview
 
 The intended prototype covers:
@@ -28,8 +40,9 @@ The final scope, priorities, and verification criteria belong in the [requiremen
 |:--|:--|
 | `backend/` | Server-side application and APIs |
 | `mobile/` | Mobile application work |
-| `terminal/` | BLE terminal integration |
+| [`terminal/`](terminal/README.md) | BLE terminal integration and hardware documentation |
 | `web/` | Web application work |
+| [`website/`](website/README.md) | Interactive terminal build guide and GitHub Pages setup |
 | [`planning/`](planning/README.md) | Requirements, expected results, epics, and user story index |
 | [`docs/`](docs/README.md) | Markdown report source and PDF build |
 
