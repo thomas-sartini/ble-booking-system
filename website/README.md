@@ -1,6 +1,6 @@
 # Ausleihbox 01: interactive 3D build guide
 
-The site in `ausleihbox/index.html` contains the interactive model, assembly
+The site in `ausleihbox/ausleihbox-3d-model.html` contains the interactive model, assembly
 instructions, wiring guide, measurements and borrowing simulation. The HTML is
 self-contained: its model data and JavaScript dependencies are embedded.
 
@@ -26,13 +26,16 @@ pull requests do not publish the site.
 
 The expected project-site address after activation is:
 
-<https://thomas-sartini.github.io/ble-booking-system/>
+<https://thomas-sartini.github.io/ble-booking-system/ausleihbox-3d-model.html>
 
-The deployment artifact places the contents of `website/ausleihbox/` at that URL.
+The deployment artifact places the contents of `website/ausleihbox/` at the project
+site root. The short address <https://thomas-sartini.github.io/ble-booking-system/>
+redirects to `ausleihbox-3d-model.html` through the small `index.html` entry page.
 The Actions run and the `github-pages` environment show the actual published URL.
 
 ## Update the model
 
-Replace `ausleihbox/index.html` with the reviewed self-contained HTML, keeping the
-entry filename `index.html`. Check its JavaScript syntax and review the diff before
+Replace `ausleihbox/ausleihbox-3d-model.html` with the reviewed self-contained HTML,
+keeping that filename and the relative redirect in `index.html`. Check its
+JavaScript syntax and review the diff before
 opening a pull request. Preserve the embedded third-party license notices.
