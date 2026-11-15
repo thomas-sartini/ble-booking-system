@@ -20,8 +20,20 @@ The interface and assembly instructions are in German. The online link becomes
 available after GitHub Pages is enabled and the first deployment completes.
 
 The self-contained HTML source is
-[`website/ausleihbox/3D-Modell_Ausleihbox.html`](../website/ausleihbox/3D-Modell_Ausleihbox.html).
-See the [website documentation](../website/README.md) for publication and updates.
+[`3d-model/3D-Modell_Ausleihbox.html`](3d-model/3D-Modell_Ausleihbox.html).
+
+## GitHub Pages
+
+A repository administrator must select **GitHub Actions** under **Settings > Pages**.
+After the changes are merged into `main`, the `ausleihbox-pages.yml` workflow
+publishes the model. A manual run on `main` is also supported.
+
+The workflow creates the required `index.html` automatically in its deployment
+output. It is not stored alongside the model in the repository. The source HTML
+retains its filename and is also available at the direct link above.
+
+To update the model, replace `3d-model/3D-Modell_Ausleihbox.html`, check its
+JavaScript syntax and follow the repository's branch and pull-request process.
 
 ## Related work
 

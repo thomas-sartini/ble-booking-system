@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "website/ausleihbox/**"
+      - "terminal/3d-model/**"
       - ".github/workflows/ausleihbox-pages.yml"
   workflow_dispatch:
 
@@ -35,10 +35,16 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload the 3D model site
+      - name: Prepare the 3D model
+        run: |
+          mkdir -p _site
+          cp terminal/3d-model/3D-Modell_Ausleihbox.html _site/3D-Modell_Ausleihbox.html
+          cp terminal/3d-model/3D-Modell_Ausleihbox.html _site/index.html
+
+      - name: Upload the 3D model
         uses: actions/upload-pages-artifact@v4
         with:
-          path: website/ausleihbox
+          path: _site
 
       - name: Deploy GitHub Pages
         id: deployment

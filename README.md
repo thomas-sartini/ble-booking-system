@@ -10,17 +10,14 @@ The original [project assignment](docs/project-assignment.pdf) is kept in `docs/
 
 The repository is being set up for development. The planning files are structures to be completed by the team, and the report chapters contain draft prompts. Features described here are project goals, not a claim that they have been implemented.
 
-## Interactive terminal build guide
+## Ausleihbox 3D model
 
-The Ausleihbox 01 hardware concept is documented in an interactive 3D guide with
-37 assembly steps, nine wiring steps, component views, measurements and a borrowing
-simulation. The guide's interface and assembly instructions are in German.
+[Open the interactive 3D model](https://thomas-sartini.github.io/ble-booking-system/3D-Modell_Ausleihbox.html)
 
-**[Open the interactive 3D model](https://thomas-sartini.github.io/ble-booking-system/3D-Modell_Ausleihbox.html)**
-
-The link becomes available after GitHub Pages is enabled and the first deployment
-completes. See the [terminal documentation](terminal/README.md) for hardware context
-and the [website documentation](website/README.md) for source and publishing details.
+The model includes the assembly instructions, wiring guide and borrowing simulation.
+The [HTML source](terminal/3d-model/3D-Modell_Ausleihbox.html) is self-contained.
+See the [terminal documentation](terminal/README.md) for setup and publication.
+The online link becomes available after GitHub Pages is activated and deployed.
 
 ## System overview
 
@@ -40,9 +37,8 @@ The final scope, priorities, and verification criteria belong in the [requiremen
 |:--|:--|
 | `backend/` | Server-side application and APIs |
 | `mobile/` | Mobile application work |
-| [`terminal/`](terminal/README.md) | BLE terminal integration and hardware documentation |
+| `terminal/` | BLE terminal integration |
 | `web/` | Web application work |
-| [`website/`](website/README.md) | Interactive terminal build guide and GitHub Pages setup |
 | [`planning/`](planning/README.md) | Requirements, expected results, epics, and user story index |
 | [`docs/`](docs/README.md) | Markdown report source and PDF build |
 
