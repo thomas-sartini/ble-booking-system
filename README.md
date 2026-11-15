@@ -12,12 +12,11 @@ The repository is being set up for development. The planning files are structure
 
 ## Ausleihbox 3D model
 
-[Open the interactive 3D model](https://thomas-sartini.github.io/ble-booking-system/3D-Modell_Ausleihbox.html)
+Interactive assembly and wiring guide with a borrowing simulation.
 
-The model includes the assembly instructions, wiring guide and borrowing simulation.
-The [HTML source](terminal/3d-model/3D-Modell_Ausleihbox.html) is self-contained.
-See the [terminal documentation](terminal/README.md) for setup and publication.
-The online link becomes available after GitHub Pages is activated and deployed.
+- [Online model](https://thomas-sartini.github.io/ble-booking-system/3D-Modell_Ausleihbox.html)
+- [HTML source](terminal/3d-model/3D-Modell_Ausleihbox.html)
+- [Terminal documentation](terminal/README.md)
 
 ## System overview
 
