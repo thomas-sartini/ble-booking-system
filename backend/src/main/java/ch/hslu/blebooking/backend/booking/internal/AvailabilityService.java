@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.hslu.blebooking.backend.booking.Availability;
 import ch.hslu.blebooking.backend.booking.AvailabilityQuery;
-import ch.hslu.blebooking.backend.booking.BookingStatus;
 import ch.hslu.blebooking.backend.booking.DayAvailability;
 import ch.hslu.blebooking.backend.booking.Slot;
 import ch.hslu.blebooking.backend.booking.SlotStatus;
@@ -36,17 +35,17 @@ import ch.hslu.blebooking.backend.resource.WeeklyWindow;
 @Transactional(readOnly = true)
 class AvailabilityService implements AvailabilityQuery {
 
-	/** D10: only these statuses block a slot. */
-	static final List<BookingStatus> BLOCKING = List.of(BookingStatus.BOOKED, BookingStatus.CHECKED_IN);
-
 	private final ResourceCatalog catalog;
 	private final BookingRepository bookingRepository;
 	private final BookingProperties properties;
+	private final BookingRules rules;
 
-	AvailabilityService(ResourceCatalog catalog, BookingRepository bookingRepository, BookingProperties properties) {
+	AvailabilityService(ResourceCatalog catalog, BookingRepository bookingRepository, BookingProperties properties,
+			BookingRules rules) {
 		this.catalog = catalog;
 		this.bookingRepository = bookingRepository;
 		this.properties = properties;
+		this.rules = rules;
 	}
 
 	@Override
@@ -55,16 +54,15 @@ class AvailabilityService implements AvailabilityQuery {
 		ResourceDetails resource = catalog.findVisible(resourceId, role)
 			.orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Resource not found"));
 
-		ZoneId zone = properties.zone();
-		Duration slot = Duration.ofMinutes(properties.slotMinutes());
+		ZoneId zone = rules.zone();
+		Duration slot = rules.slot();
 		Instant now = Instant.now();
-		Instant horizonEnd = now.plus(properties.horizon());
 
 		// Load all blocking bookings for the whole range once. Windows end at the latest at midnight of "to".
 		Instant rangeStart = from.atStartOfDay(zone).toInstant();
 		Instant rangeEnd = to.plusDays(1).atStartOfDay(zone).toInstant();
 		List<Booking> blocking = bookingRepository.findByResourceIdAndStatusInAndStartTimeBeforeAndEndTimeAfter(
-				resourceId, BLOCKING, rangeEnd, rangeStart);
+				resourceId, BookingRules.BLOCKING, rangeEnd, rangeStart);
 
 		List<DayAvailability> days = new ArrayList<>();
 		for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
@@ -74,12 +72,11 @@ class AvailabilityService implements AvailabilityQuery {
 				if (window.dayOfWeek() != date.getDayOfWeek()) {
 					continue;
 				}
-				for (LocalTime t = window.start(); !t.plus(slot).isAfter(window.end())
-						&& t.plus(slot).isAfter(t); t = t.plus(slot)) {
+				for (LocalTime t : rules.slotStarts(window)) {
 					ZonedDateTime start = ZonedDateTime.of(date, t, zone);
 					ZonedDateTime end = start.plus(slot);
 					Instant startInstant = start.toInstant();
-					if (startInstant.isAfter(horizonEnd) || slots.containsKey(startInstant)) {
+					if (rules.beyondHorizon(startInstant, now) || slots.containsKey(startInstant)) {
 						continue;
 					}
 					SlotStatus status = status(startInstant, end.toInstant(), now, blocking, userId);
@@ -88,7 +85,7 @@ class AvailabilityService implements AvailabilityQuery {
 			}
 			days.add(new DayAvailability(date, List.copyOf(slots.values())));
 		}
-		return new Availability(resource.id(), zone.getId(), properties.slotMinutes(), from, to, days);
+		return new Availability(resource.id(), zone.getId(), rules.slotMinutes(), from, to, days);
 	}
 
 	private void validateRange(LocalDate from, LocalDate to) {
@@ -101,14 +98,13 @@ class AvailabilityService implements AvailabilityQuery {
 		}
 	}
 
-	private static SlotStatus status(Instant start, Instant end, Instant now, List<Booking> blocking, long userId) {
-		if (!start.isAfter(now)) {
+	private SlotStatus status(Instant start, Instant end, Instant now, List<Booking> blocking, long userId) {
+		if (rules.isPast(start, now)) {
 			return SlotStatus.PAST;
 		}
 		SlotStatus status = SlotStatus.AVAILABLE;
 		for (Booking b : blocking) {
-			// half-open intervals: adjacent bookings do not overlap
-			if (b.getStartTime().isBefore(end) && b.getEndTime().isAfter(start)) {
+			if (BookingRules.overlaps(b.getStartTime(), b.getEndTime(), start, end)) {
 				if (b.getUserId() == userId) {
 					return SlotStatus.BOOKED_BY_ME;
 				}

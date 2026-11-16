@@ -1,5 +1,6 @@
 package ch.hslu.blebooking.backend.resource;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,5 +26,11 @@ public interface ResourceCatalog {
 	 * A visible resource with its eligible windows, or empty if it is unknown, inactive or not visible.
 	 */
 	Optional<ResourceDetails> findVisible(long id, String role);
+
+	/**
+	 * Resources by id, in any status and without visibility rules. Only for showing data the user already
+	 * owns, e.g. the resource of an existing booking after the resource became INACTIVE. Unknown ids are skipped.
+	 */
+	List<ResourceSummary> findByIds(Collection<Long> ids);
 
 }

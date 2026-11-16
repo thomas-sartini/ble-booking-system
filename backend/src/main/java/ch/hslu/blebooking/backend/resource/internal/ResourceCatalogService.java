@@ -2,6 +2,7 @@ package ch.hslu.blebooking.backend.resource.internal;
 
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +78,14 @@ class ResourceCatalogService implements ResourceCatalog {
 				return Optional.of(new ResourceDetails(r.getId(), r.getName(), r.getDescription(), r.getType(),
 						r.getPosition(), price(r), bookingProperties.zone().getId(), windows));
 			});
+	}
+
+	@Override
+	public List<ResourceSummary> findByIds(Collection<Long> ids) {
+		if (ids.isEmpty()) {
+			return List.of();
+		}
+		return resourceRepository.findAllById(ids).stream().map(ResourceCatalogService::toSummary).toList();
 	}
 
 	/** Windows the role may book in, deduplicated and sorted by day and start. */

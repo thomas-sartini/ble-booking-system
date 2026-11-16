@@ -37,11 +37,28 @@ public class Booking {
 	private BookingStatus status;
 	@Column(name = "locked_price", precision = 10, scale = 2)
 	private BigDecimal lockedPrice;
-	@Column(name = "created_at", insertable = false, updatable = false)
+	/** Set by the application at insert time (contract §4). */
+	@Column(name = "created_at", updatable = false)
 	private Instant createdAt;
 
 	protected Booking() {
 		// for JPA
+	}
+
+	/** A new booking in status BOOKED. */
+	Booking(Long userId, Long resourceId, Instant startTime, Instant endTime, BigDecimal lockedPrice) {
+		this.userId = userId;
+		this.resourceId = resourceId;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.status = BookingStatus.BOOKED;
+		this.lockedPrice = lockedPrice;
+		this.createdAt = Instant.now();
+	}
+
+	/** D12: the caller checks that cancelling is allowed. */
+	void cancel() {
+		this.status = BookingStatus.CANCELLED;
 	}
 
 	public Long getId() {
