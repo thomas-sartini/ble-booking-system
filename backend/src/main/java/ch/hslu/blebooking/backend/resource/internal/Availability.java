@@ -34,6 +34,14 @@ public class Availability {
 		// for JPA
 	}
 
+	Availability(Long resourceId, short dayOfWeek, LocalTime startTime, LocalTime endTime, String permittedRole) {
+		this.resourceId = resourceId;
+		this.dayOfWeek = dayOfWeek;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.permittedRole = permittedRole;
+	}
+
 	public Long getId() {
 		return id;
 	}

@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import ch.hslu.blebooking.backend.resource.ResourceStatus;
 import ch.hslu.blebooking.backend.resource.ResourceType;
 
 /**
@@ -30,7 +31,8 @@ public class Resource {
 	@Column(name = "price_per_hour", precision = 10, scale = 2)
 	private BigDecimal pricePerHour;
 	@Column(name = "status")
-	private String status;
+	@Enumerated(EnumType.STRING)
+	private ResourceStatus status;
 	@Column(name = "type")
 	@Enumerated(EnumType.STRING)
 	private ResourceType type;
@@ -39,6 +41,16 @@ public class Resource {
 
 	protected Resource() {
 		// for JPA
+	}
+
+	Resource(String name, String description, BigDecimal pricePerHour, ResourceStatus status, ResourceType type,
+			String position) {
+		this.name = name;
+		this.description = description;
+		this.pricePerHour = pricePerHour;
+		this.status = status;
+		this.type = type;
+		this.position = position;
 	}
 
 	public Long getId() {
@@ -57,7 +69,7 @@ public class Resource {
 		return pricePerHour;
 	}
 
-	public String getStatus() {
+	public ResourceStatus getStatus() {
 		return status;
 	}
 

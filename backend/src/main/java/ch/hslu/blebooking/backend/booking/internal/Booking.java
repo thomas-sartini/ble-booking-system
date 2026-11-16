@@ -37,6 +37,8 @@ public class Booking {
 	private BookingStatus status;
 	@Column(name = "locked_price", precision = 10, scale = 2)
 	private BigDecimal lockedPrice;
+	@Column(name = "created_at", insertable = false, updatable = false)
+	private Instant createdAt;
 
 	protected Booking() {
 		// for JPA
@@ -68,6 +70,10 @@ public class Booking {
 
 	public BigDecimal getLockedPrice() {
 		return lockedPrice;
+	}
+
+	public Instant getCreatedAt() {
+		return createdAt;
 	}
 
 }

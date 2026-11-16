@@ -15,7 +15,7 @@ import ch.hslu.blebooking.backend.user.UserManagementService;
 import ch.hslu.blebooking.backend.user.UserStatus;
 
 /**
- * Creates a dev user for manual testing.
+ * Creates dev users (ADMIN, STUDENT, STAFF) for manual testing. Each one only if missing.
  * Only active in the "dev" profile, never in production or test.
  */
 @Component
@@ -39,28 +39,23 @@ class DevUserInitializer implements ApplicationRunner {
 	@Transactional
 	public void run(ApplicationArguments args) {
 		if (devPassword == null || devPassword.isBlank()) {
-			log.warn("DEV_USER_PASSWORD not set, skipping dev user creation");
+			log.warn("DEV_USER_PASSWORD not set, skipping dev users creation");
 			return;
 		}
 
-		// Check if dev user already exists
-		if (userManagementService.userExists("dev@example.com", "dev")) {
-			log.info("Dev user already exists");
+		String hash = passwordEncoder.encode(devPassword);
+		createIfMissing("dev@example.com", "dev", hash, Role.ADMIN, "Dev");
+		createIfMissing("student@example.com", "student", hash, Role.STUDENT, "Student");
+		createIfMissing("staff@example.com", "staff", hash, Role.STAFF, "Staff");
+	}
+
+	private void createIfMissing(String email, String username, String passwordHash, Role role, String firstName) {
+		if (userManagementService.userExists(email, username)) {
+			log.info("Dev user already exists: {}", username);
 			return;
 		}
-
-		// Create dev user
-		userManagementService.createUser(
-			"dev@example.com",
-			"dev",
-			passwordEncoder.encode(devPassword),
-			Role.ADMIN,
-			UserStatus.ACTIVE,
-			"Dev",
-			"User"
-		);
-
-		log.info("Created dev user: dev@example.com / dev (ADMIN, ACTIVE)");
+		userManagementService.createUser(email, username, passwordHash, role, UserStatus.ACTIVE, firstName, "User");
+		log.info("Created dev user: {} / {} ({}, ACTIVE)", email, username, role);
 	}
 
 }
