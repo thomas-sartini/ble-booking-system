@@ -28,10 +28,32 @@ public final class TestData {
 	}
 
 	public long user(String username, String role) {
+		return user(username, role, null);
+	}
+
+	/** ACTIVE user that can log in with the password behind the given hash. */
+	public long user(String username, String role, String passwordHash) {
 		return jdbc.queryForObject("""
-				INSERT INTO "user" (email, username, role, status, first_name, last_name)
-				VALUES (?, ?, ?, 'ACTIVE', 'Test', 'User') RETURNING id
-				""", Long.class, username + "@test.com", username, role);
+				INSERT INTO "user" (email, username, password_hash, role, status, first_name, last_name,
+				                    failed_attempts)
+				VALUES (?, ?, ?, ?, 'ACTIVE', 'Test', 'User', 0) RETURNING id
+				""", Long.class, username + "@test.com", username, passwordHash, role);
+	}
+
+	public void userStatus(long userId, String status) {
+		jdbc.update("UPDATE \"user\" SET status = ? WHERE id = ?", status, userId);
+	}
+
+	public void resourceStatus(long resourceId, String status) {
+		jdbc.update("UPDATE resource SET status = ? WHERE id = ?", status, resourceId);
+	}
+
+	public int bookingCount() {
+		return jdbc.queryForObject("SELECT COUNT(*) FROM booking", Integer.class);
+	}
+
+	public String bookingStatus(long bookingId) {
+		return jdbc.queryForObject("SELECT status FROM booking WHERE id = ?", String.class, bookingId);
 	}
 
 	public long resource(String name, String description, String type, String price, String status,
