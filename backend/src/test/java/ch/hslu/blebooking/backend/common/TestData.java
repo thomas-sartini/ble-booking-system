@@ -21,7 +21,7 @@ public final class TestData {
 
 	/** Deletes all rows, children before parents. */
 	public void deleteAll() {
-		for (String table : new String[] { "receipt", "invoice", "booking", "terminal", "availability", "resource",
+		for (String table : new String[] { "event_publication", "receipt", "invoice", "booking", "terminal", "availability", "resource",
 				"refresh_token", "one_time_token", "device", "\"user\"" }) {
 			jdbc.update("DELETE FROM " + table);
 		}
@@ -38,6 +38,10 @@ public final class TestData {
 				                    failed_attempts)
 				VALUES (?, ?, ?, ?, 'ACTIVE', 'Test', 'User', 0) RETURNING id
 				""", Long.class, username + "@test.com", username, passwordHash, role);
+	}
+
+	public void userFirstName(long userId, String firstName) {
+		jdbc.update("UPDATE \"user\" SET first_name = ? WHERE id = ?", firstName, userId);
 	}
 
 	public void userStatus(long userId, String status) {
