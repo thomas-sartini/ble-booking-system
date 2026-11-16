@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,6 +29,7 @@ import ch.hslu.blebooking.backend.booking.BookingResource;
 import ch.hslu.blebooking.backend.booking.BookingService;
 import ch.hslu.blebooking.backend.booking.BookingStatus;
 import ch.hslu.blebooking.backend.booking.CreateBookingRequest;
+import ch.hslu.blebooking.backend.booking.OwnedBooking;
 import ch.hslu.blebooking.backend.common.error.ApiException;
 import ch.hslu.blebooking.backend.common.error.ErrorCode;
 import ch.hslu.blebooking.backend.resource.ResourceCatalog;
@@ -205,6 +207,13 @@ class BookingServiceImpl implements BookingService {
 	public BookingDto get(long bookingId, long userId) {
 		Booking booking = bookingRepository.findByIdAndUserId(bookingId, userId).orElseThrow(BookingServiceImpl::notFound);
 		return toDtos(List.of(booking), Instant.now()).getFirst();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<OwnedBooking> findById(long bookingId) {
+		return bookingRepository.findById(bookingId)
+			.map(b -> new OwnedBooking(b.getUserId(), toDtos(List.of(b), Instant.now()).getFirst()));
 	}
 
 	/** Upcoming = not ended yet and still blocking (contract §4, GET /bookings). */

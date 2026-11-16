@@ -1,6 +1,7 @@
 package ch.hslu.blebooking.backend.booking;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Public API for creating, reading and cancelling the current user's bookings (contract §4).
@@ -29,5 +30,11 @@ public interface BookingService {
 	 * already CANCELLED. NOT_FOUND if unknown or not owned, INVALID_STATUS if cancelling is not allowed (D12).
 	 */
 	void cancel(long bookingId, long userId);
+
+	/**
+	 * Any booking by id, without ownership check. Only for other modules such as notifications, which act on
+	 * behalf of the owner; never use it for user-facing endpoints (D13).
+	 */
+	Optional<OwnedBooking> findById(long bookingId);
 
 }
