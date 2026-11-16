@@ -73,11 +73,22 @@ describe('ResourceDetailsPage', () => {
     expect(prev).toBeDisabled()
   })
 
-  it('caps navigation at 5 weeks ahead', async () => {
+  it('stops at the last week that starts within the 30-day horizon', async () => {
+    // Now is Monday 2026-11-16: horizon ends 2026-12-16, so the last useful week starts Monday 2026-12-14.
     const ranges = recordAvailability()
     renderApp('/resources/1')
     const next = await screen.findByRole('button', { name: /Next week/ })
 
+    for (let i = 0; i < 4; i++) await userEvent.click(next)
+    await waitFor(() => expect(ranges.at(-1)).toBe('2026-12-14..2026-12-20'))
+    expect(next).toBeDisabled()
+  })
+
+  it('allows one more week when the horizon reaches into it', async () => {
+    setNow('2026-11-21T10:00:00+01:00') // Saturday: horizon ends 2026-12-21, which is the Monday of one more week
+    const ranges = recordAvailability()
+    renderApp('/resources/1')
+    const next = await screen.findByRole('button', { name: /Next week/ })
     for (let i = 0; i < 5; i++) await userEvent.click(next)
     await waitFor(() => expect(ranges.at(-1)).toBe('2026-12-21..2026-12-27'))
     expect(next).toBeDisabled()

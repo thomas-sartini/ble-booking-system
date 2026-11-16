@@ -7,6 +7,12 @@ import type { DayAvailability, Slot } from '../services/types'
  */
 export const MAX_DURATION_MINUTES = 4 * 60
 
+/**
+ * Booking horizon: a booking may start at most 30 days ahead (booking-api.md D8, backend config
+ * `app.booking.horizon`). The backend returns no slots beyond it, so the week navigation stops there.
+ */
+export const BOOKING_HORIZON_DAYS = 30
+
 export const MAX_DURATION_MESSAGE = `A booking can last at most ${MAX_DURATION_MINUTES / 60} hours.`
 export const NOT_AVAILABLE_MESSAGE = 'The selection must only contain available, consecutive slots.'
 

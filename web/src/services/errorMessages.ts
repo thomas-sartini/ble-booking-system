@@ -14,6 +14,8 @@ export function messageForError(err: unknown): string {
       return 'This booking can no longer be cancelled.'
     case 'NOT_FOUND':
       return 'This resource or booking is not available.'
+    case 'FORBIDDEN':
+      return 'Your account is not active. Please contact an administrator.'
     case 'VALIDATION_ERROR':
       return err.detail ?? GENERIC_ERROR_MESSAGE
     default:

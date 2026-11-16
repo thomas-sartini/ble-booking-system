@@ -6,11 +6,9 @@ import { ErrorView, LoadingView } from '../components/StateViews';
 import { messageForError } from '../services/errorMessages';
 import { resourceService } from '../services/resourceService';
 import type { Availability, Booking, DayName, ResourceDetails, WeeklyWindow } from '../services/types';
+import { BOOKING_HORIZON_DAYS } from '../utils/booking';
 import { isoTime, addDays, longDateLabel, mondayOf, shortDateLabel, todayIn } from '../utils/week';
 import './ResourceDetailsPage.css';
-
-/** Next is capped at about the 30-day booking horizon (D8). */
-export const MAX_WEEKS_AHEAD = 5;
 
 const DAY_ORDER: DayName[] = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 const DAY_LABEL: Record<DayName, string> = {
@@ -57,9 +55,12 @@ export const ResourceDetailsPage: React.FC = () => {
 
     const timeZone = resource.status === 'ready' ? resource.data.timeZone : null;
     // Weeks run Monday to Sunday in the resource's own zone, not the browser's.
-    const currentMonday = useMemo(() => (timeZone ? mondayOf(todayIn(timeZone)) : null), [timeZone]);
+    const today = useMemo(() => (timeZone ? todayIn(timeZone) : null), [timeZone]);
+    const currentMonday = today ? mondayOf(today) : null;
     const monday = currentMonday ? addDays(currentMonday, 7 * weekOffset) : null;
     const sunday = monday ? addDays(monday, 6) : null;
+    // The next week is only useful if it starts within the booking horizon (D8); later weeks are empty.
+    const hasNextWeek = !!monday && !!today && addDays(monday, 7) <= addDays(today, BOOKING_HORIZON_DAYS);
 
     useEffect(() => {
         if (!monday || !sunday) return;
@@ -133,7 +134,7 @@ export const ResourceDetailsPage: React.FC = () => {
                 <button
                     type="button"
                     onClick={() => setWeekOffset((o) => o + 1)}
-                    disabled={weekOffset >= MAX_WEEKS_AHEAD}
+                    disabled={!hasNextWeek}
                 >
                     Next week →
                 </button>

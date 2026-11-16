@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import type { BookingScope, DayAvailability, DayName, Slot, SlotStatus } from '../services/types'
 import { contractAvailability, loginResponse, resourceDetails, resourceSummaries } from './fixtures'
-import { MAX_DURATION_MINUTES } from '../utils/booking'
+import { BOOKING_HORIZON_DAYS, MAX_DURATION_MINUTES } from '../utils/booking'
 import { addDays } from '../utils/week'
 import {
   blockingBookings, cancelStored, createStored, findOverlap, getMine, listMine, toDto,
@@ -10,7 +10,6 @@ import { toZoneIso, zoneOffset } from './time'
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 const SLOT_MINUTES = 30
-const HORIZON_DAYS = 30
 const MAX_RANGE_DAYS = 14
 
 export function problem(status: number, code: string, detail: string, instance: string) {
@@ -40,7 +39,7 @@ function daysBetween(from: string, to: string): number {
 function buildDays(resourceId: number, from: string, to: string): DayAvailability[] {
   const resource = resourceDetails.find((r) => r.id === resourceId)!
   const now = Date.now()
-  const horizon = now + HORIZON_DAYS * 86_400_000
+  const horizon = now + BOOKING_HORIZON_DAYS * 86_400_000
   const blocking = blockingBookings(resourceId)
   const days: DayAvailability[] = []
   for (let date = from; date <= to; date = addDays(date, 1)) {
@@ -167,7 +166,7 @@ export const handlers = [
     if (minutes > MAX_DURATION_MINUTES) return bad('The booking is too long.')
     const now = Date.now()
     if (startMs <= now) return bad('start must be in the future.')
-    if (startMs > now + HORIZON_DAYS * 86_400_000) return bad('start is beyond the booking horizon.')
+    if (startMs > now + BOOKING_HORIZON_DAYS * 86_400_000) return bad('start is beyond the booking horizon.')
 
     if (!resource) return problem(404, 'NOT_FOUND', 'Resource not found.', '/bookings')
     const sameDay = startLocal.slice(0, 10) === toZoneIso(endMs - 1, zone).slice(0, 10)

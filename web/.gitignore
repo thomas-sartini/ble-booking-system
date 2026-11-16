@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright. Traces and reports can contain request bodies (including the login password): never commit them.
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

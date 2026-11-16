@@ -8,6 +8,7 @@ describe('messageForError', () => {
     ['OUTSIDE_AVAILABILITY', 'This time is not bookable for you.'],
     ['INVALID_STATUS', 'This booking can no longer be cancelled.'],
     ['NOT_FOUND', 'This resource or booking is not available.'],
+    ['FORBIDDEN', 'Your account is not active. Please contact an administrator.'],
   ])('%s', (code, message) => {
     expect(messageForError(new ApiError(409, code, 'ignored detail text'))).toBe(message)
   })
