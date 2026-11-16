@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { apiRequest } from '../services/apiClient'
-import { signIn } from '../test/utils'
+import { beforeEach } from 'vitest'
+import { setNow, signIn } from '../test/utils'
 import { contractAvailability } from './fixtures'
 import type { Availability } from '../services/types'
 
 describe('mock handlers', () => {
+  beforeEach(() => setNow())
+
   it('return the contract example for exactly that query', async () => {
     signIn()
     const result = await apiRequest<Availability>('/resources/3/availability', {

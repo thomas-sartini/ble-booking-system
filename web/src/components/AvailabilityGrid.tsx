@@ -1,5 +1,6 @@
 import React from 'react';
 import type { DayAvailability, SlotStatus } from '../services/types';
+import type { Selection } from '../utils/booking';
 import { isoTime, shortDateLabel, weekDayLabel } from '../utils/week';
 import './AvailabilityGrid.css';
 
@@ -10,7 +11,14 @@ const STATUS_LABEL: Record<SlotStatus, string> = {
     PAST: 'Past',
 };
 
-export const AvailabilityGrid: React.FC<{ days: DayAvailability[] }> = ({ days }) => (
+interface Props {
+    days: DayAvailability[];
+    /** When given, AVAILABLE slots are buttons. Without it the grid is read-only. */
+    onSelectSlot?: (day: DayAvailability, index: number) => void;
+    selection?: Selection | null;
+}
+
+export const AvailabilityGrid: React.FC<Props> = ({ days, onSelectSlot, selection }) => (
     <div>
         <ul className="availability-legend" aria-label="Legend">
             {(Object.keys(STATUS_LABEL) as SlotStatus[]).map((s) => (
@@ -30,18 +38,34 @@ export const AvailabilityGrid: React.FC<{ days: DayAvailability[] }> = ({ days }
                         <p className="availability-none">No bookable slots</p>
                     ) : (
                         <ul>
-                            {day.slots.map((slot) => {
+                            {day.slots.map((slot, index) => {
                                 const available = slot.status === 'AVAILABLE';
-                                return (
-                                    <li
-                                        key={slot.start}
-                                        className={`slot slot-${slot.status.toLowerCase()}`}
-                                        aria-disabled={available ? undefined : true}
-                                    >
+                                const selected =
+                                    !!selection && selection.date === day.date && index >= selection.from && index <= selection.to;
+                                const content = (
+                                    <>
                                         <span className="slot-time">
                                             {isoTime(slot.start)}–{isoTime(slot.end)}
                                         </span>
-                                        <span className="slot-status">{STATUS_LABEL[slot.status]}</span>
+                                        <span className="slot-status">{selected ? 'Selected' : STATUS_LABEL[slot.status]}</span>
+                                    </>
+                                );
+                                return (
+                                    <li
+                                        key={slot.start}
+                                        className={`slot slot-${slot.status.toLowerCase()}${selected ? ' slot-selected' : ''}`}
+                                        aria-disabled={available ? undefined : true}
+                                    >
+                                        {available && onSelectSlot ? (
+                                            <button
+                                                type="button"
+                                                className="slot-button"
+                                                aria-pressed={selected}
+                                                onClick={() => onSelectSlot(day, index)}
+                                            >
+                                                {content}
+                                            </button>
+                                        ) : content}
                                     </li>
                                 );
                             })}

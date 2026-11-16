@@ -1,18 +1,15 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { contractAvailability, resourceDetails } from '../mocks/fixtures'
 import { server } from '../mocks/server'
-import { API, renderApp, signIn } from '../test/utils'
+import { API, renderApp, setNow, signIn } from '../test/utils'
 
 beforeEach(() => {
   signIn()
-  // Monday 2026-11-16 in Zurich. Only Date is faked so timers and fetch keep working.
-  vi.useFakeTimers({ toFake: ['Date'] })
-  vi.setSystemTime(new Date('2026-11-16T10:00:00+01:00'))
+  setNow() // Monday 2026-11-16 in Zurich
 })
-afterEach(() => vi.useRealTimers())
 
 function recordAvailability() {
   const ranges: string[] = []
@@ -43,7 +40,7 @@ describe('ResourceDetailsPage', () => {
 
   it('renders the contract example for resource 3', async () => {
     // The example date is a Tuesday: go there by pointing "today" into that week.
-    vi.setSystemTime(new Date('2026-11-17T07:00:00+01:00'))
+    setNow('2026-11-17T07:00:00+01:00')
     server.use(http.get(`${API}/resources/3/availability`, () =>
       HttpResponse.json({ ...contractAvailability, from: '2026-11-16', to: '2026-11-22' }),
     ))
@@ -88,7 +85,7 @@ describe('ResourceDetailsPage', () => {
 
   it('computes the current week in the resource time zone, not the browser zone', async () => {
     // Sunday 23:30 UTC is already Monday 00:30 in Zurich.
-    vi.setSystemTime(new Date('2026-11-22T23:30:00Z'))
+    setNow('2026-11-22T23:30:00Z')
     const ranges = recordAvailability()
     renderApp('/resources/1')
     await waitFor(() => expect(ranges).toEqual(['2026-11-23..2026-11-29']))

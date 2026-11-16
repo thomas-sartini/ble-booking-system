@@ -6,7 +6,7 @@ import { AppLayout } from './components/AppLayout';
 import { LoginPage } from './pages/LoginPage';
 import { ResourceCatalogPage } from './pages/ResourceCatalogPage';
 import { ResourceDetailsPage } from './pages/ResourceDetailsPage';
-import { BookingsPlaceholderPage } from './pages/BookingsPlaceholderPage';
+import { BookingsPage } from './pages/BookingsPage';
 
 export const AppRoutes: React.FC = () => (
     <Routes>
@@ -16,7 +16,7 @@ export const AppRoutes: React.FC = () => (
             <Route element={<AppLayout />}>
                 <Route path="/resources" element={<ResourceCatalogPage />} />
                 <Route path="/resources/:id" element={<ResourceDetailsPage />} />
-                <Route path="/bookings" element={<BookingsPlaceholderPage />} />
+                <Route path="/bookings" element={<BookingsPage />} />
                 <Route path="/dashboard" element={<Navigate to="/resources" replace />} />
             </Route>
         </Route>

@@ -44,3 +44,10 @@ export function shortDateLabel(date: string): string {
 export function isoTime(iso: string): string {
   return iso.slice(11, 16)
 }
+
+/** "Tue, 17 Nov 2026" */
+export function longDateLabel(date: string): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC',
+  }).format(parse(date))
+}

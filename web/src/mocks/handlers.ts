@@ -1,7 +1,12 @@
 import { http, HttpResponse } from 'msw'
-import type { DayAvailability, DayName, Slot, SlotStatus } from '../services/types'
+import type { BookingScope, DayAvailability, DayName, Slot, SlotStatus } from '../services/types'
 import { contractAvailability, loginResponse, resourceDetails, resourceSummaries } from './fixtures'
+import { MAX_DURATION_MINUTES } from '../utils/booking'
 import { addDays } from '../utils/week'
+import {
+  blockingBookings, cancelStored, createStored, findOverlap, getMine, listMine, toDto,
+} from './bookingStore'
+import { toZoneIso, zoneOffset } from './time'
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 const SLOT_MINUTES = 30
@@ -18,20 +23,6 @@ export function problem(status: number, code: string, detail: string, instance: 
 const unauthorized = (instance: string) => problem(401, 'UNAUTHORIZED', 'Authentication required.', instance)
 
 const DAY_NAMES: DayName[] = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
-
-/** Zurich UTC offset ("+01:00") on the given local date, DST aware. */
-function zoneOffset(date: string, timeZone: string): string {
-  const parts = new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'longOffset' })
-    .formatToParts(new Date(`${date}T12:00:00Z`))
-  const name = parts.find((p) => p.type === 'timeZoneName')?.value ?? 'GMT'
-  return name === 'GMT' ? '+00:00' : name.replace('GMT', '')
-}
-
-function hash(text: string): number {
-  let h = 0
-  for (const ch of text) h = (h * 31 + ch.charCodeAt(0)) >>> 0
-  return h
-}
 
 function minutesToTime(total: number): string {
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
@@ -50,6 +41,7 @@ function buildDays(resourceId: number, from: string, to: string): DayAvailabilit
   const resource = resourceDetails.find((r) => r.id === resourceId)!
   const now = Date.now()
   const horizon = now + HORIZON_DAYS * 86_400_000
+  const blocking = blockingBookings(resourceId)
   const days: DayAvailability[] = []
   for (let date = from; date <= to; date = addDays(date, 1)) {
     const dayName = DAY_NAMES[(new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7]
@@ -61,11 +53,13 @@ function buildDays(resourceId: number, from: string, to: string): DayAvailabilit
         const end = `${date}T${minutesToTime(m + SLOT_MINUTES)}:00${offset}`
         const startMs = Date.parse(start)
         if (startMs > horizon) continue
-        const h = hash(`${resourceId}|${start}`)
+        const endMs = startMs + SLOT_MINUTES * 60_000
         let status: SlotStatus = 'AVAILABLE'
         if (startMs <= now) status = 'PAST'
-        else if (h % 7 === 0) status = 'BOOKED'
-        else if (h % 11 === 0) status = 'BOOKED_BY_ME'
+        else {
+          const blocker = blocking.find((b) => b.startMs < endMs && b.endMs > startMs)
+          if (blocker) status = blocker.owner === 'me' ? 'BOOKED_BY_ME' : 'BOOKED'
+        }
         slots.push({ start, end, status })
       }
     }
@@ -146,5 +140,77 @@ export const handlers = [
       to,
       days: buildDays(resource.id, from, to),
     })
+  }),
+
+  http.post(`${BASE}/bookings`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) return unauthorized('/bookings')
+    const bad = (detail: string) => problem(400, 'VALIDATION_ERROR', detail, '/bookings')
+    const body = (await request.json().catch(() => null)) as
+      { resourceId?: unknown; start?: unknown; end?: unknown } | null
+    const startMs = typeof body?.start === 'string' ? Date.parse(body.start) : NaN
+    const endMs = typeof body?.end === 'string' ? Date.parse(body.end) : NaN
+    if (typeof body?.resourceId !== 'number' || isNaN(startMs) || isNaN(endMs)) {
+      return bad('resourceId, start and end are required.')
+    }
+    if (endMs <= startMs) return bad('end must be after start.')
+
+    const resource = resourceDetails.find((r) => r.id === body.resourceId)
+    const zone = resource?.timeZone ?? 'Europe/Zurich'
+    const startLocal = toZoneIso(startMs, zone)
+    const endLocal = toZoneIso(endMs, zone)
+    const startMin = toMinutes(startLocal.slice(11, 16))
+    const endMin = toMinutes(endLocal.slice(11, 16))
+    const minutes = (endMs - startMs) / 60_000
+    if (startLocal.slice(17, 19) !== '00' || startMin % SLOT_MINUTES !== 0 || endMin % SLOT_MINUTES !== 0) {
+      return bad('start and end must lie on the slot grid.')
+    }
+    if (minutes > MAX_DURATION_MINUTES) return bad('The booking is too long.')
+    const now = Date.now()
+    if (startMs <= now) return bad('start must be in the future.')
+    if (startMs > now + HORIZON_DAYS * 86_400_000) return bad('start is beyond the booking horizon.')
+
+    if (!resource) return problem(404, 'NOT_FOUND', 'Resource not found.', '/bookings')
+    const sameDay = startLocal.slice(0, 10) === toZoneIso(endMs - 1, zone).slice(0, 10)
+    const dayName = DAY_NAMES[(new Date(`${startLocal.slice(0, 10)}T00:00:00Z`).getUTCDay() + 6) % 7]
+    const inWindow = sameDay && resource.windows.some(
+      (w) => w.dayOfWeek === dayName && toMinutes(w.start) <= startMin && endMin <= toMinutes(w.end),
+    )
+    if (!inWindow) {
+      return problem(409, 'OUTSIDE_AVAILABILITY', 'The interval is not inside a bookable window.', '/bookings')
+    }
+    if (findOverlap(resource.id, startMs, endMs)) {
+      return problem(409, 'BOOKING_OVERLAP', 'The resource is already booked at this time.', '/bookings')
+    }
+
+    const stored = createStored(resource.id, startMs, endMs)
+    return HttpResponse.json(toDto(stored), { status: 201, headers: { Location: `/bookings/${stored.id}` } })
+  }),
+
+  http.get(`${BASE}/bookings`, ({ request }) => {
+    if (!request.headers.get('Authorization')) return unauthorized('/bookings')
+    const scope = new URL(request.url).searchParams.get('scope') ?? 'all'
+    if (scope !== 'upcoming' && scope !== 'past' && scope !== 'all') {
+      return problem(400, 'VALIDATION_ERROR', 'scope must be upcoming, past or all.', '/bookings')
+    }
+    return HttpResponse.json(listMine(scope as BookingScope).map(toDto))
+  }),
+
+  http.get(`${BASE}/bookings/:id`, ({ request, params }) => {
+    const instance = `/bookings/${params.id}`
+    if (!request.headers.get('Authorization')) return unauthorized(instance)
+    const booking = getMine(Number(params.id))
+    if (!booking) return problem(404, 'NOT_FOUND', 'Booking not found.', instance)
+    return HttpResponse.json(toDto(booking))
+  }),
+
+  http.delete(`${BASE}/bookings/:id`, ({ request, params }) => {
+    const instance = `/bookings/${params.id}`
+    if (!request.headers.get('Authorization')) return unauthorized(instance)
+    const booking = getMine(Number(params.id))
+    if (!booking) return problem(404, 'NOT_FOUND', 'Booking not found.', instance)
+    if (cancelStored(booking) === 'invalid') {
+      return problem(409, 'INVALID_STATUS', 'The booking can no longer be cancelled.', instance)
+    }
+    return new HttpResponse(null, { status: 204 })
   }),
 ]

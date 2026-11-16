@@ -104,9 +104,10 @@ describe('layout and routing', () => {
     await waitFor(() => expect(tokenStore.getAccessToken()).toBeNull())
   })
 
-  it('shows the placeholder for My bookings', async () => {
+  it('shows the bookings page on /bookings', async () => {
     signIn()
     renderApp('/bookings')
-    expect(await screen.findByText('Coming soon.')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'My bookings' })).toBeInTheDocument()
+    expect(await screen.findByText('No upcoming bookings')).toBeInTheDocument()
   })
 })

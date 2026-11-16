@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AvailabilityGrid } from '../components/AvailabilityGrid';
+import { BookableAvailability } from '../components/BookableAvailability';
+import { Notice } from '../components/Notice';
 import { ErrorView, LoadingView } from '../components/StateViews';
 import { messageForError } from '../services/errorMessages';
 import { resourceService } from '../services/resourceService';
-import type { Availability, DayName, ResourceDetails, WeeklyWindow } from '../services/types';
-import { addDays, mondayOf, shortDateLabel, todayIn } from '../utils/week';
+import type { Availability, Booking, DayName, ResourceDetails, WeeklyWindow } from '../services/types';
+import { isoTime, addDays, longDateLabel, mondayOf, shortDateLabel, todayIn } from '../utils/week';
 import './ResourceDetailsPage.css';
 
 /** Next is capped at about the 30-day booking horizon (D8). */
@@ -36,6 +37,9 @@ export const ResourceDetailsPage: React.FC = () => {
     const [weekOffset, setWeekOffset] = useState(0);
     const [resourceReload, setResourceReload] = useState(0);
     const [availabilityReload, setAvailabilityReload] = useState(0);
+    const [notice, setNotice] = useState<
+        { kind: 'success'; booking: Booking } | { kind: 'error'; message: string } | null
+    >(null);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -139,7 +143,32 @@ export const ResourceDetailsPage: React.FC = () => {
             {availability.status === 'error' && (
                 <ErrorView message={availability.message} onRetry={() => setAvailabilityReload((k) => k + 1)} />
             )}
-            {availability.status === 'ready' && <AvailabilityGrid days={availability.data.days} />}
+            {notice?.kind === 'success' && (
+                <Notice kind="success" onDismiss={() => setNotice(null)}>
+                    Booked {notice.booking.resource.name}: {longDateLabel(notice.booking.start.slice(0, 10))},{' '}
+                    {isoTime(notice.booking.start)}–{isoTime(notice.booking.end)}, CHF {notice.booking.price}.{' '}
+                    <Link to="/bookings">View my bookings</Link>
+                </Notice>
+            )}
+            {notice?.kind === 'error' && (
+                <Notice kind="error" onDismiss={() => setNotice(null)}>{notice.message}</Notice>
+            )}
+            {availability.status === 'ready' && (
+                // A new key per week and reload drops the selection, whose indices belong to the old data.
+                <BookableAvailability
+                    key={`${monday}-${availabilityReload}`}
+                    resource={r}
+                    availability={availability.data}
+                    onBooked={(booking) => {
+                        setNotice({ kind: 'success', booking });
+                        setAvailabilityReload((k) => k + 1);
+                    }}
+                    onConflict={(message) => {
+                        setNotice({ kind: 'error', message });
+                        setAvailabilityReload((k) => k + 1);
+                    }}
+                />
+            )}
         </>
     );
 };

@@ -1,0 +1,7 @@
+.selection-bar { margin-top: 1rem; padding: .75rem 1rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; }
+.selection-bar p { margin: 0 0 .5rem; }
+.selection-hint { color: #64748b; }
+.selection-error { color: #b91c1c; }
+.selection-actions { display: flex; gap: .5rem; }
+.selection-actions button { padding: .45rem 1rem; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; border-radius: 6px; }
+.selection-actions .selection-book { background: #0f172a; color: #fff; border-color: #0f172a; }
