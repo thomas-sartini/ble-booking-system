@@ -1,59 +1,53 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+import { apiRequest } from './apiClient'
+import { tokenStore } from './tokenStore'
+import type { Role } from './types'
 
-// User types entsprechend der echten Anwendung
 export interface User {
-    id?: string;
-    email: string;
-    role?: 'Student' | 'Lecturer' | 'Admin' | 'USER' | string;
+    id: number
+    email: string
+    username: string
+    firstName: string
+    lastName: string
+    role: Role
+}
+
+export interface LoginResponse {
+    accessToken: string
+    tokenType: string
+    expiresIn: number
+    refreshToken: string
+    user: User
+}
+
+export const ROLES: readonly Role[] = ['STUDENT', 'STAFF', 'ADMIN']
+
+export function isValidUser(value: unknown): value is User {
+    const u = value as Partial<User> | null
+    return !!u && typeof u.id === 'number' && ROLES.includes(u.role as Role)
 }
 
 export const authService = {
-    async login(identifier: string, password: string): Promise<{ user: User; token: string }> {
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    async login(identifier: string, password: string): Promise<User> {
+        const data = await apiRequest<LoginResponse>('/auth/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ identifier, password }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Anmeldung fehlgeschlagen. Bitte Zugangsdaten prüfen.');
-        }
-
-        const data = await response.json();
-
-        // Falls das Backend einen Refresh-Token liefert, diesen direkt für den Logout sichern
-        if (data.refreshToken) {
-            localStorage.setItem('refreshToken', data.refreshToken);
-        }
-
-        return {
-            user: {
-                email: identifier,
-                role: data.role || 'Student'
-            },
-            token: data.token || data.accessToken || 'live-token'
-        };
+            body: { identifier, password },
+        })
+        tokenStore.setTokens(data.accessToken, data.refreshToken)
+        tokenStore.setUserJson(JSON.stringify(data.user))
+        return data.user
     },
 
+    /** Best effort on the server, always clears local state. */
     async logout(): Promise<void> {
-        const refreshToken = localStorage.getItem('refreshToken');
-
+        const refreshToken = tokenStore.getRefreshToken()
         try {
-            await fetch(`${API_BASE_URL}/auth/logout`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ refreshToken }),
-            });
-        } catch (error) {
-            console.error('Logout-Request an Backend fehlgeschlagen, bereinige lokalen Speicher trotzdem.', error);
+            if (refreshToken) {
+                await apiRequest<void>('/auth/logout', { method: 'POST', body: { refreshToken } })
+            }
+        } catch {
+            // ignore: local state is cleared below either way
         } finally {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('authUser');
-            localStorage.removeItem('refreshToken');
+            tokenStore.clear()
         }
-    }
-};
+    },
+}

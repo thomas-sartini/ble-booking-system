@@ -1,0 +1,11 @@
+.catalog-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1.25rem; }
+.catalog-filters { display: flex; gap: .4rem; }
+.catalog-filters button { padding: .4rem .9rem; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; border-radius: 999px; color: #1e293b; }
+.catalog-filters button.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+.catalog-controls input[type='search'] { flex: 1; min-width: 14rem; padding: .5rem .75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; }
+.catalog-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem; }
+.resource-card { display: flex; flex-direction: column; gap: .35rem; padding: 1rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; text-decoration: none; color: #1e293b; height: 100%; box-sizing: border-box; }
+.resource-card:hover { border-color: #0f172a; }
+.resource-name { font-weight: 600; font-size: 1.1rem; color: #0f172a; }
+.resource-type { align-self: flex-start; font-size: .8rem; padding: .1rem .5rem; border-radius: 999px; background: #e2e8f0; }
+.resource-position, .resource-price { color: #475569; font-size: .95rem; }

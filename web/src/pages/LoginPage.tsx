@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ApiError } from '../services/apiClient';
+import { messageForError } from '../services/errorMessages';
 import './LoginPage.css';
 
 export const LoginPage: React.FC = () => {
@@ -24,9 +26,11 @@ export const LoginPage: React.FC = () => {
         try {
             setLoading(true);
             await login(email, password);
-            navigate('/dashboard');
-        } catch (err: any) {
-            setError(err.message || 'Authentication failed');
+            navigate('/resources');
+        } catch (err: unknown) {
+            setError(err instanceof ApiError && err.status === 401
+                ? 'Email or password is incorrect.'
+                : messageForError(err));
         } finally {
             setLoading(false);
         }

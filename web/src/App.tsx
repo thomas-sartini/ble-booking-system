@@ -1,44 +1,38 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AppLayout } from './components/AppLayout';
 import { LoginPage } from './pages/LoginPage';
+import { ResourceCatalogPage } from './pages/ResourceCatalogPage';
+import { ResourceDetailsPage } from './pages/ResourceDetailsPage';
+import { BookingsPlaceholderPage } from './pages/BookingsPlaceholderPage';
 
-// Eine einfache Platzhalter-Dashboard-Seite für eingeloggte Nutzer
-const DashboardPage: React.FC = () => {
-  const { user, logout } = useAuth();
+export const AppRoutes: React.FC = () => (
+    <Routes>
+        <Route path="/login" element={<LoginPage />} />
 
-  return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>Dashboard (BLE Booking)</h1>
-      <p>Willkommen zurück, <strong>{user?.email}</strong>!</p>
-      <p>Rolle: {user?.role}</p>
-      <button onClick={logout} style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}>
-        Sign Out
-      </button>
-    </div>
-  );
-};
+        <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+                <Route path="/resources" element={<ResourceCatalogPage />} />
+                <Route path="/resources/:id" element={<ResourceDetailsPage />} />
+                <Route path="/bookings" element={<BookingsPlaceholderPage />} />
+                <Route path="/dashboard" element={<Navigate to="/resources" replace />} />
+            </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/resources" replace />} />
+    </Routes>
+);
 
 export function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Öffentliche Route für das Sign-in */}
-          <Route path="/login" element={<LoginPage />} />
-
-          {/* Geschützte Routen (nur nach Log-in erreichbar) */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-          </Route>
-
-          {/* Fallback / Standard-Weiterleitung */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <Router>
+                <AppRoutes />
+            </Router>
+        </AuthProvider>
+    );
 }
 
 export default App;
