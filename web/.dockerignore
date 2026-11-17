@@ -1,0 +1,26 @@
+# Dependencies and build output are created inside the image.
+node_modules
+dist
+dist-ssr
+
+# Review screenshots and test output
+ui-review
+test-results
+playwright-report
+blob-report
+playwright/.cache
+
+# Not needed to build, and must not change the image cache
+e2e
+scripts
+
+# Local environment files: never baked into an image (Vite would read .env.local)
+.env
+.env.*
+
+# Misc
+.git
+.DS_Store
+*.log
+Dockerfile
+.dockerignore

@@ -31,11 +31,27 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
-      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:5174}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       DEV_USER_PASSWORD: ${DEV_USER_PASSWORD}
     ports:
       - "8080:8080"
+
+  # Production-like Web image. Not started by a plain `docker compose up`:
+  #   docker compose --profile web up -d --build   ->  http://localhost:5174
+  # If APP_CORS_ALLOWED_ORIGINS is set in .env, it must include http://localhost:5174.
+  web:
+    profiles: ["web"]
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8080
+    container_name: ble_booking_web
+    depends_on:
+      - backend
+    ports:
+      - "5174:8080"
 
 volumes:
   postgres_data:

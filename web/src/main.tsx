@@ -5,7 +5,9 @@ import App from './App.tsx'
 import { ThemeProvider } from './components/ThemeProvider'
 
 async function enableMocks() {
-  if (import.meta.env.VITE_USE_MOCKS !== 'true') return
+  // Mocks run only in the dev server. In a production build import.meta.env.DEV is false, so this whole
+  // branch (and the msw code behind the dynamic import) is removed from the bundle.
+  if (!(import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true')) return
   const { worker } = await import('./mocks/browser')
   await worker.start({ onUnhandledFrame: 'bypass' })
 }
