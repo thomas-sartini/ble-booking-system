@@ -43,6 +43,7 @@ class BleScanner(
 
         override fun onScanFailed(errorCode: Int) {
             Log.e("BleScanner", "BLE scan failed: $errorCode")
+            listeners.toList().forEach { it.onScanFailed(errorCode) }
         }
 
     }

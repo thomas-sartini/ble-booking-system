@@ -121,6 +121,15 @@ private fun ScanningContent(
                     if (errorMessage != null) Button(onClick = onRetry) { Text("Try again") }
                 }
             } else {
+                errorMessage?.let { message ->
+                    Column(
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(message, color = MaterialTheme.colorScheme.error)
+                        Button(onClick = onRetry) { Text("Try again") }
+                    }
+                }
                 if (isScanning) {
                     Row(
                         modifier = Modifier.padding(vertical = 24.dp),

@@ -60,6 +60,12 @@ class ScanningViewModel @Inject constructor(
         }
     }
 
+    override fun onScanFailed(errorCode: Int) {
+        if (!isScanning) return
+        stopScanning()
+        errorMessage = "Bluetooth scan failed (code $errorCode). Check Bluetooth and try again."
+    }
+
     /** Repeated advertisements refresh the same card, including its name and signal strength. */
     override fun onTerminalDiscovered(terminal: DiscoveredTerminal) {
         if (!isScanning) return
