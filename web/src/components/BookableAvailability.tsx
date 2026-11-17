@@ -1,27 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ApiError } from '../services/apiClient';
-import { bookingService } from '../services/bookingService';
-import { messageForError } from '../services/errorMessages';
-import type { Availability, Booking, ResourceDetails } from '../services/types';
+import { useEffect, useRef, useState } from 'react';
+import { AvailabilityCalendar } from '@/components/AvailabilityCalendar';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { ApiError } from '@/services/apiClient';
+import { bookingService } from '@/services/bookingService';
+import { messageForError } from '@/services/errorMessages';
+import type { Availability, Booking, ResourceDetails } from '@/services/types';
 import {
     formatDuration, pickSlot, selectedSlots, type Selection,
-} from '../utils/booking';
-import { priceFor } from '../utils/price';
-import { isoTime, longDateLabel } from '../utils/week';
-import { AvailabilityGrid } from './AvailabilityGrid';
-import { ConfirmDialog } from './ConfirmDialog';
-import './BookableAvailability.css';
+} from '@/utils/booking';
+import { priceFor } from '@/utils/price';
+import { isoTime, longDateLabel } from '@/utils/week';
 
 interface Props {
     resource: ResourceDetails;
     availability: Availability;
+    /** Today in the resource's zone, for the calendar's "today" column. */
+    today?: string | null;
     onBooked: (booking: Booking) => void;
     /** The slot was taken meanwhile (BOOKING_OVERLAP): page reloads availability and shows the message. */
     onConflict: (message: string) => void;
 }
 
 /** Availability grid with slot-range selection and the booking confirm dialog (US-02.02). */
-export const BookableAvailability: React.FC<Props> = ({ resource, availability, onBooked, onConflict }) => {
+export function BookableAvailability({ resource, availability, today, onBooked, onConflict }: Props) {
     const [selection, setSelection] = useState<Selection | null>(null);
     const [selectionError, setSelectionError] = useState<string | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -86,55 +89,62 @@ export const BookableAvailability: React.FC<Props> = ({ resource, availability, 
 
     return (
         <>
-            <AvailabilityGrid days={availability.days} selection={selection} onSelectSlot={onSelectSlot} />
+            <AvailabilityCalendar days={availability.days} selection={selection} today={today} onSelectSlot={onSelectSlot} />
 
-            <div className="selection-bar">
-                {selectionError && <p className="selection-error" role="alert">{selectionError}</p>}
+            <div className="sticky bottom-4 z-10 mt-4 flex flex-col gap-2 rounded-xl border bg-card p-3 shadow-md md:px-4">
+                {selectionError && (
+                    <Alert variant="destructive" className="border-danger-foreground/25 bg-danger py-2">
+                        <AlertDescription className="text-danger-foreground">{selectionError}</AlertDescription>
+                    </Alert>
+                )}
                 {hasSelection ? (
-                    <>
-                        <p className="selection-summary">
-                            Selected: {longDateLabel(selection!.date)}, {timeRange} ({formatDuration(minutes)})
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p data-slot="selection-summary" className="text-sm text-muted-foreground">
+                            <span className="font-semibold text-foreground">Selected:</span> {longDateLabel(selection!.date)}, {timeRange} ({formatDuration(minutes)})
+                            {' · '}CHF {priceFor(resource.pricePerHour, minutes)} (estimate)
                             {!selection!.complete && ' – click another slot to extend the range.'}
                         </p>
-                        <div className="selection-actions">
-                            <button type="button" onClick={clear}>Clear selection</button>
-                            <button
-                                type="button"
-                                className="selection-book"
+                        <div className="flex w-full gap-2 md:w-auto">
+                            <Button variant="outline" className="max-md:flex-1" onClick={clear}>Clear selection</Button>
+                            <Button
+                                className="max-md:flex-1"
                                 onClick={() => { setSubmitError(null); setDialogOpen(true); }}
                             >
                                 Book…
-                            </button>
+                            </Button>
                         </div>
-                    </>
+                    </div>
                 ) : (
-                    <p className="selection-hint">Click a free slot to start a booking, then click the last slot of the range.</p>
+                    <p className="text-sm text-muted-foreground">
+                        Click a free slot to start a booking, then click the last slot of the range.
+                    </p>
                 )}
             </div>
 
             {dialogOpen && hasSelection && (
                 <ConfirmDialog
                     title="Confirm booking"
+                    description={`Book ${resource.name} for the selected time.`}
                     confirmLabel="Confirm booking"
                     busy={busy}
                     error={submitError}
                     onConfirm={() => void confirm()}
                     onDismiss={() => setDialogOpen(false)}
                 >
-                    <dl>
-                        <dt>Resource</dt>
+                    <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
+                        <dt className="text-muted-foreground">Resource</dt>
                         <dd>{resource.name}</dd>
-                        <dt>Date</dt>
+                        <dt className="text-muted-foreground">Date</dt>
                         <dd>{longDateLabel(selection!.date)}</dd>
-                        <dt>Time</dt>
+                        <dt className="text-muted-foreground">Time</dt>
                         <dd>{timeRange} ({resource.timeZone})</dd>
-                        <dt>Duration</dt>
+                        <dt className="text-muted-foreground">Duration</dt>
                         <dd>{formatDuration(minutes)}</dd>
-                        <dt>Estimated price</dt>
+                        <dt className="text-muted-foreground">Estimated price</dt>
                         <dd>CHF {priceFor(resource.pricePerHour, minutes)} (estimate, the final price is shown after booking)</dd>
                     </dl>
                 </ConfirmDialog>
             )}
         </>
     );
-};
+}

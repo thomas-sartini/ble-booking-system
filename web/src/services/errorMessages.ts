@@ -22,3 +22,8 @@ export function messageForError(err: unknown): string {
       return GENERIC_ERROR_MESSAGE
   }
 }
+
+/** The API error code, if the error came from the API client. Views use it only to pick title and icon. */
+export function codeOf(err: unknown): string | undefined {
+  return err instanceof ApiError ? err.code : undefined
+}

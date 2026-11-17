@@ -25,17 +25,16 @@ function recordAvailability() {
 }
 
 describe('ResourceDetailsPage', () => {
-  it('shows details and bookable hours grouped by day', async () => {
+  it('shows details and the bookable hours folded into one line', async () => {
     renderApp('/resources/2')
 
     expect(await screen.findByRole('heading', { name: 'Project Room D2.14' })).toBeInTheDocument()
     expect(screen.getByText('Building D, Room 2.14')).toBeInTheDocument()
     expect(screen.getByText('CHF 0.00 / h')).toBeInTheDocument()
     expect(screen.getByText('Europe/Zurich')).toBeInTheDocument()
-    const hours = screen.getByText('Monday').closest('li')!
-    expect(hours).toHaveTextContent('07:00–21:00')
-    expect(screen.getByText('Saturday').closest('li')).toHaveTextContent('09:00–14:00')
-    expect(screen.queryByText('Sunday', { selector: 'strong' })).not.toBeInTheDocument()
+    expect(screen.getByText('Mon-Fri 07:00-21:00 · Sat 09:00-14:00')).toBeInTheDocument()
+    expect(screen.getByRole('list', { name: 'Resource information' })).toHaveTextContent('Fixed')
+    expect(screen.queryByText(/Sun/)).not.toBeInTheDocument()
   })
 
   it('renders the contract example for resource 3', async () => {

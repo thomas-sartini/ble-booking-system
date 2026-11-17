@@ -15,7 +15,7 @@ test('student: browse, book, see it, cancel, slot is free again', async ({ page,
   await page.getByPlaceholder('firstname.lastname@ble.edu').fill(email)
   await page.getByPlaceholder('••••••••••••').fill(password)
   await page.getByRole('button', { name: 'Sign In' }).click()
-  await expect(page.getByRole('heading', { name: 'Resources' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Resource catalog' })).toBeVisible()
   await expect(page.getByText('Student User')).toBeVisible()
 
   // US-02.01: catalog visibility (D4) and filters
@@ -25,10 +25,10 @@ test('student: browse, book, see it, cancel, slot is free again', async ({ page,
   await expect(page.getByRole('link', { name: /Old Beamer/ })).toHaveCount(0)
   await shot(page, 'catalog-student')
 
-  await page.getByRole('button', { name: 'Mobile', exact: true }).click()
+  await page.getByRole('radio', { name: 'Mobile' }).click()
   await expect(page.getByRole('link', { name: /Project Room/ })).toHaveCount(0)
   await expect(page.getByRole('link', { name: /Cargo Bike 1/ })).toBeVisible()
-  await page.getByRole('button', { name: 'All', exact: true }).click()
+  await page.getByRole('radio', { name: 'All types' }).click()
   await page.getByRole('searchbox', { name: 'Search resources' }).fill('room')
   await expect(page.getByRole('link', { name: /Cargo Bike/ })).toHaveCount(0)
   await expect(page.getByRole('link', { name: /Project Room D2.14/ })).toBeVisible()
@@ -38,13 +38,12 @@ test('student: browse, book, see it, cancel, slot is free again', async ({ page,
   await page.getByRole('link', { name: /Cargo Bike 1/ }).click()
   await expect(page.getByRole('heading', { name: 'Cargo Bike 1' })).toBeVisible()
   await expect(page.getByText('CHF 5.00 / h')).toBeVisible()
-  await expect(page.getByText('Monday').first()).toBeVisible()
-  await expect(page.getByText('08:00–18:00').first()).toBeVisible()
+  await expect(page.getByText('Mon-Fri 08:00-18:00')).toBeVisible()
 
   // US-02.02: select, confirm dialog, book
   const day = await showDay(page, range.date)
   await selectRange(day, range)
-  await expect(page.locator('.selection-summary')).toContainText(`${range.first}–`)
+  await expect(page.locator('[data-slot="selection-summary"]')).toContainText(`${range.first}–`)
   await shot(page, 'selection')
   await page.getByRole('button', { name: 'Book…' }).click()
   const dialog = page.getByRole('dialog')
@@ -56,7 +55,7 @@ test('student: browse, book, see it, cancel, slot is free again', async ({ page,
   await shot(page, 'confirm-dialog')
   await dialog.getByRole('button', { name: 'Confirm booking' }).click()
 
-  const notice = page.getByRole('status').filter({ hasText: 'Booked Cargo Bike 1' })
+  const notice = page.locator('[data-sonner-toast]').filter({ hasText: 'Booked Cargo Bike 1' })
   await expect(notice).toContainText('CHF 7.50')
   await shot(page, 'booking-confirmed')
   await expect(page.getByRole('region', { name: range.date }).getByText('Your booking')).toHaveCount(3)
@@ -65,7 +64,7 @@ test('student: browse, book, see it, cancel, slot is free again', async ({ page,
   // US-02.03: shows under Upcoming
   await notice.getByRole('link', { name: 'View my bookings' }).click()
   await expect(page.getByRole('heading', { name: 'My bookings' })).toBeVisible()
-  const row = page.getByRole('tabpanel').getByRole('listitem').filter({ hasText: 'Cargo Bike 1' })
+  const row = page.getByRole('tabpanel').getByRole('row').filter({ hasText: 'Cargo Bike 1' })
   await expect(row).toHaveCount(1)
   await expect(row).toContainText(dateLabel(range.date))
   await expect(row).toContainText(`${range.first}–`)
@@ -75,13 +74,13 @@ test('student: browse, book, see it, cancel, slot is free again', async ({ page,
 
   // cancel
   await row.getByRole('button', { name: /^Cancel booking of/ }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Yes, cancel booking' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Yes, cancel booking' }).click()
   await expect(page.getByText('Booking cancelled.')).toBeVisible()
   await expect(row).toHaveCount(0)
 
   // moves to Past as CANCELLED, and it cannot be cancelled again
   await page.getByRole('tab', { name: 'Past' }).click()
-  const past = page.getByRole('tabpanel').getByRole('listitem').filter({ hasText: 'Cargo Bike 1' })
+  const past = page.getByRole('tabpanel').getByRole('row').filter({ hasText: 'Cargo Bike 1' })
   await expect(past.first()).toContainText('Cancelled')
   await expect(past.first().getByRole('button')).toHaveCount(0)
   await shot(page, 'my-bookings-past-cancelled')
@@ -89,15 +88,16 @@ test('student: browse, book, see it, cancel, slot is free again', async ({ page,
   expect(mine.some((b) => tracker.ids.some((t) => t.id === b.id) && b.status === 'CANCELLED')).toBe(true)
 
   // the slots are available again
-  await page.getByRole('link', { name: 'Resources', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Resources' })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Resource catalog' }).click()
+  await expect(page.getByRole('heading', { name: 'Resource catalog' })).toBeVisible()
   await page.getByRole('link', { name: /Cargo Bike 1/ }).click()
   const again = await showDay(page, range.date)
   for (const time of range.times) await expect(slotButton(again, time)).toBeVisible()
   await expect(again.getByText('Your booking')).toHaveCount(0)
 
   // signing out clears the session
-  await page.getByRole('button', { name: 'Sign out' }).click()
+  await page.locator('[data-sidebar="menu-button"][aria-haspopup="menu"]').click()
+  await page.getByRole('menuitem', { name: 'Sign out' }).click()
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
   expect(await page.evaluate(() => localStorage.getItem('authToken'))).toBeNull()
 })

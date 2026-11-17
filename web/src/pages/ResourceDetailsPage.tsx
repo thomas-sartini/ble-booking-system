@@ -1,43 +1,54 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, Banknote, CalendarClock, Globe, MapPin, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { BookableAvailability } from '../components/BookableAvailability';
-import { Notice } from '../components/Notice';
-import { ErrorView, LoadingView } from '../components/StateViews';
-import { messageForError } from '../services/errorMessages';
-import { resourceService } from '../services/resourceService';
-import type { Availability, Booking, DayName, ResourceDetails, WeeklyWindow } from '../services/types';
-import { BOOKING_HORIZON_DAYS } from '../utils/booking';
-import { isoTime, addDays, longDateLabel, mondayOf, shortDateLabel, todayIn } from '../utils/week';
-import './ResourceDetailsPage.css';
-
-const DAY_ORDER: DayName[] = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
-const DAY_LABEL: Record<DayName, string> = {
-    MONDAY: 'Monday', TUESDAY: 'Tuesday', WEDNESDAY: 'Wednesday', THURSDAY: 'Thursday',
-    FRIDAY: 'Friday', SATURDAY: 'Saturday', SUNDAY: 'Sunday',
-};
+import { toast } from 'sonner';
+import { BookableAvailability } from '@/components/BookableAvailability';
+import { PageHeader } from '@/components/PageHeader';
+import { ErrorView, LoadingView } from '@/components/StateViews';
+import { Alert, AlertAction, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { codeOf, messageForError } from '@/services/errorMessages';
+import { resourceService } from '@/services/resourceService';
+import type { Availability, Booking, ResourceDetails } from '@/services/types';
+import { BOOKING_HORIZON_DAYS } from '@/utils/booking';
+import { foldWindows } from '@/utils/hours';
+import { addDays, isoTime, longDateLabel, mondayOf, shortDateLabel, todayIn } from '@/utils/week';
 
 type Loadable<T> =
     | { status: 'loading' }
-    | { status: 'error'; message: string }
+    | { status: 'error'; message: string; code?: string }
     | { status: 'ready'; data: T };
 
-function groupWindows(windows: WeeklyWindow[]): { day: DayName; times: string[] }[] {
-    return DAY_ORDER.map((day) => ({
-        day,
-        times: windows.filter((w) => w.dayOfWeek === day).map((w) => `${w.start}–${w.end}`),
-    })).filter((g) => g.times.length > 0);
+function BackLink() {
+    return (
+        <Link to="/resources" className="mb-1 inline-flex items-center gap-1 rounded-sm text-sm font-medium text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            All resources
+        </Link>
+    );
 }
 
-export const ResourceDetailsPage: React.FC = () => {
+function announceBooking(booking: Booking) {
+    toast.success(
+        <span>
+            Booked {booking.resource.name}: {longDateLabel(booking.start.slice(0, 10))},{' '}
+            {isoTime(booking.start)}–{isoTime(booking.end)}, CHF {booking.price}.{' '}
+            <Link to="/bookings" className="font-semibold underline underline-offset-2">View my bookings</Link>
+        </span>,
+        { duration: 15_000 },
+    );
+}
+
+export function ResourceDetailsPage() {
     const { id = '' } = useParams();
     const [resource, setResource] = useState<Loadable<ResourceDetails>>({ status: 'loading' });
     const [availability, setAvailability] = useState<Loadable<Availability>>({ status: 'loading' });
     const [weekOffset, setWeekOffset] = useState(0);
     const [resourceReload, setResourceReload] = useState(0);
     const [availabilityReload, setAvailabilityReload] = useState(0);
-    const [notice, setNotice] = useState<
-        { kind: 'success'; booking: Booking } | { kind: 'error'; message: string } | null
-    >(null);
+    // A conflict (BOOKING_OVERLAP) stays visible as an alert; a successful booking is announced by a toast.
+    const [conflict, setConflict] = useState<string | null>(null);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -48,7 +59,7 @@ export const ResourceDetailsPage: React.FC = () => {
             .then((data) => setResource({ status: 'ready', data }))
             .catch((err: unknown) => {
                 if (controller.signal.aborted) return;
-                setResource({ status: 'error', message: messageForError(err) });
+                setResource({ status: 'error', message: messageForError(err), code: codeOf(err) });
             });
         return () => controller.abort();
     }, [id, resourceReload]);
@@ -71,88 +82,89 @@ export const ResourceDetailsPage: React.FC = () => {
             .then((data) => setAvailability({ status: 'ready', data }))
             .catch((err: unknown) => {
                 if (controller.signal.aborted) return;
-                setAvailability({ status: 'error', message: messageForError(err) });
+                setAvailability({ status: 'error', message: messageForError(err), code: codeOf(err) });
             });
         return () => controller.abort();
     }, [id, monday, sunday, availabilityReload]);
 
-    if (resource.status === 'loading') return <LoadingView label="Loading resource…" />;
+    if (resource.status === 'loading') return <LoadingView label="Loading resource…" rows={2} />;
     if (resource.status === 'error') {
         return (
             <>
-                <Link to="/resources">← All resources</Link>
-                <ErrorView message={resource.message} onRetry={() => setResourceReload((k) => k + 1)} />
+                <BackLink />
+                <ErrorView message={resource.message} code={resource.code} onRetry={() => setResourceReload((k) => k + 1)} />
             </>
         );
     }
 
     const r = resource.data;
-    const groups = groupWindows(r.windows);
+    const hours = foldWindows(r.windows);
 
     return (
         <>
-            <Link to="/resources">← All resources</Link>
-            <h1>{r.name}</h1>
-            <dl className="details-list">
-                <dt>Description</dt>
-                <dd>{r.description ?? '—'}</dd>
-                <dt>Location</dt>
-                <dd>{r.position ?? '—'}</dd>
-                <dt>Type</dt>
-                <dd>{r.type === 'MOBILE' ? 'Mobile' : 'Fixed'}</dd>
-                <dt>Price</dt>
-                <dd>CHF {r.pricePerHour} / h</dd>
-                <dt>Time zone</dt>
-                <dd>{r.timeZone}</dd>
-            </dl>
-
-            <h2>Bookable hours</h2>
-            {groups.length === 0 ? (
-                <p>No bookable hours.</p>
-            ) : (
-                <ul className="windows-list">
-                    {groups.map((g) => (
-                        <li key={g.day}>
-                            <strong>{DAY_LABEL[g.day]}</strong> {g.times.join(', ')}
+            <PageHeader
+                title={r.name}
+                back={<BackLink />}
+                subtitle={r.description}
+                meta={
+                    // Booking is the point of this page: the resource facts are one slim line under the title.
+                    <ul aria-label="Resource information" className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm text-muted-foreground">
+                        <li><Badge variant="secondary">{r.type === 'MOBILE' ? 'Mobile' : 'Fixed'}</Badge></li>
+                        <li className="flex items-center gap-1.5">
+                            <MapPin className="size-4" aria-hidden="true" />
+                            <span className="sr-only">Location: </span>
+                            <span>{r.position ?? '—'}</span>
                         </li>
-                    ))}
-                </ul>
-            )}
+                        <li className="flex items-center gap-1.5">
+                            <Banknote className="size-4" aria-hidden="true" />
+                            <span className="sr-only">Price: </span>
+                            <span>CHF {r.pricePerHour} / h</span>
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                            <CalendarClock className="size-4" aria-hidden="true" />
+                            <span className="sr-only">Bookable hours: </span>
+                            <span>{hours || 'No bookable hours.'}</span>
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                            <Globe className="size-4" aria-hidden="true" />
+                            Times in <span>{r.timeZone}</span>
+                        </li>
+                    </ul>
+                }
+            />
 
-            <h2>Availability</h2>
-            <div className="week-nav">
-                <button
-                    type="button"
-                    onClick={() => setWeekOffset((o) => o - 1)}
-                    disabled={weekOffset <= 0}
-                >
-                    ← Previous week
-                </button>
-                <span className="week-range" aria-live="polite">
-                    {monday && sunday ? `${shortDateLabel(monday)} – ${shortDateLabel(sunday)}` : ''}
-                </span>
-                <button
-                    type="button"
-                    onClick={() => setWeekOffset((o) => o + 1)}
-                    disabled={!hasNextWeek}
-                >
-                    Next week →
-                </button>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 max-md:grid max-md:grid-cols-2">
+                <h2 className="text-xl font-semibold max-md:col-span-2">Book a time slot</h2>
+                <div className="flex items-center gap-3 max-md:contents">
+                    <Button variant="outline" onClick={() => setWeekOffset((o) => o - 1)} disabled={weekOffset <= 0}>
+                        ← Previous week
+                    </Button>
+                    <span aria-live="polite" className="font-semibold max-md:order-first max-md:col-span-2">
+                        {monday && sunday ? `${shortDateLabel(monday)} – ${shortDateLabel(sunday)}` : ''}
+                    </span>
+                    <Button variant="outline" onClick={() => setWeekOffset((o) => o + 1)} disabled={!hasNextWeek}>
+                        Next week →
+                    </Button>
+                </div>
             </div>
 
-            {availability.status === 'loading' && <LoadingView label="Loading availability…" />}
+            {availability.status === 'loading' && <LoadingView label="Loading availability…" rows={4} />}
             {availability.status === 'error' && (
-                <ErrorView message={availability.message} onRetry={() => setAvailabilityReload((k) => k + 1)} />
+                <ErrorView
+                    message={availability.message}
+                    code={availability.code}
+                    onRetry={() => setAvailabilityReload((k) => k + 1)}
+                />
             )}
-            {notice?.kind === 'success' && (
-                <Notice kind="success" onDismiss={() => setNotice(null)}>
-                    Booked {notice.booking.resource.name}: {longDateLabel(notice.booking.start.slice(0, 10))},{' '}
-                    {isoTime(notice.booking.start)}–{isoTime(notice.booking.end)}, CHF {notice.booking.price}.{' '}
-                    <Link to="/bookings">View my bookings</Link>
-                </Notice>
-            )}
-            {notice?.kind === 'error' && (
-                <Notice kind="error" onDismiss={() => setNotice(null)}>{notice.message}</Notice>
+            {conflict && (
+                <Alert variant="destructive" className="mb-4 border-danger-foreground/25 bg-danger pr-12">
+                    <AlertDescription className="text-danger-foreground">{conflict}</AlertDescription>
+                    <AlertAction>
+                        <Button variant="ghost" size="icon-sm" aria-label="Dismiss" onClick={() => setConflict(null)}>
+                            <X aria-hidden="true" />
+                        </Button>
+                    </AlertAction>
+                </Alert>
             )}
             {availability.status === 'ready' && (
                 // A new key per week and reload drops the selection, whose indices belong to the old data.
@@ -160,16 +172,18 @@ export const ResourceDetailsPage: React.FC = () => {
                     key={`${monday}-${availabilityReload}`}
                     resource={r}
                     availability={availability.data}
+                    today={today}
                     onBooked={(booking) => {
-                        setNotice({ kind: 'success', booking });
+                        announceBooking(booking);
+                        setConflict(null);
                         setAvailabilityReload((k) => k + 1);
                     }}
                     onConflict={(message) => {
-                        setNotice({ kind: 'error', message });
+                        setConflict(message);
                         setAvailabilityReload((k) => k + 1);
                     }}
                 />
             )}
         </>
     );
-};
+}

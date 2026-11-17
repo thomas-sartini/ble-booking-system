@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { delay, http, HttpResponse } from 'msw'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -26,11 +26,15 @@ describe('ResourceCatalogPage', () => {
     renderApp('/resources')
 
     expect(screen.getByRole('status')).toHaveTextContent('Loading resources')
-    const bike = await screen.findByRole('link', { name: /Cargo Bike 1/ })
-    expect(bike).toHaveAttribute('href', '/resources/1')
+    const link = await screen.findByRole('link', { name: /Cargo Bike 1/ })
+    expect(link).toHaveAttribute('href', '/resources/1')
+    expect(link).toHaveTextContent('View slots')
+    const bike = screen.getByRole('article', { name: 'Cargo Bike 1' })
     expect(bike).toHaveTextContent('Mobile')
     expect(bike).toHaveTextContent('Bike shed, Building A')
-    expect(bike).toHaveTextContent('CHF 5.00 / h')
+    expect(bike).toHaveTextContent('CHF 5.00 / hour')
+    expect(screen.getByText('3 resources')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Project Room D2.14/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /3D Printer Lab/ })).toBeInTheDocument()
     expect(screen.queryByText(/Old Beamer/)).not.toBeInTheDocument()
@@ -61,15 +65,23 @@ describe('ResourceCatalogPage', () => {
     await screen.findByRole('link', { name: /Cargo Bike 1/ })
     expect(queries).toEqual([''])
 
-    await userEvent.click(screen.getByRole('button', { name: 'Mobile' }))
+    const types = screen.getByRole('radiogroup', { name: 'Type' })
+    await userEvent.click(within(types).getByRole('radio', { name: 'Mobile' }))
     await waitFor(() => expect(queries).toContain('?type=MOBILE'))
-    expect(screen.getByRole('button', { name: 'Mobile' })).toHaveAttribute('aria-pressed', 'true')
+    expect(within(types).getByRole('radio', { name: 'Mobile' })).toBeChecked()
+    expect(await screen.findByRole('button', { name: 'Reset filters' })).toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole('button', { name: 'Fixed' }))
+    await userEvent.click(within(types).getByRole('radio', { name: 'Fixed' }))
     await waitFor(() => expect(queries).toContain('?type=FIXED'))
 
-    await userEvent.click(screen.getByRole('button', { name: 'All' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Reset filters' }))
     await waitFor(() => expect(queries.at(-1)).toBe(''))
+    expect(within(types).getByRole('radio', { name: 'All types' })).toBeChecked()
+    expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument()
+
+    // Clicking the active type again keeps it selected (the filter is never "none").
+    await userEvent.click(within(types).getByRole('radio', { name: 'All types' }))
+    expect(within(types).getByRole('radio', { name: 'All types' })).toBeChecked()
   })
 
   it('debounces the search box and sends q once', async () => {
@@ -94,8 +106,9 @@ describe('ResourceCatalogPage', () => {
     renderApp('/resources')
     await screen.findByRole('link', { name: /Project Room/ })
 
-    await userEvent.click(screen.getByRole('button', { name: 'Mobile' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Fixed' }))
+    const types = screen.getByRole('radiogroup', { name: 'Type' })
+    await userEvent.click(within(types).getByRole('radio', { name: 'Mobile' }))
+    await userEvent.click(within(types).getByRole('radio', { name: 'Fixed' }))
     await screen.findByRole('link', { name: /Project Room/ })
     await delay(250)
     expect(screen.queryByRole('link', { name: /Cargo Bike/ })).not.toBeInTheDocument()

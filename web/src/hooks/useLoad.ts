@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { messageForError } from '../services/errorMessages';
+import { codeOf, messageForError } from '../services/errorMessages';
 
 export type LoadState<T> =
     | { status: 'loading' }
-    | { status: 'error'; message: string }
+    | { status: 'error'; message: string; code?: string }
     | { status: 'ready'; data: T };
 
 /**
@@ -26,7 +26,7 @@ export function useLoad<T>(loader: (signal: AbortSignal) => Promise<T>, key: str
             .then((data) => setState({ status: 'ready', data }))
             .catch((err: unknown) => {
                 if (controller.signal.aborted) return;
-                setState({ status: 'error', message: messageForError(err) });
+                setState({ status: 'error', message: messageForError(err), code: codeOf(err) });
             });
         return () => controller.abort();
     }, [key, reloadKey]);

@@ -1,8 +1,0 @@
-.details-list { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; }
-.details-list dt { color: #64748b; }
-.details-list dd { margin: 0; }
-.windows-list { padding-left: 1.2rem; }
-.week-nav { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-.week-nav button { padding: .4rem .9rem; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; border-radius: 6px; }
-.week-nav button:disabled { opacity: .5; cursor: not-allowed; }
-.week-range { font-weight: 600; }

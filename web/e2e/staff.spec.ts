@@ -26,11 +26,11 @@ test('staff: sees the 3D Printer Lab and can book it', async ({ page, request, t
   await expect(dialog).toContainText('CHF 12.50')
   await dialog.getByRole('button', { name: 'Confirm booking' }).click()
 
-  const notice = page.getByRole('status').filter({ hasText: 'Booked 3D Printer Lab' })
+  const notice = page.locator('[data-sonner-toast]').filter({ hasText: 'Booked 3D Printer Lab' })
   await expect(notice).toContainText('CHF 12.50')
   await expect(page.getByRole('region', { name: range.date }).getByText('Your booking')).toHaveCount(2)
 
   await notice.getByRole('link', { name: 'View my bookings' }).click()
-  await expect(page.getByRole('tabpanel').getByRole('listitem').filter({ hasText: '3D Printer Lab' })).toHaveCount(1)
+  await expect(page.getByRole('tabpanel').getByRole('row').filter({ hasText: '3D Printer Lab' })).toHaveCount(1)
   // the tracker cancels the booking afterwards
 })

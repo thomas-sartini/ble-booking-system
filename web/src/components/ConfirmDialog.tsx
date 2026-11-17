@@ -1,9 +1,14 @@
-import React, { useEffect, useRef } from 'react';
-import './ConfirmDialog.css';
+import { useRef, type ReactNode } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Props {
     title: string;
-    children: React.ReactNode;
+    description?: string;
+    children: ReactNode;
     confirmLabel: string;
     dismissLabel?: string;
     busy?: boolean;
@@ -12,60 +17,41 @@ interface Props {
     onDismiss: () => void;
 }
 
-const FOCUSABLE = 'button:not([disabled]), a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-
-/** Modal confirm dialog: focus moves in, Tab is trapped, Esc dismisses (not while busy), focus returns on close. */
-export const ConfirmDialog: React.FC<Props> = ({
-    title, children, confirmLabel, dismissLabel = 'Cancel', busy = false, error, onConfirm, onDismiss,
-}) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const previous = document.activeElement as HTMLElement | null;
-        ref.current?.focus();
-        return () => previous?.focus?.();
-    }, []);
-
-    const onKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Escape') {
-            e.stopPropagation();
-            if (!busy) onDismiss();
-        } else if (e.key === 'Tab' && ref.current) {
-            const items = Array.from(ref.current.querySelectorAll<HTMLElement>(FOCUSABLE));
-            if (items.length === 0) return;
-            const first = items[0];
-            const last = items[items.length - 1];
-            if (e.shiftKey && (document.activeElement === first || document.activeElement === ref.current)) {
-                e.preventDefault();
-                last.focus();
-            } else if (!e.shiftKey && document.activeElement === last) {
-                e.preventDefault();
-                first.focus();
-            }
-        }
-    };
-
+/**
+ * Modal confirm dialog (shadcn Dialog): focus moves in and is trapped, Esc dismisses (not while busy),
+ * focus returns to the trigger on close.
+ */
+export function ConfirmDialog({
+    title, description, children, confirmLabel, dismissLabel = 'Cancel', busy = false, error, onConfirm, onDismiss,
+}: Props) {
+    // Opened by state, not by a DialogTrigger: remember the opener so focus can return to it.
+    const opener = useRef<Element | null>(document.activeElement);
     return (
-        <div className="dialog-backdrop">
-            <div
-                ref={ref}
-                className="dialog"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="dialog-title"
-                tabIndex={-1}
-                onKeyDown={onKeyDown}
+        <Dialog open onOpenChange={(open) => { if (!open && !busy) onDismiss(); }}>
+            <DialogContent
+                showCloseButton={false}
+                onEscapeKeyDown={(e) => { if (busy) e.preventDefault(); }}
+                onInteractOutside={(e) => { if (busy) e.preventDefault(); }}
+                onCloseAutoFocus={(e) => {
+                    e.preventDefault();
+                    if (opener.current instanceof HTMLElement && opener.current.isConnected) opener.current.focus();
+                }}
             >
-                <h2 id="dialog-title">{title}</h2>
-                <div className="dialog-body">{children}</div>
-                {error && <p className="dialog-error" role="alert">{error}</p>}
-                <div className="dialog-actions">
-                    <button type="button" onClick={onDismiss} disabled={busy}>{dismissLabel}</button>
-                    <button type="button" className="dialog-confirm" onClick={onConfirm} disabled={busy}>
-                        {busy ? 'Please wait…' : confirmLabel}
-                    </button>
-                </div>
-            </div>
-        </div>
+                <DialogHeader>
+                    <DialogTitle>{title}</DialogTitle>
+                    <DialogDescription>{description ?? 'Please check the details below.'}</DialogDescription>
+                </DialogHeader>
+                {children}
+                {error && (
+                    <Alert variant="destructive" className="border-danger-foreground/25 bg-danger">
+                        <AlertDescription className="text-danger-foreground">{error}</AlertDescription>
+                    </Alert>
+                )}
+                <DialogFooter>
+                    <Button variant="outline" onClick={onDismiss} disabled={busy}>{dismissLabel}</Button>
+                    <Button onClick={onConfirm} disabled={busy}>{busy ? 'Please wait…' : confirmLabel}</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
-};
+}

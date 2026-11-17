@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
@@ -7,6 +7,12 @@ import { server } from './mocks/server'
 import { tokenStore } from './services/tokenStore'
 import { API, renderApp, signIn } from './test/utils'
 
+/** Sign out lives in the account dropdown (button named after the user, then the menu item). */
+async function signOut() {
+  await userEvent.click(await screen.findByRole('button', { name: /Sam Staff/ }))
+  await userEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }))
+}
+
 describe('login', () => {
   it('stores the real login response and lands on the catalog', async () => {
     renderApp('/login')
@@ -14,7 +20,7 @@ describe('login', () => {
     await userEvent.type(screen.getByPlaceholderText('••••••••••••'), 'secret-pw')
     await userEvent.click(screen.getByRole('button', { name: 'Sign In' }))
 
-    expect(await screen.findByRole('heading', { name: 'Resources' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Resource catalog' })).toBeInTheDocument()
     expect(tokenStore.getAccessToken()).toBe(loginResponse.accessToken)
     expect(tokenStore.getRefreshToken()).toBe(loginResponse.refreshToken)
     expect(JSON.parse(tokenStore.getUserJson()!)).toEqual(loginResponse.user)
@@ -30,7 +36,7 @@ describe('login', () => {
     await userEvent.type(screen.getByPlaceholderText('firstname.lastname@ble.edu'), 'staff@example.com')
     await userEvent.type(screen.getByPlaceholderText('••••••••••••'), 'secret-pw')
     await userEvent.click(screen.getByRole('button', { name: 'Sign In' }))
-    await screen.findByRole('heading', { name: 'Resources' })
+    await screen.findByRole('heading', { name: 'Resource catalog' })
     expect(body).toEqual({ identifier: 'staff@example.com', password: 'secret-pw' })
   })
 
@@ -55,10 +61,11 @@ describe('layout and routing', () => {
     renderApp('/resources')
 
     expect(await screen.findByText('Sam Staff')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Resources' })).toHaveAttribute('href', '/resources')
-    expect(screen.getByRole('link', { name: 'My bookings' })).toHaveAttribute('href', '/bookings')
+    const nav = screen.getByRole('navigation', { name: 'Main' })
+    expect(within(nav).getByRole('link', { name: 'Resource catalog' })).toHaveAttribute('href', '/resources')
+    expect(within(nav).getByRole('link', { name: 'My bookings' })).toHaveAttribute('href', '/bookings')
 
-    await userEvent.click(screen.getByRole('button', { name: 'Sign out' }))
+    await signOut()
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument()
     expect(logoutBody).toEqual({ refreshToken: 'refresh-1' })
     expect(tokenStore.getAccessToken()).toBeNull()
@@ -69,7 +76,7 @@ describe('layout and routing', () => {
     signIn()
     server.use(http.post(`${API}/auth/logout`, () => HttpResponse.error()))
     renderApp('/resources')
-    await userEvent.click(await screen.findByRole('button', { name: 'Sign out' }))
+    await signOut()
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument()
     expect(tokenStore.getAccessToken()).toBeNull()
   })
@@ -77,7 +84,7 @@ describe('layout and routing', () => {
   it.each(['/', '/dashboard'])('redirects %s to /resources', async (route) => {
     signIn()
     renderApp(route)
-    expect(await screen.findByRole('heading', { name: 'Resources' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Resource catalog' })).toBeInTheDocument()
   })
 
   it('redirects unauthenticated users to /login', async () => {

@@ -26,9 +26,9 @@ function seedTypical() {
 
 const openBookings = async () => {
   renderApp('/bookings')
-  return screen.findByRole('list')
+  return screen.findByRole('table')
 }
-const rows = () => within(screen.getByRole('tabpanel')).getAllByRole('listitem')
+const rows = () => within(screen.getByRole('tabpanel')).getAllByRole('row').slice(1) // without the header row
 
 describe('BookingsPage', () => {
   it('shows a loading state, then upcoming bookings sorted by start with all fields', async () => {
@@ -40,16 +40,37 @@ describe('BookingsPage', () => {
     renderApp('/bookings')
     expect(screen.getByRole('status')).toHaveTextContent('Loading bookings')
 
-    await screen.findByRole('list')
+    await screen.findByRole('table')
     expect(rows()).toHaveLength(2)
     expect(rows()[0]).toHaveTextContent('Cargo Bike 1')
-    expect(rows()[0]).toHaveTextContent('Tue, 17 Nov 2026, 10:00–11:30')
+    expect(within(rows()[0]).getAllByRole('cell')[0]).toHaveTextContent(/^#\d+$/)
+    expect(rows()[0]).toHaveTextContent('Tue, 17 Nov 2026')
+    expect(rows()[0]).toHaveTextContent('10:00–11:30')
     expect(rows()[0]).toHaveTextContent('Booked')
     expect(rows()[0]).toHaveTextContent('CHF 7.50')
     expect(within(rows()[0]).getByRole('link', { name: 'Cargo Bike 1' })).toHaveAttribute('href', '/resources/1')
     expect(rows()[1]).toHaveTextContent('3D Printer Lab')
     expect(rows()[1]).toHaveTextContent('CHF 12.50')
     expect(screen.getByRole('tab', { name: 'Upcoming' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByText('Showing 2 bookings')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Browse resources' })).toHaveAttribute('href', '/resources')
+  })
+
+  it('shows summary cards computed from the loaded bookings', async () => {
+    seedTypical()
+    renderApp('/bookings')
+    await screen.findByRole('table')
+    const card = (label: string) =>
+      within(screen.getByRole('tabpanel')).getByText(label, { selector: '[data-slot="card-description"]' }).closest('[data-slot="card"]')!
+    expect(card('Upcoming bookings')).toHaveTextContent('2')
+    expect(card('Total')).toHaveTextContent('CHF 20.00') // 7.50 + 12.50
+    expect(card('Next session')).toHaveTextContent('Cargo Bike 1')
+
+    // Past: the cancelled booking is listed but not billed.
+    await userEvent.click(screen.getByRole('tab', { name: 'Past' }))
+    await waitFor(() => expect(within(screen.getByRole('tabpanel')).getByText('Past bookings')).toBeInTheDocument())
+    expect(screen.getByText('1 billable, 1 cancelled')).toBeInTheDocument()
+    expect(screen.getByText('Latest session')).toBeInTheDocument()
   })
 
   it('requests scope=upcoming first and scope=past after switching the tab', async () => {
@@ -69,7 +90,7 @@ describe('BookingsPage', () => {
   it('lists past and cancelled bookings under Past, newest first, without cancel buttons', async () => {
     seedTypical()
     renderApp('/bookings')
-    await screen.findByRole('list')
+    await screen.findByRole('table')
     await userEvent.click(screen.getByRole('tab', { name: 'Past' }))
     await waitFor(() => expect(rows()).toHaveLength(2))
     expect(rows()[0]).toHaveTextContent('Cancelled')
@@ -82,6 +103,7 @@ describe('BookingsPage', () => {
   it('shows the empty state for each tab', async () => {
     renderApp('/bookings')
     expect(await screen.findByText('No upcoming bookings')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Browse resources' })).toHaveLength(2) // header action and empty state
     await userEvent.click(screen.getByRole('tab', { name: 'Past' }))
     expect(await screen.findByText('No past bookings')).toBeInTheDocument()
   })
@@ -120,7 +142,7 @@ describe('cancel flow', () => {
     await openBookings()
     await userEvent.click(within(rows()[0]).getByRole('button', { name: /^Cancel booking of/ }))
 
-    const dialog = await screen.findByRole('dialog')
+    const dialog = await screen.findByRole('alertdialog')
     expect(dialog).toHaveTextContent('Cancel this booking?')
     expect(dialog).toHaveTextContent('Cargo Bike 1')
     expect(dialog).toHaveTextContent('Tue, 17 Nov 2026')
@@ -130,7 +152,7 @@ describe('cancel flow', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: 'Yes, cancel booking' }))
     expect(await screen.findByText('Booking cancelled.')).toBeInTheDocument()
     expect(deleted).toEqual([String(soon)])
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     await waitFor(() => expect(rows()).toHaveLength(1))
     expect(rows()[0]).toHaveTextContent('3D Printer Lab')
   })
@@ -140,9 +162,11 @@ describe('cancel flow', () => {
     let deletes = 0
     server.use(http.delete(`${API}/bookings/:id`, () => { deletes++; return new HttpResponse(null, { status: 204 }) }))
     await openBookings()
-    await userEvent.click(within(rows()[0]).getByRole('button', { name: /^Cancel booking of/ }))
+    const cancelButton = within(rows()[0]).getByRole('button', { name: /^Cancel booking of/ })
+    await userEvent.click(cancelButton)
     await userEvent.click(await screen.findByRole('button', { name: 'Keep booking' }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    await waitFor(() => expect(cancelButton).toHaveFocus()) // focus returns to the opener
     expect(deletes).toBe(0)
     expect(rows()).toHaveLength(2)
   })
@@ -155,7 +179,7 @@ describe('cancel flow', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Yes, cancel booking' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('This booking can no longer be cancelled.')
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     await waitFor(() => expect(rows()).toHaveLength(2))
     expect(rows()[0]).toHaveTextContent('Cargo Bike 1') // still booked
   })
@@ -174,7 +198,7 @@ describe('cancel flow', () => {
     server.use(http.delete(`${API}/bookings/:id`, () => HttpResponse.text('boom', { status: 500 })))
     await openBookings()
     await userEvent.click(within(rows()[0]).getByRole('button', { name: /^Cancel booking of/ }))
-    const dialog = await screen.findByRole('dialog')
+    const dialog = await screen.findByRole('alertdialog')
     await userEvent.click(within(dialog).getByRole('button', { name: 'Yes, cancel booking' }))
     expect(await within(dialog).findByRole('alert')).toHaveTextContent('Something went wrong. Please try again.')
     expect(within(dialog).getByRole('button', { name: 'Yes, cancel booking' })).toBeEnabled()

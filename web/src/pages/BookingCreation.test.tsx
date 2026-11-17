@@ -23,7 +23,7 @@ const slotButton = (day: HTMLElement, time: string) =>
   within(day).getByRole('button', { name: new RegExp(`^${time}–`) })
 const click = (day: HTMLElement, ...times: string[]) =>
   times.reduce((p, t) => p.then(() => userEvent.click(slotButton(day, t))), Promise.resolve())
-const summary = () => document.querySelector('.selection-summary')
+const summary = () => document.querySelector('[data-slot="selection-summary"]')
 
 async function selectAndOpenDialog(times: [string, string]) {
   const day = await openBike()
@@ -144,9 +144,12 @@ describe('confirm dialog', () => {
     await selectAndOpenDialog(['10:00', '10:00'])
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    // Focus returns to the button that opened the dialog.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Book…' })).toHaveFocus())
     await userEvent.click(screen.getByRole('button', { name: 'Book…' }))
     await userEvent.keyboard('{Escape}')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Book…' })).toHaveFocus())
     expect(posts).toBe(0)
     expect(summary()).toHaveTextContent('10:00–10:30') // selection survives
   })
@@ -162,7 +165,8 @@ describe('booking flow', () => {
     const { day } = await selectAndOpenDialog(['10:00', '11:00'])
     await userEvent.click(screen.getByRole('button', { name: 'Confirm booking' }))
 
-    const notice = await screen.findByRole('status')
+    // The success message is a sonner toast with a link to My bookings.
+    const notice = await screen.findByText(/Booked Cargo Bike 1/)
     expect(notice).toHaveTextContent('Booked Cargo Bike 1')
     expect(notice).toHaveTextContent('10:00–11:30')
     expect(notice).toHaveTextContent('CHF 7.50')

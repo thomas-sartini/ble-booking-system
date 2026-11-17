@@ -27,7 +27,7 @@ test('conflict: the second user gets the overlap message and a reloaded grid', a
 
     // staff is faster
     await staffPage.getByRole('dialog').getByRole('button', { name: 'Confirm booking' }).click()
-    await expect(staffPage.getByRole('status').filter({ hasText: 'Booked Project Room D2.14' })).toBeVisible()
+    await expect(staffPage.locator('[data-sonner-toast]').filter({ hasText: 'Booked Project Room D2.14' })).toBeVisible()
 
     // the student confirms the stale selection
     await studentPage.getByRole('dialog').getByRole('button', { name: 'Confirm booking' }).click()
@@ -40,7 +40,7 @@ test('conflict: the second user gets the overlap message and a reloaded grid', a
     const reloaded = studentPage.getByRole('region', { name: range.date })
     await expect(reloaded.getByText('Booked', { exact: true })).toHaveCount(2)
     for (const time of range.times) await expect(slotButton(reloaded, time)).toHaveCount(0)
-    await expect(studentPage.locator('.selection-summary')).toHaveCount(0)
+    await expect(studentPage.locator('[data-slot="selection-summary"]')).toHaveCount(0)
 
     // and the student has no booking
     const bookings = await request.get('http://localhost:8080/bookings', {
