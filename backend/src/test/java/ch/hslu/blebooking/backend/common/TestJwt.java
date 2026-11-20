@@ -20,17 +20,22 @@ public final class TestJwt {
 	}
 
 	public static String token(String secret, String role) {
-		return sign(secret, role, Instant.now().plusSeconds(300));
+		return sign(secret, role, "1", Instant.now().plusSeconds(300));
+	}
+
+	/** Token with a given "sub" claim, e.g. the id of a real user. */
+	public static String token(String secret, String role, String subject) {
+		return sign(secret, role, subject, Instant.now().plusSeconds(300));
 	}
 
 	public static String expiredToken(String secret, String role) {
-		return sign(secret, role, Instant.now().minusSeconds(60));
+		return sign(secret, role, "1", Instant.now().minusSeconds(60));
 	}
 
-	private static String sign(String secret, String role, Instant expiresAt) {
+	private static String sign(String secret, String role, String subject, Instant expiresAt) {
 		try {
 			JWTClaimsSet claims = new JWTClaimsSet.Builder()
-				.subject("1")
+				.subject(subject)
 				.claim("role", role)
 				.issueTime(new Date())
 				.expirationTime(Date.from(expiresAt))
