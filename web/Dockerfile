@@ -31,17 +31,16 @@ FROM nginx:stable-alpine AS runtime
 ENV PORT=8080 \
     NGINX_ENVSUBST_FILTER='^PORT$'
 
-# Non-root: no "user" directive, pid file in /tmp, and the paths nginx writes to are owned by nginx.
-RUN sed -i -e '/^user /d' -e 's#^pid .*#pid /tmp/nginx.pid;#' /etc/nginx/nginx.conf \
- && rm -f /etc/nginx/conf.d/default.conf \
- && mkdir -p /etc/nginx/snippets \
- && chown -R nginx:nginx /var/cache/nginx /etc/nginx/conf.d
+# Standard nginx image setup: the entrypoint renders the template as root at start, the master runs as
+# root and the worker processes run as the unprivileged nginx user. (A fully non-root image failed on
+# Railway: the rendered config could not be written to /etc/nginx/conf.d.)
+RUN rm -f /etc/nginx/conf.d/default.conf \
+ && mkdir -p /etc/nginx/snippets
 
 COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 
-USER nginx
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
