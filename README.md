@@ -10,6 +10,14 @@ The original [project assignment](docs/project-assignment.pdf) is kept in `docs/
 
 The repository is being set up for development. The planning files are structures to be completed by the team, and the report chapters contain draft prompts. Features described here are project goals, not a claim that they have been implemented.
 
+## Ausleihbox 3D model
+
+Interactive assembly and wiring guide with a borrowing simulation.
+
+- [Online model](https://thomas-sartini.github.io/ble-booking-system/3D-Modell_Ausleihbox.html)
+- [HTML source](terminal/3d-model/3D-Modell_Ausleihbox.html)
+- [Terminal documentation](terminal/README.md)
+
 ## System overview
 
 The intended prototype covers:

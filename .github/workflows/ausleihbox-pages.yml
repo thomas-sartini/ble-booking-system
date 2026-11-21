@@ -1,0 +1,51 @@
+name: Deploy Ausleihbox to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "terminal/3d-model/**"
+      - ".github/workflows/ausleihbox-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare the 3D model
+        run: |
+          mkdir -p _site
+          cp terminal/3d-model/3D-Modell_Ausleihbox.html _site/3D-Modell_Ausleihbox.html
+          cp terminal/3d-model/3D-Modell_Ausleihbox.html _site/index.html
+
+      - name: Upload the 3D model
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
