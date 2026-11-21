@@ -32,6 +32,7 @@ class DevResourceInitializer implements ApplicationRunner {
 	/** day_of_week values (D2): 0 = Monday ... 6 = Sunday. */
 	private static final List<Integer> MON_TO_FRI = List.of(0, 1, 2, 3, 4);
 	private static final List<Integer> SATURDAY = List.of(5);
+	private static final List<Integer> EVERY_DAY = List.of(0, 1, 2, 3, 4, 5, 6);
 
 	private record Window(List<Integer> days, LocalTime start, LocalTime end, List<String> roles) {
 	}
@@ -59,6 +60,9 @@ class DevResourceInitializer implements ApplicationRunner {
 				List.of(new Window(MON_TO_FRI, LocalTime.of(9, 0), LocalTime.of(17, 0), STAFF_ONLY)));
 		create("Old Beamer", "Retired projector", "2.00", ResourceStatus.INACTIVE, ResourceType.MOBILE,
 				"Building A, storage", List.of());
+		create("Nintendo Game Boy", "Classic handheld game console for breaks and demos", "1.00",
+				ResourceStatus.ACTIVE, ResourceType.MOBILE, "Building A, media lending desk",
+				List.of(new Window(EVERY_DAY, LocalTime.of(7, 0), LocalTime.of(19, 0), STUDENT_AND_STAFF)));
 	}
 
 	private void create(String name, String description, String price, ResourceStatus status, ResourceType type,
