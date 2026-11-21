@@ -14,9 +14,19 @@
     <string name="login_error_required_fields">Please enter your email and password.</string>
     <string name="login_error_failed">Unable to sign in. Please try again.</string>
     <string name="home_title">Your access</string>
+    <string name="home_scan_resources">Find nearby resources</string>
+    <string name="scanning_loading">Looking for nearby resources</string>
     <string name="home_login_success">Login successful</string>
     <string name="menu_options">More options</string>
     <string name="logout">Logout</string>
     <string name="logout_error">Unable to log out. Please try again.</string>
     <string name="logout_success">Logout successful</string>
+    <string name="terminal_title">Terminal</string>
+    <string name="navigate_back">Go back</string>
+    <string name="scanning_title">Nearby resources</string>
+    <string name="terminal_name">Advertised name</string>
+    <string name="terminal_unnamed">Unnamed resource</string>
+    <string name="terminal_address">Bluetooth address</string>
+    <string name="terminal_signal">Last observed signal</string>
+    <string name="terminal_connect">Connect</string>
 </resources>

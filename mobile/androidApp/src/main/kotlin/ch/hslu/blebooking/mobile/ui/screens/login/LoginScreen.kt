@@ -73,63 +73,64 @@ private fun LoginContent(
     var password by remember { mutableStateOf("") }
     var visible by rememberSaveable { mutableStateOf(false) }
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Column(
-            Modifier
-                .safeDrawingPadding()
-                .imePadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp, vertical = 32.dp)
-                .widthIn(max = 460.dp),
-            horizontalAlignment = Alignment.Start,
-        ) {
-            AppTopBar()
-            if (errorMessage == null) messageData?.let {
-                Message(text = it.text, type = it.type)
-            }
-            Spacer(Modifier.height(36.dp))
-            Text(stringResource(R.string.login_title), fontSize = 36.sp, lineHeight = 43.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(12.dp))
-            Text(stringResource(R.string.login_subtitle), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge)
-            Spacer(Modifier.height(36.dp))
-            Text(stringResource(R.string.login_email))
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = email, onValueChange = { email = it }, modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(stringResource(R.string.login_email_hint)) }, singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                shape = MaterialTheme.shapes.medium,
-            )
-            Spacer(Modifier.height(20.dp))
-            Text(stringResource(R.string.login_password))
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = password, onValueChange = { password = it }, modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(stringResource(R.string.login_password_hint)) }, singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = { TextButton(onClick = { visible = !visible }) {
-                    Text(stringResource(if (visible) R.string.login_hide else R.string.login_show))
-                } }, shape = MaterialTheme.shapes.medium,
-            )
-            TextButton(
-                onClick = onForgotPassword,
-                modifier = Modifier.align(Alignment.End)) {
-                Text(stringResource(R.string.login_forgot))
-            }
-            Spacer(Modifier.height(8.dp))
-            errorMessage?.let { message ->
-                Message(text = message, type = MessageType.Error)
+        Column(Modifier.safeDrawingPadding().imePadding().padding(24.dp)) {
+            AppTopBar(title = stringResource(R.string.login_sign_in))
+            Column(
+                Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 24.dp)
+                    .widthIn(max = 460.dp),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                if (errorMessage == null) messageData?.let {
+                    Message(text = it.text, type = it.type)
+                }
+                Spacer(Modifier.height(36.dp))
+                Text(stringResource(R.string.login_title), fontSize = 36.sp, lineHeight = 43.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(12.dp))
+                Text(stringResource(R.string.login_subtitle), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge)
+                Spacer(Modifier.height(36.dp))
+                Text(stringResource(R.string.login_email))
                 Spacer(Modifier.height(8.dp))
-            }
-            Button(
-                onClick = {
-                    onSignIn(email.trim(), password)
-                },
-                enabled = !isLoading && email.isNotBlank() && password.isNotEmpty(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp), shape = MaterialTheme.shapes.medium) {
-                if (isLoading) CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp) else Text(stringResource(R.string.login_sign_in), fontSize = 18.sp)
+                OutlinedTextField(
+                    value = email, onValueChange = { email = it }, modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text(stringResource(R.string.login_email_hint)) }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    shape = MaterialTheme.shapes.medium,
+                )
+                Spacer(Modifier.height(20.dp))
+                Text(stringResource(R.string.login_password))
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = password, onValueChange = { password = it }, modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text(stringResource(R.string.login_password_hint)) }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = { TextButton(onClick = { visible = !visible }) {
+                        Text(stringResource(if (visible) R.string.login_hide else R.string.login_show))
+                    } }, shape = MaterialTheme.shapes.medium,
+                )
+                TextButton(
+                    onClick = onForgotPassword,
+                    modifier = Modifier.align(Alignment.End)) {
+                    Text(stringResource(R.string.login_forgot))
+                }
+                Spacer(Modifier.height(8.dp))
+                errorMessage?.let { message ->
+                    Message(text = message, type = MessageType.Error)
+                    Spacer(Modifier.height(8.dp))
+                }
+                Button(
+                    onClick = {
+                        onSignIn(email.trim(), password)
+                    },
+                    enabled = !isLoading && email.isNotBlank() && password.isNotEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp), shape = MaterialTheme.shapes.medium) {
+                    if (isLoading) CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp) else Text(stringResource(R.string.login_sign_in), fontSize = 18.sp)
+                }
             }
         }
     }

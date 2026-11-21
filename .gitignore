@@ -27,3 +27,7 @@ backend/HELP.md
 # Node / Frontend build output
 dist/
 build/
+
+# Local Python environment and bytecode
+.venv-bumble/
+__pycache__/
