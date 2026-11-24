@@ -1,10 +1,10 @@
-# Terminal firmware (Arduino Nano ESP32)
+# Terminal demo firmware (Arduino Nano ESP32)
 
-Firmware and bring-up tests for the terminal prototype «Lending Station 01».
+This is the «Lending Station 01» firmware used at the HSLU Bachelor-Info-Tag Informatik on 21 November 2026 in Zug-Rotkreuz.
 
 | Folder | What it is |
 |---|---|
-| `lending_station/` | Firmware of the box: the loan flow of T6 plus Bluetooth according to `docs/ble-demo-protocol.md` (PR #144). Formerly T9. |
+| `lending_station_demo/` | Info Day demo sketch. Combines the T6 loan flow with Bluetooth according to `docs/ble-demo-protocol.md` (PR #144). Formerly T9. |
 | `tests/T1_LED/` | RGB LED of the Nano (seen through the light pipe) |
 | `tests/T2_Summer/` | Active buzzer on D3 |
 | `tests/T3_Tuerkontakt/` | Door contact on D2 |
@@ -19,18 +19,18 @@ Comments and Serial Monitor messages are in German; they follow the build handbo
 ## Setup
 
 - Arduino IDE 2, board package «Arduino ESP32 Boards» 2.0.18-arduino.5, board «Arduino Nano ESP32».
-- Tools → Pin Numbering → «By GPIO number (legacy)» for T5, T6 and `lending_station` (needed by ESP32Servo; otherwise compiling stops with an error message).
+- Tools → Pin Numbering → «By GPIO number (legacy)» for T5, T6 and `lending_station_demo` (needed by ESP32Servo; otherwise compiling stops with an error message).
 - Libraries: ESP32Servo 3.2.1, RTClib 2.1.4 (with Adafruit BusIO 1.17.4). BLE and NVS come with the board package.
 - Serial Monitor: 115200 baud, line ending «New Line».
 
 ## Order
 
 1. T1 to T5 while building the box. T5 gives the two servo angles.
-2. Enter `LOCK_ANGLE` and `RELEASE_ANGLE` in T6 and `lending_station`. Box 01 uses 100 and 10.
+2. Enter `LOCK_ANGLE` and `RELEASE_ANGLE` in T6 and `lending_station_demo`. Box 01 uses 100 and 10.
 3. T6 to test the whole flow without a phone (`a` borrow, `z` return, `s` status, `h` help).
-4. `lending_station` for the demo with the app. The Serial Monitor commands of T6 keep working.
+4. Open `lending_station_demo/lending_station_demo.ino` in the Arduino IDE for the demo with the app. The Serial Monitor commands of T6 keep working.
 
-## Bluetooth (`lending_station`, T7, T8)
+## Bluetooth (`lending_station_demo`, T7, T8)
 
 - Name «Lending Station 01», Booking Service `fd698d10-c5c7-429b-9fb3-18a41dd73998`, advertising every 100 ms at −24 dBm. The app limits the distance by the signal strength (RSSI).
 - GATT as in `docs/ble-demo-protocol.md`:
@@ -39,7 +39,7 @@ Comments and Serial Monitor messages are in German; they follow the build handbo
   - Door Status (read, notify): `[01][request ID][command][result][latch][door]`
 - No pairing and no encryption: demo only, securing follows with T-003.
 
-### Results sent by `lending_station`
+### Results sent by `lending_station_demo`
 
 Right after a command the box notifies `00` (running), then one of these:
 
