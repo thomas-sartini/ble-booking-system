@@ -123,10 +123,14 @@ order themselves. Only firmware code that writes raw advertising bytes has to re
 | State | Behavior |
 |---|---|
 | Startup | Starts **connectable, scannable, undirected legacy advertising** (`ADV_IND`) once the BLE stack is ready. Logs success or failure on the serial console. |
-| `ADVERTISING` | Interval between **100 ms and 250 ms** (e.g. 152.5 ms, a value from Apple's accessory guidelines). Default TX power. |
+| `ADVERTISING` | Interval between **100 ms and 250 ms** (e.g. 152.5 ms, a value from Apple's accessory guidelines). TX power **−24 dBm**, the lowest level of the ESP32-S3, for advertising and connections. |
 | `CONNECTED` | Accepts **one** central at a time and **stops advertising**, so no second phone can connect while a request runs (the security concept allows one request at a time). |
 | After disconnect | **Restarts advertising** immediately. Some ESP32 BLE stacks do not do this automatically; the firmware must handle it. |
 | Advertising fails to start | Retries with a delay and reports the error on the serial console and through the feedback LED/buzzer. |
+
+**TX power:** the low power shortens the range, so that mainly phones close to the terminal see
+it. It is not a sharp limit and does not change the advertising bytes. If the terminal cannot set
+this power, it does not advertise.
 
 **Idle connections:** a connected phone that sends no valid request must not block the
 terminal forever. The terminal disconnects after a bounded idle time. The exact value belongs to
