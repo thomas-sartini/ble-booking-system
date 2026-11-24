@@ -4,7 +4,7 @@ This is the «Lending Station 01» firmware used at the HSLU Bachelor-Info-Tag I
 
 | Folder | What it is |
 |---|---|
-| `lending_station_demo/` | Info Day demo sketch. Combines the T6 loan flow with Bluetooth according to `docs/ble-demo-protocol.md` (PR #144). Formerly T9. |
+| `lending_station_demo/` | Info Day firmware. Runs the T6 loan flow over Bluetooth. Formerly T9. |
 | `tests/T1_LED/` | RGB LED of the Nano (seen through the light pipe) |
 | `tests/T2_Summer/` | Active buzzer on D3 |
 | `tests/T3_Tuerkontakt/` | Door contact on D2 |
@@ -12,7 +12,7 @@ This is the «Lending Station 01» firmware used at the HSLU Bachelor-Info-Tag I
 | `tests/T5_Servo_Kalibrierung/` | Servo on D9: set the centre, find the end positions of the latch |
 | `tests/T6_Ausleihbox_Ablauf/` | Complete loan flow without Bluetooth, controlled from the Serial Monitor |
 | `tests/T7_BLE_Advertising/` | Bluetooth advertising only |
-| `tests/T8_BLE_Demo_Simulation/` | Protocol simulator on a bare Nano, like `terminal/simulator`: no latch, door contact, LED or buzzer. Useful for app tests without the box. |
+| `tests/T8_BLE_Demo_Simulation/` | BLE demo on a bare Nano for app testing without the box hardware. See also the [Python simulator](https://github.com/thomas-sartini/ble-booking-system/tree/714bb8081e969ee486e3340accf8226cc582fbcc/terminal/simulator). |
 
 Comments and Serial Monitor messages are in German; they follow the build handbook of the box.
 
@@ -33,11 +33,11 @@ Comments and Serial Monitor messages are in German; they follow the build handbo
 ## Bluetooth (`lending_station_demo`, T7, T8)
 
 - Name «Lending Station 01», Booking Service `fd698d10-c5c7-429b-9fb3-18a41dd73998`, advertising every 100 ms at −24 dBm. The app limits the distance by the signal strength (RSSI).
-- GATT as in `docs/ble-demo-protocol.md`:
+- GATT messages follow the [Info Day demo protocol](https://github.com/thomas-sartini/ble-booking-system/blob/714bb8081e969ee486e3340accf8226cc582fbcc/docs/ble-demo-protocol.md):
   - Terminal Information (read): `01` + terminal ID (example ID of the protocol)
   - Door Command (write): `[01][request ID, 2 bytes LE][01 OPEN / 02 CLOSE]`
   - Door Status (read, notify): `[01][request ID][command][result][latch][door]`
-- No pairing and no encryption: demo only, securing follows with T-003.
+- The Info Day build uses BLE without pairing or encryption.
 
 ### Results sent by `lending_station_demo`
 
@@ -59,4 +59,4 @@ Right after a command the box notifies `00` (running), then one of these:
 `02` stays reserved for the authorisation (T-003). `05` is not sent: the servo has no position feedback.
 Latch: `00` unknown, `01` locked, `02` released. Door: `01` closed (for 500 ms), `02` open.
 
-Codes `07` to `0C` go beyond the demo protocol. The Android demo app (PR #144) accepts results `0` to `6` only; it needs `decodeDoorStatus` to accept `0` to `12` and a message for each new code.
+The [Android demo app from PR #144](https://github.com/thomas-sartini/ble-booking-system/pull/144) accepts result codes `00` to `06`. Its decoder rejects the additional codes `07` to `0C` returned by this firmware.
