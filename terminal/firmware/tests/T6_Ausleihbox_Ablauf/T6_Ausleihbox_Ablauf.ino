@@ -192,7 +192,7 @@ ReadResult readU8(nvs_handle_t h, const char *key, uint8_t &out, esp_err_t &err)
 
 void setStore(StoreState s, esp_err_t e) { storeState = s; storeErr = e; }
 
-// Liest den Zustand nur lesend. Schreibt nie. Ergebnis steht in storeState (und loan bzw. legacyLoan).
+// Liest den Zustand aus dem Speicher. Ergebnis steht in storeState (und loan bzw. legacyLoan).
 void loadState() {
   nvs_handle_t h;
   esp_err_t e = nvs_open(NVS_NS, NVS_READONLY, &h);

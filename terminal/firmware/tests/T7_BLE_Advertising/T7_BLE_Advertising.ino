@@ -8,7 +8,7 @@
 // Advertising-Paket (21 Byte):  02 01 06 | 11 07 + Service-UUID (16 Byte, niederwertigstes Byte zuerst)
 // Scan Response (20 Byte):      13 09 + "Lending Station 01"
 // Verbindbar und scanbar (legacy, ADV_IND), alle 100 ms.
-// Sendeleistung fest -24 dBm, die kleinste Stufe des ESP32-S3 (20.11.2026, Team: "mach einfach -24 dBm").
+// Sendeleistung fest -24 dBm, die kleinste Stufe des ESP32-S3.
 // Sie verkleinert die Reichweite, macht aber keine scharfe Grenze: Den Abstand (etwa 1 m) regelt die App über die
 // gemessene Signalstärke (RSSI). Die Pakete selbst bleiben unverändert (kein Feld für die Sendeleistung).
 // Im Seriellen Monitor: eine beliebige Zeile senden (z. B. nur Enter) -> die Prüfung der zwei Pakete kommt nochmals.

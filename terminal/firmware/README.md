@@ -14,8 +14,6 @@ This is the «Lending Station 01» firmware used at the HSLU Bachelor-Info-Tag I
 | `tests/T7_BLE_Advertising/` | Bluetooth advertising only |
 | `tests/T8_BLE_Demo_Simulation/` | BLE demo on a bare Nano for app testing without the box hardware. See also the [Python simulator](https://github.com/thomas-sartini/ble-booking-system/tree/714bb8081e969ee486e3340accf8226cc582fbcc/terminal/simulator). |
 
-Comments and Serial Monitor messages are in German; they follow the build handbook of the box.
-
 ## Setup
 
 - Arduino IDE 2, board package «Arduino ESP32 Boards» 2.0.18-arduino.5, board «Arduino Nano ESP32».

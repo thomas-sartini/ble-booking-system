@@ -26,7 +26,7 @@
 //   seine Stellung nicht zurück, ein Antriebsfehler ist nicht erkennbar.
 //   Riegel 00 unbekannt (seit Start nicht bewegt), 01 verriegelt, 02 frei;  Tür 01 zu (seit 500 ms), 02 offen oder noch nicht 500 ms zu
 // Ein Befehl mit falscher Länge oder Version wird von der ESP32-Bibliothek trotzdem quittiert (sie kann keinen ATT-Fehler
-// senden), aber nicht ausgeführt und nicht beantwortet ("verworfen" im Monitor). Eure App sendet so etwas nie.
+// senden), aber nicht ausgeführt und nicht beantwortet ("verworfen" im Monitor).
 // Eine Bluetooth-Verbindung ohne Anmeldung und ohne Verschlüsselung: nur für die Demo, die Absicherung kommt mit T-003.
 //
 // --- ab hier der Kopf aus T6 ---
@@ -231,7 +231,7 @@ ReadResult readU8(nvs_handle_t h, const char *key, uint8_t &out, esp_err_t &err)
 
 void setStore(StoreState s, esp_err_t e) { storeState = s; storeErr = e; }
 
-// Liest den Zustand nur lesend. Schreibt nie. Ergebnis steht in storeState (und loan bzw. legacyLoan).
+// Liest den Zustand aus dem Speicher. Ergebnis steht in storeState (und loan bzw. legacyLoan).
 void loadState() {
   nvs_handle_t h;
   esp_err_t e = nvs_open(NVS_NS, NVS_READONLY, &h);

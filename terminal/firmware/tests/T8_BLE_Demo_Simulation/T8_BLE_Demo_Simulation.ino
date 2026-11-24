@@ -22,7 +22,7 @@
 //
 // Abweichung vom Simulator: Die BLE-Bibliothek des ESP32 quittiert jedes Schreiben auf Door Command mit "OK", sie kann keinen
 // ATT-Fehler zurückgeben. Ein Befehl mit falscher Länge oder Version, oder einer, der kommt, während noch einer läuft, wird
-// darum zwar quittiert, aber nicht ausgeführt und nicht beantwortet (im Monitor steht "verworfen"). Eure App sendet so etwas nie.
+// darum zwar quittiert, aber nicht ausgeführt und nicht beantwortet (im Monitor steht "verworfen").
 
 #include <BLEDevice.h>
 #include <BLEServer.h>
