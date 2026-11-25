@@ -35,9 +35,20 @@ fun Message(
         MessageType.Error -> "!"
         MessageType.Warning -> "⚠"
     }
+    val container = when (type) {
+        MessageType.Success -> colors.primaryContainer
+        MessageType.Error -> colors.errorContainer
+        MessageType.Warning -> colors.tertiaryContainer
+    }
+    val content = when (type) {
+        MessageType.Success -> colors.onPrimaryContainer
+        MessageType.Error -> colors.onErrorContainer
+        MessageType.Warning -> colors.onTertiaryContainer
+    }
     Surface(
         modifier = modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
-        color = accent.copy(alpha = if (type == MessageType.Error) 0.18f else 0.12f),
+        color = container,
+        contentColor = content,
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(1.dp, accent.copy(alpha = if (type == MessageType.Error) 0.6f else 0.35f)),
     ) {
@@ -46,11 +57,11 @@ fun Message(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(symbol, color = accent, fontWeight = FontWeight.Bold)
+            Text(symbol, color = content, fontWeight = FontWeight.Bold)
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(text, color = accent, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                Text(text, color = content, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                 description?.let {
-                    Text(it, color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+                    Text(it, color = content, style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }

@@ -1,6 +1,28 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "session_restore_error" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to restore your session. Please try again."
+          }
+        }
+      }
+    },
+    "session_restore_retry" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        }
+      }
+    },
     "app_name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8,6 +30,193 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "BLE Access"
+          }
+        }
+      }
+    },
+    "booking_resource" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resource %@"
+          }
+        }
+      }
+    },
+    "booking_status_booked" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Booked"
+          }
+        }
+      }
+    },
+    "booking_status_cancelled" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelled"
+          }
+        }
+      }
+    },
+    "booking_status_checked_in" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checked in"
+          }
+        }
+      }
+    },
+    "booking_status_completed" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed"
+          }
+        }
+      }
+    },
+    "booking_status_no_show" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No show"
+          }
+        }
+      }
+    },
+    "booking_status_unknown" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown status"
+          }
+        }
+      }
+    },
+    "bookings_empty" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming bookings will appear here."
+          }
+        }
+      }
+    },
+    "bookings_empty_title" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No active bookings"
+          }
+        }
+      }
+    },
+    "bookings_error" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load bookings. Please try again."
+          }
+        }
+      }
+    },
+    "bookings_loading" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading bookings"
+          }
+        }
+      }
+    },
+    "bookings_refresh" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh bookings"
+          }
+        }
+      }
+    },
+    "bookings_see_all" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See all active bookings"
+          }
+        }
+      }
+    },
+    "bookings_session_expired" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your session has expired. Please sign in again."
+          }
+        }
+      }
+    },
+    "bookings_title" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active bookings"
+          }
+        }
+      }
+    },
+    "home_bluetooth_demo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth Active · Demo"
+          }
+        }
+      }
+    },
+    "home_connect_terminal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect to Terminal"
           }
         }
       }
@@ -23,6 +232,17 @@
         }
       }
     },
+    "home_status_online" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Online"
+          }
+        }
+      }
+    },
     "home_title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -30,6 +250,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your access"
+          }
+        }
+      }
+    },
+    "home_welcome" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome back"
+          }
+        }
+      }
+    },
+    "home_welcome_back" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome back,"
           }
         }
       }

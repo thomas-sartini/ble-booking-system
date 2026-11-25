@@ -82,7 +82,7 @@ private fun LoginContent(
                 .widthIn(max = 460.dp),
             horizontalAlignment = Alignment.Start,
         ) {
-            AppTopBar()
+            AppTopBar(title = stringResource(R.string.login_brand))
             if (errorMessage == null) messageData?.let {
                 Message(text = it.text, type = it.type)
             }

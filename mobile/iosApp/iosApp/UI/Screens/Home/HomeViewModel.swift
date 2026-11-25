@@ -9,15 +9,35 @@ final class HomeViewModel {
     @ObservationIgnored private var logoutTask: Task<Void, Never>?
 
     private(set) var isLoading = false
+    private(set) var isLoadingProfile = false
     private(set) var errorMessage: String?
     private(set) var didLogout = false
 
-    init(mobileCoreApi: MobileCoreApi) {
+    private(set) var userProfile: UserProfile?
+    let bookingsViewModel: BookingsViewModel
+
+    init(mobileCoreApi: MobileCoreApi, userProfile: UserProfile? = nil) {
         self.mobileCoreApi = mobileCoreApi
+        self.userProfile = userProfile
+        self.bookingsViewModel = BookingsViewModel(mobileCoreApi: mobileCoreApi)
+    }
+
+    func loadUserProfile() async {
+        guard userProfile == nil, !isLoadingProfile, !isLoading, !Task.isCancelled else { return }
+        isLoadingProfile = true
+        defer { isLoadingProfile = false }
+
+        do {
+            let profile = try await mobileCoreApi.getUserProfile()
+            guard !Task.isCancelled else { return }
+            userProfile = profile
+        } catch {
+            // Keep the generic welcome header when the profile is unavailable.
+        }
     }
 
     func logout() {
-        guard !isLoading else { return }
+        guard !isLoading, !isLoadingProfile, !bookingsViewModel.isLoading else { return }
 
         errorMessage = nil
         didLogout = false
