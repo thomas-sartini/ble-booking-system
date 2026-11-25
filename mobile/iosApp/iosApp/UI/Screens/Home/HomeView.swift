@@ -7,6 +7,10 @@ struct HomeView: View {
     let viewModel: HomeViewModel
     var messageData: MessageData? = nil
 
+    @State private var bookingsReload = 0
+
+    private var bookingsViewModel: BookingsViewModel { viewModel.bookingsViewModel }
+
     private var displayName: String {
         guard let profile = viewModel.userProfile else { return "" }
         return "\(profile.firstName) \(profile.lastName)"
@@ -25,16 +29,28 @@ struct HomeView: View {
 
                     profileHeader
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("home_title")
-                            .font(.largeTitle.bold())
-                            .accessibilityAddTraits(.isHeader)
-                        Text("home_subtitle")
-                            .font(.subheadline)
-                            .foregroundStyle(BLETheme.secondaryText)
+                    Text("home_title")
+                        .font(.largeTitle.bold())
+                        .accessibilityAddTraits(.isHeader)
+
+                    BookingsFeedback(state: bookingsViewModel.state, onRetry: reloadBookings)
+                        .disabled(viewModel.isLoading)
+
+                    if let booking = bookingsViewModel.featuredBooking {
+                        BookingCard(booking: booking)
                     }
 
-                    DemoBookingCard()
+                    NavigationLink {
+                        BookingsView(viewModel: bookingsViewModel, onRefresh: reloadBookings)
+                    } label: {
+                        Text("bookings_see_all")
+                            .underline()
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(BLETheme.accent)
+                            .padding(.vertical, 8)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .disabled(viewModel.isLoading)
 
                     if viewModel.isLoading {
                         ProgressView()
@@ -54,13 +70,19 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 AppToolbar(
-                    enabled: !viewModel.isLoading && !viewModel.isLoadingProfile,
+                    enabled: !viewModel.isLoading && !viewModel.isLoadingProfile && !bookingsViewModel.isLoading,
                     onLogout: { viewModel.logout() }
                 )
             }
             .task { await viewModel.loadUserProfile() }
-            .onDisappear { viewModel.cancelLogout() }
         }
+        .task(id: bookingsReload) { await bookingsViewModel.loadBookings() }
+        .onDisappear { viewModel.cancelLogout() }
+    }
+
+    private func reloadBookings() {
+        guard !bookingsViewModel.isLoading else { return }
+        bookingsReload += 1
     }
 
     private var profileHeader: some View {
@@ -121,72 +143,6 @@ struct HomeView: View {
         .padding(.horizontal, 24)
         .padding(.vertical, 12)
         .background(BLETheme.background)
-    }
-}
-
-private struct DemoBookingCard: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    Text("home_active_booking_label")
-                        .fixedSize(horizontal: true, vertical: false)
-                    Spacer()
-                    Text("home_active_booking_date")
-                        .fixedSize(horizontal: true, vertical: false)
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("home_active_booking_label")
-                    Text("home_active_booking_date")
-                }
-            }
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(BLETheme.secondaryText)
-
-            HStack(spacing: 14) {
-                Image(systemName: "door.left.hand.closed")
-                    .font(.title3)
-                    .foregroundStyle(BLETheme.secondaryText)
-                    .frame(width: 46, height: 46)
-                    .background(BLETheme.surfaceVariant, in: RoundedRectangle(cornerRadius: 12))
-                    .accessibilityHidden(true)
-                Text("home_demo_booking_room")
-                    .font(.title2.bold())
-            }
-
-            Divider()
-
-            detail("home_booking_time_slot_label", value: "home_demo_booking_time", icon: "clock")
-            detail("home_booking_location_label", value: "home_demo_booking_location", icon: "mappin")
-
-            Label("home_booking_status_ready", systemImage: "lock.open")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(BLETheme.accent)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(20)
-        .background(BLETheme.surface, in: RoundedRectangle(cornerRadius: 16))
-        .overlay {
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(BLETheme.outline.opacity(0.25))
-        }
-        .accessibilityElement(children: .contain)
-    }
-
-    private func detail(_ title: LocalizedStringKey, value: LocalizedStringKey, icon: String) -> some View {
-        Label {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(BLETheme.secondaryText)
-                Text(value)
-                    .font(.subheadline.weight(.medium))
-            }
-        } icon: {
-            Image(systemName: icon)
-                .foregroundStyle(BLETheme.secondaryText)
-        }
-        .accessibilityElement(children: .combine)
     }
 }
 

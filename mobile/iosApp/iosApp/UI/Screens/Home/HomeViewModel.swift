@@ -14,10 +14,12 @@ final class HomeViewModel {
     private(set) var didLogout = false
 
     private(set) var userProfile: UserProfile?
+    let bookingsViewModel: BookingsViewModel
 
     init(mobileCoreApi: MobileCoreApi, userProfile: UserProfile? = nil) {
         self.mobileCoreApi = mobileCoreApi
         self.userProfile = userProfile
+        self.bookingsViewModel = BookingsViewModel(mobileCoreApi: mobileCoreApi)
     }
 
     func loadUserProfile() async {
@@ -35,7 +37,7 @@ final class HomeViewModel {
     }
 
     func logout() {
-        guard !isLoading, !isLoadingProfile else { return }
+        guard !isLoading, !isLoadingProfile, !bookingsViewModel.isLoading else { return }
 
         errorMessage = nil
         didLogout = false

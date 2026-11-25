@@ -25,7 +25,26 @@ final class PreviewMobileCoreApi: NSObject, MobileCoreApi {
     func getActiveBookings(
         completionHandler: @escaping ([Booking]?, Error?) -> Void
     ) {
-        completionHandler([], nil)
+        completionHandler([
+            Booking(
+                id: "1",
+                resourceId: "101",
+                startTime: .companion.parse(input: "2026-11-25T09:00:00Z"),
+                endTime: .companion.parse(input: "2026-11-25T10:00:00Z"),
+                status: .checkedIn,
+                resourceName: "Meeting Room 101",
+                resourcePosition: "First floor · East wing"
+            ),
+            Booking(
+                id: "2",
+                resourceId: "204",
+                startTime: .companion.parse(input: "2026-11-26T13:00:00Z"),
+                endTime: .companion.parse(input: "2026-11-26T14:30:00Z"),
+                status: .booked,
+                resourceName: "Media Lab",
+                resourcePosition: "Second floor"
+            )
+        ], nil)
     }
 
     func requestAccess(

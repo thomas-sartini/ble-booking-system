@@ -34,24 +34,167 @@
         }
       }
     },
-    "home_active_booking_date" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OCT 23"
+    "booking_resource" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resource %@"
           }
         }
       }
     },
-    "home_active_booking_label" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ACTIVE BOOKING · DEMO"
+    "booking_status_booked" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Booked"
+          }
+        }
+      }
+    },
+    "booking_status_cancelled" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelled"
+          }
+        }
+      }
+    },
+    "booking_status_checked_in" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checked in"
+          }
+        }
+      }
+    },
+    "booking_status_completed" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed"
+          }
+        }
+      }
+    },
+    "booking_status_no_show" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No show"
+          }
+        }
+      }
+    },
+    "booking_status_unknown" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown status"
+          }
+        }
+      }
+    },
+    "bookings_empty" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming bookings will appear here."
+          }
+        }
+      }
+    },
+    "bookings_empty_title" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No active bookings"
+          }
+        }
+      }
+    },
+    "bookings_error" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load bookings. Please try again."
+          }
+        }
+      }
+    },
+    "bookings_loading" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading bookings"
+          }
+        }
+      }
+    },
+    "bookings_refresh" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh bookings"
+          }
+        }
+      }
+    },
+    "bookings_see_all" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See all active bookings"
+          }
+        }
+      }
+    },
+    "bookings_session_expired" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your session has expired. Please sign in again."
+          }
+        }
+      }
+    },
+    "bookings_title" : {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active bookings"
           }
         }
       }
@@ -67,39 +210,6 @@
         }
       }
     },
-    "home_booking_location_label" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Location"
-          }
-        }
-      }
-    },
-    "home_booking_status_ready" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ready to Check-In"
-          }
-        }
-      }
-    },
-    "home_booking_time_slot_label" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Time slot"
-          }
-        }
-      }
-    },
     "home_connect_terminal" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -107,39 +217,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Connect to Terminal"
-          }
-        }
-      }
-    },
-    "home_demo_booking_location" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HQ · Floor 1 · East Wing"
-          }
-        }
-      }
-    },
-    "home_demo_booking_room" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meeting Room 101"
-          }
-        }
-      }
-    },
-    "home_demo_booking_time" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "10:00 AM – 11:00 AM"
           }
         }
       }
@@ -162,17 +239,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Online"
-          }
-        }
-      }
-    },
-    "home_subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "One active key. You're ready to go."
           }
         }
       }
