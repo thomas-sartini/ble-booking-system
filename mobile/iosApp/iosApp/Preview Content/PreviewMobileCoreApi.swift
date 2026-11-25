@@ -45,6 +45,13 @@ final class PreviewMobileCoreApi: NSObject, MobileCoreApi {
         completionHandler(unsupportedOperation)
     }
 
+    func getUserProfile(
+        completionHandler: @escaping (UserProfile?, Error?) -> Void
+    ) {
+        // TODO: Not yet implemented
+        completionHandler(nil, unsupportedOperation)
+    }
+
     private var unsupportedOperation: NSError {
         NSError(domain: "PreviewMobileCoreApi", code: 1)
     }

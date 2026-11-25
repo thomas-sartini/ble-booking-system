@@ -16,6 +16,7 @@ import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -86,6 +87,10 @@ internal class BackendApiClient(
         request: CheckOutRequestDto
     ): ApiResult<Unit> {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun getUserProfile(): ApiResult<UserProfileResponseDto> = executeRequest {
+        httpClient.get("users/me")
     }
 
 
