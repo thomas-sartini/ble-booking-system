@@ -1,7 +1,7 @@
 # BLE Advertising and Discovery
 
 **Requirements:** FR-05.01, FR-05.05, NFR-01.03
-**Devices:** Arduino Nano ESP32 terminal (BLE peripheral) and Android/iOS app (BLE central)
+**Devices:** Arduino Nano ESP32 terminal (BLE peripheral) and mobile app (BLE central)
 
 This document is the project-wide contract for how a terminal advertises itself and how the
 mobile app finds it. It builds on the earlier research into advertising and discovery
@@ -10,7 +10,7 @@ approaches and generalizes it for the whole project.
 ## 1. Scope
 
 **In scope:** advertising data, terminal advertising behavior, app scanning and filtering on
-Android and iOS, handling of candidates, versioning, security and privacy limits, known issues.
+Mobile, handling of candidates, versioning, security and privacy limits, known issues.
 
 **Out of scope:** the GATT service and its characteristics, terminal
 authentication, tickets and the secure handshake (see the [BLE Access and Security Concept](report/chapters/03-ideas-and-concepts.md#ble-access-and-security-concept)),
@@ -143,7 +143,8 @@ Diagnostic output must not contain keys, tickets or other secrets.
 
 ## 7. App behavior
 
-### 7.1 Common rules (Android and iOS)
+These rules apply to Mobile as a whole. How each mobile platform implements them (scan APIs,
+permissions, platform limits) is left to the mobile implementation.
 
 1. **Scan only while needed:** start when the user opens the terminal/check-in screen, stop when the
    user leaves it, connects, or after a timeout (suggestion: 15 s, then offer "scan again").
@@ -151,8 +152,9 @@ Diagnostic output must not contain keys, tickets or other secrets.
 2. **Filter by Service UUID in the scan request**, not only in app code.
 3. **Check again in app code** that the Service UUID is present in the advertisement. Ignore the
    result otherwise.
-4. **One entry per device:** deduplicate by the platform's device handle (Android address,
-   iOS `peripheral.identifier`) and update RSSI and name on each new advertisement.
+4. **One entry per device:** deduplicate by the device handle the platform reports and update
+   RSSI and name on each new advertisement. The handle is not a terminal ID and must not be
+   stored or compared as one.
 5. **Remove stale candidates** that have not been seen for about 5 s.
 6. **Sort by RSSI**, strongest first. RSSI fluctuates, so smooth it (e.g. average of the last few
    values) before sorting. The strongest signal is only a hint for the closest terminal.
@@ -161,29 +163,6 @@ Diagnostic output must not contain keys, tickets or other secrets.
 8. Show only what discovery provides (label, signal strength). Resource or booking information
    is shown only after the terminal is verified over GATT.
 9. Handle: Bluetooth off, permission denied, no results, scan failure. Each gets a clear message.
-
-### 7.2 Android
-
-| Topic | Rule |
-|---|---|
-| API | `BluetoothLeScanner.startScan(filters, settings, callback)` with `ScanFilter.Builder().setServiceUuid(ParcelUuid(UUID))` |
-| Settings | `SCAN_MODE_LOW_LATENCY` while the screen is open (short scans only) |
-| Permissions, Android 12+ (API 31+) | `BLUETOOTH_SCAN` with `neverForLocation`, `BLUETOOTH_CONNECT` for the later connection |
-| Permissions, Android ≤ 11 | `BLUETOOTH`, `BLUETOOTH_ADMIN`, `ACCESS_FINE_LOCATION`; **location services must be switched on**, otherwise scans return nothing |
-| Name | Read it from `ScanResult.scanRecord.deviceName` (advertising data), not from `BluetoothDevice.name` |
-| Throttling | Android blocks an app that **starts more than 5 scans within 30 s**; further scans silently return no results. Do not restart scans in a loop. |
-| Errors | `onScanFailed(errorCode)` must reach the UI and stop the "scanning" state |
-
-### 7.3 iOS
-
-| Topic | Rule |
-|---|---|
-| API | `CBCentralManager.scanForPeripherals(withServices: [CBUUID(string: serviceUuid)], options:)` |
-| Duplicates | `CBCentralManagerScanOptionAllowDuplicatesKey: true` in the foreground, so RSSI keeps updating |
-| Permission | `NSBluetoothAlwaysUsageDescription` in `Info.plist`; wait for `centralManagerDidUpdateState == .poweredOn` before scanning |
-| Identifier | iOS does **not** expose the Bluetooth address. `peripheral.identifier` is a random UUID per phone, so it cannot be compared across devices or stored as a terminal ID |
-| Name | Read `advertisementData[CBAdvertisementDataLocalNameKey]`; `peripheral.name` can be a cached older value |
-| Background | Not supported by this contract. iOS merges duplicates and may skip Scan Responses in the background |
 
 ## 8. Versioning
 
