@@ -10,6 +10,7 @@ import ch.hslu.blebooking.mobile.communication.dto.request.RefreshTokenRequestDt
 import ch.hslu.blebooking.mobile.communication.dto.response.RefreshTokenResponseDto
 import ch.hslu.blebooking.mobile.communication.dto.request.ResourceAccessRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.response.ResourceAccessResponseDto
+import ch.hslu.blebooking.mobile.communication.dto.response.UserProfileResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
@@ -66,31 +67,27 @@ internal class BackendApiClient(
         }
     }
 
-    override suspend fun getActiveBookings(token: String): ApiResult<List<BookingDto>> {
+    override suspend fun getActiveBookings(): ApiResult<List<BookingDto>> {
         TODO("Not yet implemented")
     }
 
     override suspend fun requestAccess(
-        token: String,
         request: ResourceAccessRequestDto
     ): ApiResult<ResourceAccessResponseDto> {
         TODO("Not yet implemented")
     }
 
     override suspend fun confirmAccess(
-        token: String,
         request: AccessConfirmationRequestDto
     ): ApiResult<Unit> {
         TODO("Not yet implemented")
     }
 
     override suspend fun checkOut(
-        token: String,
         request: CheckOutRequestDto
     ): ApiResult<Unit> {
         TODO("Not yet implemented")
     }
-
 
 
     private suspend inline fun <reified T> executeRequest(

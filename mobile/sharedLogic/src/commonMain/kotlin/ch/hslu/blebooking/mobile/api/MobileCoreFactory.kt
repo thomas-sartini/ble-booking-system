@@ -32,12 +32,13 @@ object MobileCoreFactory {
         secureStorage: SecureStorage,
         httpClientEngine: HttpClientEngine? = null
     ): MobileCoreApi {
+        val tokenManager = TokenManager(secureStorage)
         val httpClient: HttpClient = HttpClientFactory.create(
+            tokenStorage = tokenManager,
             engine = httpClientEngine,
             baseUrl = ApiConfig.BASE_URL
         )
         val backendApiClient = BackendApiClient(httpClient)
-        val tokenManager = TokenManager(secureStorage)
 
         return ServiceFacade(
             tokenStorage = tokenManager,
