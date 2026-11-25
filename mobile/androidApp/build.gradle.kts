@@ -13,6 +13,8 @@ kotlin {
     }
 }
 dependencies {
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     implementation(libs.androidx.runtime)
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)

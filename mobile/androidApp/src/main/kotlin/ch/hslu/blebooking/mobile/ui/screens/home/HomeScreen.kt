@@ -1,6 +1,7 @@
 package ch.hslu.blebooking.mobile.ui.screens.home
 
 import android.net.Uri
+import ch.hslu.blebooking.mobile.ble.common.BleAvailability
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -9,6 +10,7 @@ import androidx.compose.runtime.*
 import ch.hslu.blebooking.mobile.ui.components.AppTopBar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,6 +50,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     bookingsViewModel: BookingsViewModel = hiltViewModel(),
 ) {
+    val bluetooth = rememberHomeBluetoothState()
     val successText = stringResource(R.string.logout_success)
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val userProfile by homeViewModel.userProfile.collectAsStateWithLifecycle()
@@ -60,6 +63,13 @@ fun HomeScreen(
         isLoading = homeViewModel.isLoading,
         errorMessage = errorMessage,
         userProfile = userProfile,
+        bluetoothAvailability = bluetooth.availability,
+        onResolveBluetooth = bluetooth.resolve,
+        onScan = {
+            if (bluetooth.availability == BleAvailability.READY) {
+                navController.navigate(AppScreens.SCANNING.name) { launchSingleTop = true }
+            }
+        },
         bookingsState = bookingsState,
         onRetryBookings = bookingsViewModel::loadBookings,
         onSeeAllBookings = { navController.navigate(AppScreens.BOOKINGS.name) { launchSingleTop = true } },
@@ -86,6 +96,9 @@ private fun HomeContent(
     errorMessage: String? = null,
     userProfile: UserProfile? = null,
     onLogout: () -> Unit = {},
+    bluetoothAvailability: BleAvailability = BleAvailability.UNSUPPORTED,
+    onResolveBluetooth: () -> Unit = {},
+    onScan: () -> Unit = {},
     bookingsState: BookingsState = BookingsState.Loading,
     onRetryBookings: () -> Unit = {},
     onSeeAllBookings: () -> Unit = {},
@@ -203,55 +216,51 @@ private fun HomeContent(
                 }
             }
 
-            // Bottom Section: Bluetooth status + Connect Button
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
+            val bluetoothReady = bluetoothAvailability == BleAvailability.READY
+            val bluetoothColor = if (bluetoothReady) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            Column(Modifier.fillMaxWidth().padding(top = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                // Bluetooth Active Indicator
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = "ᛒ",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = stringResource(R.string.home_bluetooth_active),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                val action = when (bluetoothAvailability) {
+                    BleAvailability.PERMISSION_REQUIRED -> R.string.ble_action_allow
+                    BleAvailability.BLUETOOTH_OFF -> R.string.ble_action_enable
+                    BleAvailability.LOCATION_OFF -> R.string.ble_action_settings
+                    else -> null
                 }
-
-                // Connect to Terminal Button (non fa nulla per ora)
-                Button(
-                    onClick = { /* Non deve fare nulla per ora */ },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(12.dp)
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.home_connect_terminal),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(if (bluetoothReady) R.drawable.ic_bluetooth else R.drawable.ic_bluetooth_disabled),
+                            contentDescription = null,
+                            tint = bluetoothColor,
+                            modifier = Modifier.size(24.dp),
                         )
-                        Text(
-                            text = "ᛒ",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
+                        Text(stringResource(if (bluetoothReady) R.string.home_bluetooth_active else R.string.ble_inactive),
+                            color = bluetoothColor, style = MaterialTheme.typography.labelMedium)
                     }
+                    if (action != null) {
+                        OutlinedButton(
+                            onClick = onResolveBluetooth,
+                            shape = RoundedCornerShape(50),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+                        ) {
+                            Text(stringResource(action), style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                }
+                if (bluetoothAvailability == BleAvailability.UNSUPPORTED) {
+                    Text(stringResource(R.string.ble_unsupported), style = MaterialTheme.typography.bodySmall)
+                }
+                Button(onClick = onScan, enabled = bluetoothReady && !isLoading,
+                    modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(12.dp)) {
+                    Text(stringResource(R.string.home_connect_terminal), style = MaterialTheme.typography.titleMedium)
                 }
             }
         }
