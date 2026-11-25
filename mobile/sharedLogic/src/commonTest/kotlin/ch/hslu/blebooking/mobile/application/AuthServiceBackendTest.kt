@@ -31,6 +31,7 @@ class AuthServiceBackendTest {
     fun testLoginSuccessStoresTokens() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenManager = mock<TokenStorage>()
 
         val identifier = "test@user.com"
@@ -86,6 +87,7 @@ class AuthServiceBackendTest {
     fun testLoginUnauthorized() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenManager = mock<TokenStorage>()
 
         val identifier = "test@user.com"
@@ -129,6 +131,7 @@ class AuthServiceBackendTest {
     fun testLoginServerError() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenManager = mock<TokenStorage>()
 
         val identifier = "test@user.com"
@@ -171,6 +174,7 @@ class AuthServiceBackendTest {
     fun testLoginNetworkError() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenManager = mock<TokenStorage>()
 
         val identifier = "test@user.com"
@@ -212,6 +216,7 @@ class AuthServiceBackendTest {
     fun testLoginUnknownHttpError() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenManager = mock<TokenStorage>()
 
         val identifier = "test@user.com"
@@ -255,6 +260,7 @@ class AuthServiceBackendTest {
     fun testLoginTokenStorageFailure() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenManager = mock<TokenStorage>()
 
         val identifier = "test@user.com"
@@ -313,6 +319,7 @@ class AuthServiceBackendTest {
     @Test
     fun testLogoutSuccessClearsTokens() = runTest {
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenStorage = mock<TokenStorage>()
 
         val request = LogoutRequestDto("refresh-token")
@@ -351,6 +358,7 @@ class AuthServiceBackendTest {
     @Test
     fun testLogoutWithoutRefreshToken() = runTest {
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenStorage = mock<TokenStorage>()
 
         every {
@@ -380,6 +388,7 @@ class AuthServiceBackendTest {
     @Test
     fun testLogoutWithBlankRefreshToken() = runTest {
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenStorage = mock<TokenStorage>()
 
         every {
@@ -409,6 +418,7 @@ class AuthServiceBackendTest {
     @Test
     fun testLogoutServerErrorDoesNotClearTokens() = runTest {
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenStorage = mock<TokenStorage>()
 
         val request = LogoutRequestDto("refresh-token")
@@ -450,6 +460,7 @@ class AuthServiceBackendTest {
     @Test
     fun testLogoutNetworkErrorDoesNotClearTokens() = runTest {
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val tokenStorage = mock<TokenStorage>()
 
         val request = LogoutRequestDto("refresh-token")
@@ -498,6 +509,7 @@ class AuthServiceBackendTest {
         )
         for ((failure, code) in cases) {
             val api = mock<ApiClient>()
+            every { api.clearAuthCache() } returns Unit
             val storage = mock<TokenStorage>()
             everySuspend { api.login(any()) } returns failure
             val error = assertFailsWith<MobileCoreException> {

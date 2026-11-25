@@ -13,6 +13,40 @@ import kotlin.test.*
 
 class HttpClientTokenAuthTest {
 
+    @Test
+    fun logoutAndLoginUseFreshCredentialsOnTheSameClient() = runTest {
+        val storage = FakeTokenStorage()
+        val headers = mutableListOf<String?>()
+        var loginCount = 0
+        val engine = MockEngine { request ->
+            val body = when (request.url.encodedPath) {
+                "/auth/login" -> {
+                    loginCount++
+                    """{"accessToken":"access-$loginCount","refreshToken":"refresh-$loginCount"}"""
+                }
+                "/auth/logout" -> ""
+                else -> {
+                    headers.add(request.headers[HttpHeaders.Authorization])
+                    "{}"
+                }
+            }
+            respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+        }
+        val client = HttpClientFactory.create(engine, "https://mock.test/", storage)
+        val auth = ch.hslu.blebooking.mobile.application.AuthService(storage, BackendApiClient(client))
+        try {
+            auth.login("a@example.com", "password")
+            client.get("users/me")
+            auth.logout()
+            client.get("users/me")
+            auth.login("b@example.com", "password")
+            client.get("users/me")
+            assertEquals(listOf("Bearer access-1", null, "Bearer access-2"), headers)
+        } finally {
+            client.close()
+        }
+    }
+
     private class FakeTokenStorage(
         private var accessToken: String? = null,
         private var refreshToken: String? = null
