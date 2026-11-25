@@ -50,8 +50,8 @@ No backend call is needed for any of these steps.
 
 | Decision | Reason |
 |---|---|
-| One shared 128-bit Service UUID for all terminals | Lets Android and iOS filter in the OS/controller instead of in app code. iOS can only filter by service UUID. |
-| Advertising contains only Flags and the Service UUID | Fits the 31-byte legacy limit with headroom, works with iOS filtering and does not broadcast stable identifiers. |
+| One shared 128-bit Service UUID for all terminals | Lets Mobile filter in the OS/controller instead of in app code. Some mobile platforms can only filter by service UUID. |
+| Advertising contains only Flags and the Service UUID | Fits the 31-byte legacy limit with headroom, works with service UUID filtering on Mobile and does not broadcast stable identifiers. |
 | Terminal ID and protocol version are read **after** connecting (GATT) | Keeps the advertisement small and stable; avoids publishing identifiers; the GATT contract already carries a version byte. |
 | Optional Local Name in the Scan Response | Gives the user a readable label before connecting, without affecting the primary packet. Discovery must work without it. |
 | Legacy advertising only, no Extended Advertising | Supported by every target phone and by the ESP32 BLE stacks. |
@@ -61,9 +61,9 @@ No backend call is needed for any of these steps.
 
 | Option | Result |
 |---|---|
-| **A: Service UUID only** (+ optional name in Scan Response) | **Chosen.** Small, filterable on both platforms, leaks little. Two terminals cannot be told apart before connecting, which is solved by RSSI ordering and the GATT Terminal ID. |
+| **A: Service UUID only** (+ optional name in Scan Response) | **Chosen.** Small, filterable on Mobile, leaks little. Two terminals cannot be told apart before connecting, which is solved by RSSI ordering and the GATT Terminal ID. |
 | **B: Terminal ID / version / status in Manufacturer Data** | Rejected. Crowds the 31 bytes next to a 128-bit UUID, publishes a stable identifier that can be tracked, and the data would still not be trustworthy. |
-| **C: Terminal ID / version in the Scan Response** | Rejected as a requirement. A Scan Response needs active scanning and is not always delivered (e.g. busy radio environment, iOS background). |
+| **C: Terminal ID / version in the Scan Response** | Rejected as a requirement. A Scan Response needs active scanning and is not always delivered (e.g. busy radio environment, background scanning on Mobile). |
 
 ## 4. Identifiers
 
@@ -71,19 +71,18 @@ No backend call is needed for any of these steps.
 |---|---|---|
 | **BLE Booking Service UUID** | `fd698d10-c5c7-429b-9fb3-18a41dd73998` | Advertising (this document) and primary GATT service |
 
-This UUID is already used by the existing terminal and Android code, so that code stays compatible.
+This UUID is already used by existing terminal and mobile prototype code, so that code stays compatible.
 
-**Single source of truth:** this document. The code keeps one constant per platform and must
+**Single source of truth:** this document. The code keeps one constant per component and must
 match this value:
 
 | Component | Location |
 |---|---|
-| Terminal firmware | one configuration header in `terminal/` (e.g. `ble_config.h`), created with the advertising firmware |
-| Android | `BleProtocolConstants.SERVICE_UUID` (`mobile/androidApp/.../ble/protocol/BleProtocolConstants.kt`) |
-| iOS | one equivalent constant in the iOS BLE layer, created with iOS discovery |
+| Terminal firmware | one configuration header in `terminal/` (e.g. `ble_config.h`) |
+| Mobile | one constant in the mobile BLE layer |
 
-Changing the UUID is a breaking change (see [section 8](#8-versioning)) and must update all three places
-and this document in the same release.
+Changing the UUID is a breaking change (see [section 8](#8-versioning)) and must update every
+constant and this document in the same release.
 
 ## 5. Advertising data
 
