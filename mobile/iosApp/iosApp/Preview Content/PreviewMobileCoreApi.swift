@@ -48,8 +48,16 @@ final class PreviewMobileCoreApi: NSObject, MobileCoreApi {
     func getUserProfile(
         completionHandler: @escaping (UserProfile?, Error?) -> Void
     ) {
-        // TODO: Not yet implemented
-        completionHandler(nil, unsupportedOperation)
+        completionHandler(
+            UserProfile(
+                firstName: "Alex",
+                lastName: "Morgan",
+                username: "amorgan",
+                email: "alex@company.com",
+                role: .student
+            ),
+            nil
+        )
     }
 
     private var unsupportedOperation: NSError {

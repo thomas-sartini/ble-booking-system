@@ -12,6 +12,116 @@
         }
       }
     },
+    "home_active_booking_date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OCT 23"
+          }
+        }
+      }
+    },
+    "home_active_booking_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ACTIVE BOOKING · DEMO"
+          }
+        }
+      }
+    },
+    "home_bluetooth_demo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth Active · Demo"
+          }
+        }
+      }
+    },
+    "home_booking_location_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Location"
+          }
+        }
+      }
+    },
+    "home_booking_status_ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready to Check-In"
+          }
+        }
+      }
+    },
+    "home_booking_time_slot_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time slot"
+          }
+        }
+      }
+    },
+    "home_connect_terminal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect to Terminal"
+          }
+        }
+      }
+    },
+    "home_demo_booking_location" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HQ · Floor 1 · East Wing"
+          }
+        }
+      }
+    },
+    "home_demo_booking_room" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meeting Room 101"
+          }
+        }
+      }
+    },
+    "home_demo_booking_time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10:00 AM – 11:00 AM"
+          }
+        }
+      }
+    },
     "home_login_success" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -23,6 +133,28 @@
         }
       }
     },
+    "home_status_online" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Online"
+          }
+        }
+      }
+    },
+    "home_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One active key. You're ready to go."
+          }
+        }
+      }
+    },
     "home_title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -30,6 +162,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your access"
+          }
+        }
+      }
+    },
+    "home_welcome" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome back"
+          }
+        }
+      }
+    },
+    "home_welcome_back" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome back,"
           }
         }
       }

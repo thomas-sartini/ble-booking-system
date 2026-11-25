@@ -3,16 +3,14 @@ import SharedLogic
 @MainActor
 final class AppContainer {
     private let mobileCoreApi: MobileCoreApi
+    private let secureStorage: NativeStorageDelegate
 
-    init(mobileCoreApi: MobileCoreApi) {
+    init(mobileCoreApi: MobileCoreApi, secureStorage: NativeStorageDelegate) {
         self.mobileCoreApi = mobileCoreApi
+        self.secureStorage = secureStorage
     }
 
-    func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(mobileCoreApi: mobileCoreApi)
-    }
-
-    func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(mobileCoreApi: mobileCoreApi)
+    func makeAppViewModel() -> AppViewModel {
+        AppViewModel(mobileCoreApi: mobileCoreApi, secureStorage: secureStorage)
     }
 }
