@@ -10,7 +10,6 @@ import ch.hslu.blebooking.mobile.communication.dto.request.RefreshTokenRequestDt
 import ch.hslu.blebooking.mobile.communication.dto.response.RefreshTokenResponseDto
 import ch.hslu.blebooking.mobile.communication.dto.request.ResourceAccessRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.response.ResourceAccessResponseDto
-import ch.hslu.blebooking.mobile.communication.dto.response.UserProfileResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
