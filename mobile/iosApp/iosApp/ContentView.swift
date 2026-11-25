@@ -3,6 +3,7 @@ import SwiftUI
 @MainActor
 struct ContentView: View {
     @State private var viewModel: AppViewModel
+    @State private var restoreAttempt = 0
 
     init(container: AppContainer) {
         _viewModel = State(initialValue: container.makeAppViewModel())
@@ -15,6 +16,19 @@ struct ContentView: View {
                 ProgressView()
                     .controlSize(.large)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            case .restoreFailed:
+                VStack(spacing: 16) {
+                    Text("session_restore_error")
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(BLETheme.text)
+                    Button("session_restore_retry") {
+                        restoreAttempt += 1
+                    }
+                    .buttonStyle(BLEPrimaryButtonStyle())
+                }
+                .padding(24)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             case .login(let loginViewModel):
                 LoginView(viewModel: loginViewModel, messageData: viewModel.messageData)
@@ -31,6 +45,6 @@ struct ContentView: View {
         }
         .background(BLETheme.background.ignoresSafeArea())
         .tint(BLETheme.accent)
-        .task { await viewModel.restoreSession() }
+        .task(id: restoreAttempt) { await viewModel.restoreSession() }
     }
 }

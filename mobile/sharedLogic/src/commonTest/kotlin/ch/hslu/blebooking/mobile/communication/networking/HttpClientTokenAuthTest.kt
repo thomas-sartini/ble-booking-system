@@ -14,6 +14,79 @@ import kotlin.test.*
 class HttpClientTokenAuthTest {
 
     @Test
+    fun restoreSessionWithoutCredentialsDoesNotContactBackend() = runTest {
+        val storage = FakeTokenStorage()
+        val client = HttpClientFactory.create(MockEngine { error("Unexpected request") }, "https://mock.test/", storage)
+        try {
+            val core = ch.hslu.blebooking.mobile.application.ServiceFacade(storage, BackendApiClient(client))
+            assertEquals(ch.hslu.blebooking.mobile.model.SessionRestoreResult.Unauthenticated, core.restoreSession())
+        } finally {
+            client.close()
+        }
+    }
+
+    @Test
+    fun restoreSessionPreservesCredentialsOnTransientRefreshFailureAndCanRetry() = runTest {
+        for (failure in listOf("offline", "server", "cancelled")) {
+            val storage = FakeTokenStorage(refreshToken = "saved-refresh")
+            var fail = true
+            val engine = MockEngine { request ->
+                if (request.url.encodedPath == "/auth/refresh") {
+                    if (fail) {
+                        when (failure) {
+                            "offline" -> throw io.ktor.util.network.UnresolvedAddressException()
+                            "cancelled" -> throw kotlinx.coroutines.CancellationException("Cancelled")
+                            else -> respond("Unavailable", HttpStatusCode.ServiceUnavailable)
+                        }
+                    } else {
+                        respond("""{"accessToken":"new-access","refreshToken":"new-refresh"}""",
+                            HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+                    }
+                } else if (request.headers[HttpHeaders.Authorization] == "Bearer new-access") {
+                    respond("""{"firstName":"Alice","lastName":"Example","email":"alice@example.com","username":"alice","role":"STUDENT"}""",
+                        HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+                } else {
+                    respond("Unauthorized", HttpStatusCode.Unauthorized)
+                }
+            }
+            val client = HttpClientFactory.create(engine, "https://mock.test/", storage)
+            try {
+                val core = ch.hslu.blebooking.mobile.application.ServiceFacade(storage, BackendApiClient(client))
+                if (failure == "cancelled") {
+                    assertFailsWith<kotlinx.coroutines.CancellationException> { core.restoreSession() }
+                } else {
+                    assertIs<ch.hslu.blebooking.mobile.model.SessionRestoreResult.Failed>(core.restoreSession())
+                }
+                assertEquals("saved-refresh", storage.getRefreshToken())
+                assertFalse(storage.clearTokensCalled)
+                fail = false
+                val restored = assertIs<ch.hslu.blebooking.mobile.model.SessionRestoreResult.Authenticated>(core.restoreSession())
+                assertEquals("Alice", restored.profile.firstName)
+                assertEquals("new-refresh", storage.getRefreshToken())
+            } finally {
+                client.close()
+            }
+        }
+    }
+
+    @Test
+    fun restoreSessionWithRevokedRefreshTokenClearsCredentials() = runTest {
+        val storage = FakeTokenStorage(refreshToken = "revoked")
+        val client = HttpClientFactory.create(MockEngine {
+            respond("Unauthorized", HttpStatusCode.Unauthorized)
+        }, "https://mock.test/", storage)
+        try {
+            val core = ch.hslu.blebooking.mobile.application.ServiceFacade(storage, BackendApiClient(client))
+            assertEquals(ch.hslu.blebooking.mobile.model.SessionRestoreResult.Unauthenticated, core.restoreSession())
+            assertNull(storage.getRefreshToken())
+            assertNull(storage.getAccessToken())
+        } finally {
+            client.close()
+        }
+    }
+
+
+    @Test
     fun logoutAndLoginUseFreshCredentialsOnTheSameClient() = runTest {
         val storage = FakeTokenStorage()
         val headers = mutableListOf<String?>()

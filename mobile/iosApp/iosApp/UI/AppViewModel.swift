@@ -7,42 +7,53 @@ import SharedLogic
 final class AppViewModel {
     enum Screen {
         case loading
+        case restoreFailed
         case login(LoginViewModel)
         case home(HomeViewModel)
     }
 
     private let mobileCoreApi: MobileCoreApi
-    private let secureStorage: NativeStorageDelegate
-    private let refreshTokenKey = "refreshToken"
+    @ObservationIgnored private var isRestoring = false
 
     private(set) var screen: Screen = .loading
     private(set) var messageData: MessageData?
 
-    init(mobileCoreApi: MobileCoreApi, secureStorage: NativeStorageDelegate) {
+    init(mobileCoreApi: MobileCoreApi) {
         self.mobileCoreApi = mobileCoreApi
-        self.secureStorage = secureStorage
     }
 
     func restoreSession() async {
-        guard case .loading = screen, !Task.isCancelled else { return }
-
-        let storedToken = secureStorage.get(key_: refreshTokenKey)
-        guard storedToken.errorMessage == nil,
-              let refreshToken = storedToken.value,
-              !refreshToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            showLogin()
+        guard !isRestoring, !Task.isCancelled else { return }
+        switch screen {
+        case .loading, .restoreFailed:
+            break
+        case .login, .home:
             return
         }
 
+        isRestoring = true
+        screen = .loading
+        defer { isRestoring = false }
+
         do {
-            // A protected request lets the shared core refresh the bearer token.
-            let profile = try await mobileCoreApi.getUserProfile()
+            let result = try await mobileCoreApi.restoreSession()
             guard !Task.isCancelled else { return }
-            screen = .home(HomeViewModel(mobileCoreApi: mobileCoreApi, userProfile: profile))
+            switch result {
+            case let authenticated as SessionRestoreResultAuthenticated:
+                screen = .home(HomeViewModel(
+                    mobileCoreApi: mobileCoreApi,
+                    userProfile: authenticated.profile
+                ))
+            case is SessionRestoreResultUnauthenticated:
+                showLogin()
+            case is SessionRestoreResultFailed:
+                screen = .restoreFailed
+            default:
+                screen = .restoreFailed
+            }
         } catch {
             guard !Task.isCancelled else { return }
-            _ = secureStorage.remove(key_: refreshTokenKey)
-            showLogin()
+            screen = .restoreFailed
         }
     }
 

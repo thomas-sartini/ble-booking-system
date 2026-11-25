@@ -78,30 +78,24 @@ internal object HttpClientFactory {
                             return@refreshTokens null
                         }
 
-                        try {
-                            val response = client.post("auth/refresh") {
-                                contentType(ContentType.Application.Json)
-                                setBody(RefreshTokenRequestDto(refreshToken = currentRefreshToken))
-                            }
-
-                            if (response.status.value in 200..299) {
+                        val response = client.post("auth/refresh") {
+                            markAsRefreshTokenRequest()
+                            contentType(ContentType.Application.Json)
+                            setBody(RefreshTokenRequestDto(refreshToken = currentRefreshToken))
+                        }
+                        when (response.status.value) {
+                            in 200..299 -> {
                                 val tokens: RefreshTokenResponseDto = response.body()
-                                tokenStorage.clearTokens()
-                                tokenStorage.storeTokens(
-                                    accessToken = tokens.accessToken,
-                                    refreshToken = tokens.refreshToken
-                                )
-                                BearerTokens(
-                                    accessToken = tokens.accessToken,
-                                    refreshToken = tokens.refreshToken
-                                )
-                            } else {
+                                tokenStorage.storeTokens(tokens.accessToken, tokens.refreshToken)
+                                BearerTokens(tokens.accessToken, tokens.refreshToken)
+                            }
+                            401 -> {
                                 tokenStorage.clearTokens()
                                 null
                             }
-                        } catch (_: Exception) {
-                            tokenStorage.clearTokens()
-                            null
+                            else -> throw io.ktor.client.plugins.ResponseException(
+                                response, "Token refresh failed"
+                            )
                         }
                     }
 

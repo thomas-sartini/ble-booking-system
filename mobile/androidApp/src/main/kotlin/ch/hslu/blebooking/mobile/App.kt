@@ -1,6 +1,10 @@
 package ch.hslu.blebooking.mobile
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +28,20 @@ fun App(
     val initialState by appViewModel.initialState.collectAsStateWithLifecycle()
 
     when (initialState) {
+        is AuthInitialState.Failed -> {
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Column(
+                    modifier = Modifier.safeDrawingPadding().padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(stringResource(R.string.session_restore_error))
+                    Button(onClick = appViewModel::checkExistingSession) {
+                        Text(stringResource(R.string.session_restore_retry))
+                    }
+                }
+            }
+        }
         is AuthInitialState.Loading -> {
             Surface(
                 modifier = Modifier.fillMaxSize(),

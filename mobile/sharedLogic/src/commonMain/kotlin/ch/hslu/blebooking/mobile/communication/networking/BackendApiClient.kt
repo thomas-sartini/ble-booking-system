@@ -112,6 +112,9 @@ internal class BackendApiClient(
 
         } catch (e: Exception) {
             when (e) {
+                is io.ktor.client.plugins.ResponseException -> ApiResult.HttpError(
+                    e.response.status, "Unable to renew the session"
+                )
                 is UnresolvedAddressException -> ApiResult.NetworkError(e)
 
                 is ConnectTimeoutException,

@@ -29,4 +29,6 @@
     <string name="logout">Logout</string>
     <string name="logout_error">Unable to log out. Please try again.</string>
     <string name="logout_success">Logout successful</string>
+    <string name="session_restore_error">Unable to restore your session. Please try again.</string>
+    <string name="session_restore_retry">Try again</string>
 </resources>

@@ -27,6 +27,11 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 interface MobileCoreApi {
 
+    /** Restores a session without exposing credentials. Temporary failures preserve tokens. */
+    @Throws(CancellationException::class)
+    suspend fun restoreSession(): ch.hslu.blebooking.mobile.model.SessionRestoreResult
+
+
     /**
      * Authenticates a user using the provided credentials.
      *

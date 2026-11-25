@@ -13,7 +13,7 @@ struct iOSApp: App {
             httpClientEngine: nil
         )
 
-        container = AppContainer(mobileCoreApi: api, secureStorage: secureStorage)
+        container = AppContainer(mobileCoreApi: api)
     }
     var body: some Scene {
         WindowGroup {

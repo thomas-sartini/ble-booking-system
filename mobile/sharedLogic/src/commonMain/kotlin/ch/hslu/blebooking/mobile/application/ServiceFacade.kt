@@ -30,6 +30,9 @@ internal class ServiceFacade(
     private val bookingService = BookingService(apiClient)
     private val accessService = AccessService(apiClient)
     private val userService = UserService(apiClient)
+    private val sessionService = SessionService(tokenStorage, authService, userService)
+
+    override suspend fun restoreSession() = sessionService.restoreSession()
 
     override suspend fun login(
         identifier: String,

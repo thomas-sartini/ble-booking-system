@@ -4,6 +4,10 @@ import SharedLogic
 
 /// In-memory API for Xcode previews. Never contacts the backend.
 final class PreviewMobileCoreApi: NSObject, MobileCoreApi {
+    func restoreSession(completionHandler: @escaping (SessionRestoreResult?, Error?) -> Void) {
+        completionHandler(SessionRestoreResultUnauthenticated.shared, nil)
+    }
+
     func login(
         identifier: String,
         password: String,
