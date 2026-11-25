@@ -18,6 +18,8 @@ fun AppTopBar(
     showMenu: Boolean = false,
     enabled: Boolean = true,
     onLogout: () -> Unit = {},
+    onRefresh: (() -> Unit)? = null,
+    refreshEnabled: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
     CenterAlignedTopAppBar(
@@ -33,6 +35,11 @@ fun AppTopBar(
             }
         },
         actions = {
+            if (onRefresh != null) {
+                IconButton(onClick = onRefresh, enabled = enabled && refreshEnabled) {
+                    Icon(painterResource(R.drawable.ic_refresh), stringResource(R.string.bookings_refresh))
+                }
+            }
             if (showMenu) {
                 Box {
                     IconButton(onClick = { expanded = true }, enabled = enabled) {

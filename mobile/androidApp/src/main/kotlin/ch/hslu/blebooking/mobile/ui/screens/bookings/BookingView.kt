@@ -19,18 +19,13 @@ import ch.hslu.blebooking.mobile.ui.components.BookingsFeedback
 fun BookingView(onBack: () -> Unit, viewModel: BookingsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Column(Modifier.safeDrawingPadding().padding(horizontal = 24.dp)) {
-            AppTopBar(title = stringResource(R.string.bookings_title), onBack = onBack)
-            TextButton(
-                onClick = viewModel::loadBookings,
-                enabled = state !is BookingsState.Loading,
-                contentPadding = PaddingValues(0.dp),
-            ) {
-                Text(
-                    stringResource(R.string.bookings_refresh),
-                    modifier = Modifier.widthIn(min = ButtonDefaults.MinWidth),
-                )
-            }
+        Column(Modifier.safeDrawingPadding().padding(horizontal = 24.dp, vertical = 16.dp)) {
+            AppTopBar(
+                title = stringResource(R.string.bookings_title),
+                onBack = onBack,
+                onRefresh = viewModel::loadBookings,
+                refreshEnabled = state !is BookingsState.Loading,
+            )
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 contentPadding = PaddingValues(bottom = 24.dp),
