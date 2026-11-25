@@ -17,6 +17,7 @@ class AuthServiceRefreshTest {
     @Test
     fun refreshStoresRotatedTokens() = runTest {
         val api = mock<ApiClient>()
+        every { api.clearAuthCache() } returns Unit
         val storage = mock<TokenStorage>()
         every { storage.getRefreshToken() } returns "old"
         every { storage.clearTokens() } returns Unit
@@ -34,6 +35,7 @@ class AuthServiceRefreshTest {
     fun missingOrBlankTokenClearsStorageWithoutRequest() = runTest {
         for (token in listOf(null, "", "   ")) {
             val api = mock<ApiClient>()
+            every { api.clearAuthCache() } returns Unit
             val storage = mock<TokenStorage>()
             every { storage.getRefreshToken() } returns token
             every { storage.clearTokens() } returns Unit
@@ -55,6 +57,7 @@ class AuthServiceRefreshTest {
         )
         for ((status, code) in cases) {
             val api = mock<ApiClient>()
+            every { api.clearAuthCache() } returns Unit
             val storage = mock<TokenStorage>()
             every { storage.getRefreshToken() } returns "old"
             everySuspend { api.refresh(RefreshTokenRequestDto("old")) } returns

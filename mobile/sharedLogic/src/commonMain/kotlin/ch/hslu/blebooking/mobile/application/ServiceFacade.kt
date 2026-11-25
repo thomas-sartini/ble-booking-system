@@ -8,6 +8,7 @@ import ch.hslu.blebooking.mobile.model.AccessConfirmation
 import ch.hslu.blebooking.mobile.model.Booking
 import ch.hslu.blebooking.mobile.model.ResourceAccessRequest
 import ch.hslu.blebooking.mobile.model.ResourceAccessResponse
+import ch.hslu.blebooking.mobile.model.UserProfile
 
 /**
  * Internal implementation of [MobileCoreApi].
@@ -28,6 +29,7 @@ internal class ServiceFacade(
     private val authService = AuthService(tokenStorage, apiClient)
     private val bookingService = BookingService(apiClient)
     private val accessService = AccessService(apiClient)
+    private val userService = UserService(apiClient)
 
     override suspend fun login(
         identifier: String,
@@ -59,4 +61,7 @@ internal class ServiceFacade(
     ) {
         accessService.checkOut(resourceId)
     }
+
+    override suspend fun getUserProfile(): UserProfile =
+        userService.getUserProfile()
 }

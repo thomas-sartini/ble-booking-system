@@ -50,7 +50,7 @@ AccessServiceTest {
         )
 
         everySuspend {
-            apiClient.requestAccess(any(), any())
+            apiClient.requestAccess(any())
         } returns ApiResult.Success(HttpStatusCode.OK, ResourceAccessResponseDto(1))
 
         val service = AccessService(apiClient)
@@ -63,7 +63,7 @@ AccessServiceTest {
 
         // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            apiClient.requestAccess(any(), any())
+            apiClient.requestAccess(any())
         }
     }
 
@@ -85,7 +85,7 @@ AccessServiceTest {
         )
 
         everySuspend {
-            apiClient.requestAccess(any(), any())
+            apiClient.requestAccess(any())
         } throws expectedException
 
         val service = AccessService(apiClient)
@@ -99,7 +99,7 @@ AccessServiceTest {
 
         // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            apiClient.requestAccess(any(), any())
+            apiClient.requestAccess(any())
         }
     }
 
@@ -115,7 +115,7 @@ AccessServiceTest {
         )
 
         everySuspend {
-            apiClient.confirmAccess(any(), any())
+            apiClient.confirmAccess(any())
         } returns ApiResult.Success(HttpStatusCode.OK, Unit)
 
         val service = AccessService(apiClient)
@@ -130,7 +130,7 @@ AccessServiceTest {
 
         // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            apiClient.confirmAccess(any(), any())
+            apiClient.confirmAccess(any())
         }
     }
 
@@ -151,7 +151,7 @@ AccessServiceTest {
         )
 
         everySuspend {
-            apiClient.confirmAccess(any(), any())
+            apiClient.confirmAccess(any())
         } throws expectedException
 
         val service = AccessService(apiClient)
@@ -164,7 +164,7 @@ AccessServiceTest {
 
         // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            apiClient.confirmAccess(any(), any())
+            apiClient.confirmAccess(any())
         }
     }
 
@@ -176,7 +176,7 @@ AccessServiceTest {
         val resourceId = "resource-123"
 
         everySuspend {
-            apiClient.checkOut(any(), any())
+            apiClient.checkOut(any())
         } returns ApiResult.Success(HttpStatusCode.OK, Unit)
 
         val service = AccessService(apiClient)
@@ -191,7 +191,7 @@ AccessServiceTest {
 
         // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            apiClient.checkOut(any(), any())
+            apiClient.checkOut(any())
         }
     }
 
@@ -208,7 +208,7 @@ AccessServiceTest {
         )
 
         everySuspend {
-            apiClient.checkOut(any(), any())
+            apiClient.checkOut(any())
         } throws expectedException
 
         val service = AccessService(apiClient)
@@ -221,7 +221,7 @@ AccessServiceTest {
 
         // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            apiClient.checkOut(any(), any())
+            apiClient.checkOut(any())
         }
     }
 }
