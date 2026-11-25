@@ -13,15 +13,13 @@
     <string name="login_sign_in">Sign In</string>
     <string name="login_error_required_fields">Please enter your email and password.</string>
     <string name="login_error_failed">Unable to sign in. Please try again.</string>
-    <string name="home_title">Your access</string>
-    <string name="home_subtitle">One active key. You\'re ready to go.</string>
+    <string name="home_title">Your bookings</string>
+    <string name="home_subtitle">Your upcoming and active bookings.</string>
     <string name="home_welcome_back">Welcome back,</string>
     <string name="home_status_online">Online</string>
     <string name="home_active_booking_label">ACTIVE BOOKING</string>
-    <string name="home_active_booking_date">TODAY, OCT 23</string>
     <string name="home_booking_time_slot_label">Time slot</string>
     <string name="home_booking_location_label">Location</string>
-    <string name="home_booking_status_ready">Ready to Check-In</string>
     <string name="home_bluetooth_active">Bluetooth Active</string>
     <string name="home_connect_terminal">Connect to Terminal</string>
     <string name="home_login_success">Login successful</string>
@@ -31,4 +29,18 @@
     <string name="logout_success">Logout successful</string>
     <string name="session_restore_error">Unable to restore your session. Please try again.</string>
     <string name="session_restore_retry">Try again</string>
+    <string name="bookings_title">Active bookings</string>
+    <string name="bookings_see_all">See all active bookings</string>
+    <string name="bookings_empty">No active or upcoming bookings.</string>
+    <string name="bookings_error">Unable to load bookings. Please try again.</string>
+    <string name="bookings_session_expired">Your session has expired. Please sign in again.</string>
+    <string name="bookings_back">Back</string>
+    <string name="bookings_refresh">Refresh</string>
+    <string name="booking_resource">Resource %1$s</string>
+    <string name="booking_status_booked">Booked</string>
+    <string name="booking_status_checked_in">Checked in</string>
+    <string name="booking_status_completed">Completed</string>
+    <string name="booking_status_cancelled">Cancelled</string>
+    <string name="booking_status_no_show">No show</string>
+    <string name="navigate_back">Back</string>
 </resources>

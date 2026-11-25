@@ -1,6 +1,8 @@
 package ch.hslu.blebooking.mobile.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -10,9 +12,10 @@ import androidx.navigation.compose.composable
 import ch.hslu.blebooking.mobile.ui.components.MessageData
 import ch.hslu.blebooking.mobile.ui.components.MessageType
 import ch.hslu.blebooking.mobile.ui.screens.home.HomeScreen
+import ch.hslu.blebooking.mobile.ui.screens.bookings.BookingView
 import ch.hslu.blebooking.mobile.ui.screens.login.LoginScreen
 
-enum class AppScreens { LOGIN, HOME }
+enum class AppScreens { LOGIN, HOME, BOOKINGS }
 
 @Composable
 fun AppNavHost(
@@ -25,6 +28,15 @@ fun AppNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
+        composable(AppScreens.BOOKINGS.name) { entry ->
+            val homeEntry = remember(entry) {
+                navController.getBackStackEntry("${AppScreens.HOME.name}?message={message}&type={type}")
+            }
+            BookingView(
+                onBack = { navController.popBackStack() },
+                viewModel = hiltViewModel(homeEntry),
+            )
+        }
         composable(
             route = "${AppScreens.LOGIN.name}?message={message}&type={type}",
             arguments = listOf(

@@ -33,6 +33,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.hslu.blebooking.mobile.model.UserProfile
+import ch.hslu.blebooking.mobile.model.BookingStatus
+import ch.hslu.blebooking.mobile.ui.components.BookingCard
+import ch.hslu.blebooking.mobile.ui.components.BookingsFeedback
+import ch.hslu.blebooking.mobile.ui.screens.bookings.BookingsState
+import ch.hslu.blebooking.mobile.ui.screens.bookings.BookingsViewModel
+import androidx.compose.ui.text.style.TextDecoration
 
 @Composable
 fun HomeScreen(
@@ -40,10 +46,13 @@ fun HomeScreen(
     messageData: MessageData? = null,
     navController: NavController,
     homeViewModel: HomeViewModel = hiltViewModel(),
+    bookingsViewModel: BookingsViewModel = hiltViewModel(),
 ) {
     val successText = stringResource(R.string.logout_success)
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val userProfile by homeViewModel.userProfile.collectAsStateWithLifecycle()
+
+    val bookingsState by bookingsViewModel.state.collectAsStateWithLifecycle()
 
     HomeContent(
         modifier = modifier,
@@ -51,6 +60,9 @@ fun HomeScreen(
         isLoading = homeViewModel.isLoading,
         errorMessage = errorMessage,
         userProfile = userProfile,
+        bookingsState = bookingsState,
+        onRetryBookings = bookingsViewModel::loadBookings,
+        onSeeAllBookings = { navController.navigate(AppScreens.BOOKINGS.name) { launchSingleTop = true } },
         onLogout = {
             errorMessage = null
             homeViewModel.logout(
@@ -74,6 +86,9 @@ private fun HomeContent(
     errorMessage: String? = null,
     userProfile: UserProfile? = null,
     onLogout: () -> Unit = {},
+    bookingsState: BookingsState = BookingsState.Loading,
+    onRetryBookings: () -> Unit = {},
+    onSeeAllBookings: () -> Unit = {},
 ) {
     Surface(modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
@@ -83,7 +98,7 @@ private fun HomeContent(
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
             // Top Bar with menu & logout
-            AppTopBar(showMenu = true, enabled = !isLoading, onLogout = onLogout)
+            AppTopBar(title = stringResource(R.string.login_brand), showMenu = true, enabled = !isLoading, onLogout = onLogout)
 
             Column(
                 modifier = Modifier
@@ -175,141 +190,16 @@ private fun HomeContent(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
-                    Text(
-                        text = stringResource(R.string.home_subtitle),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+
                 }
 
-                // Single Active Booking Card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // Card Header: Active Booking + Date
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.home_active_booking_label),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                letterSpacing = 1.sp
-                            )
-                            Text(
-                                text = stringResource(R.string.home_active_booking_date),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                letterSpacing = 1.sp
-                            )
-                        }
-
-                        // Room Info with Door Icon
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(14.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(46.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                                    .border(
-                                        1.dp,
-                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                                        RoundedCornerShape(12.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("🚪", fontSize = 22.sp)
-                            }
-                            Text(
-                                text = "Meeting Room 101",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
-                            thickness = 1.dp
-                        )
-
-                        // Time slot
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("🕒", fontSize = 16.sp)
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.home_booking_time_slot_label),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "10:00 AM – 11:00 AM",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-
-                        // Location
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("📍", fontSize = 16.sp)
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.home_booking_location_label),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "HQ · Floor 1 · East Wing",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-
-                        // Status Badge: Ready to Check-In
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("🔓", fontSize = 14.sp)
-                            Text(
-                                text = stringResource(R.string.home_booking_status_ready),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
+                BookingsFeedback(bookingsState, onRetryBookings)
+                val bookings = (bookingsState as? BookingsState.Ready)?.bookings.orEmpty()
+                val featured = bookings.firstOrNull { it.status == BookingStatus.CHECKED_IN }
+                    ?: bookings.firstOrNull()
+                featured?.let { BookingCard(it) }
+                TextButton(onClick = onSeeAllBookings, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text(stringResource(R.string.bookings_see_all), textDecoration = TextDecoration.Underline)
                 }
             }
 
