@@ -31,4 +31,6 @@ internal interface ApiClient {
     suspend fun checkOut(
         request: CheckOutRequestDto
     ): ApiResult<Unit>
+
+    suspend fun getUserProfile(): ApiResult<UserProfileResponseDto>
 }
