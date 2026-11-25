@@ -1,11 +1,11 @@
 # BLE Advertising and Discovery
 
-**Task:** T-070 · **Enabler:** EN-03.05 · **Requirements:** FR-05.01, FR-05.05, NFR-01.03
+**Requirements:** FR-05.01, FR-05.05, NFR-01.03
 **Devices:** Arduino Nano ESP32 terminal (BLE peripheral) and Android/iOS app (BLE central)
 
 This document is the project-wide contract for how a terminal advertises itself and how the
-mobile app finds it. It builds on the BLE demo protocol shown on the info day and on the earlier research into
-advertising and discovery approaches, and generalizes both for the whole project.
+mobile app finds it. It builds on the earlier research into advertising and discovery
+approaches and generalizes it for the whole project.
 
 ## 1. Scope
 
@@ -71,7 +71,7 @@ No backend call is needed for any of these steps.
 |---|---|---|
 | **BLE Booking Service UUID** | `fd698d10-c5c7-429b-9fb3-18a41dd73998` | Advertising (this document) and primary GATT service |
 
-This is the UUID already used by the info-day demo, so existing terminal and Android code stays compatible.
+This UUID is already used by the existing terminal and Android code, so that code stays compatible.
 
 **Single source of truth:** this document. The code keeps one constant per platform and must
 match this value:
@@ -222,10 +222,3 @@ checks happen later, as described in the [BLE Access and Security Concept](repor
   Discovery cannot exclude it; it is rejected only when the app verifies the terminal after connecting.
 - Phones differ in how fast and how often they report advertisements. Discovery tests should cover
   at least one Android and one iOS device.
-
-## 11. Relation to the info-day demo
-
-The demo used exactly this advertising format (Service UUID in the primary packet, `Locker 23` in
-the Scan Response), so demo firmware can be reused for the terminal's advertising. Its GATT part (Terminal
-Information, Door Command, Door Status) was intentionally without authentication and is **not** part
-of this contract. It is reworked together with the GATT service, following the security concept.
