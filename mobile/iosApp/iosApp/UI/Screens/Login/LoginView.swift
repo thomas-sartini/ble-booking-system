@@ -38,6 +38,7 @@ struct LoginView: View {
             } footer: {
                 forgotPasswordButton
             }
+            .listRowBackground(BLETheme.surface)
             .disabled(viewModel.isLoading)
 
             if let errorMessage = viewModel.errorMessage {
@@ -51,12 +52,9 @@ struct LoginView: View {
             .listRowBackground(Color.clear)
         }
         .formStyle(.grouped)
+        .scrollContentBackground(.hidden)
+        .background(BLETheme.background)
         .scrollDismissesKeyboard(.interactively)
-        .onChange(of: viewModel.didSignIn) { _, didSignIn in
-            if didSignIn {
-                onLoginSuccess()
-            }
-        }
         .onDisappear {
             viewModel.cancelSignIn()
         }
@@ -66,15 +64,16 @@ struct LoginView: View {
         VStack(alignment: .leading, spacing: 12) {
             Label("login_brand", systemImage: "key.fill")
                 .font(.headline)
-                .foregroundStyle(.tint)
+                .foregroundStyle(BLETheme.accent)
 
             Text("login_title")
                 .font(.largeTitle.bold())
+                .foregroundStyle(BLETheme.text)
                 .accessibilityAddTraits(.isHeader)
 
             Text("login_subtitle")
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BLETheme.secondaryText)
         }
         .padding(.vertical, 16)
     }
@@ -83,7 +82,7 @@ struct LoginView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("login_email")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BLETheme.secondaryText)
 
             TextField("login_email_hint", text: $viewModel.email)
                 .keyboardType(.emailAddress)
@@ -102,7 +101,7 @@ struct LoginView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("login_password")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BLETheme.secondaryText)
 
             HStack(spacing: 12) {
                 Group {
@@ -155,16 +154,14 @@ struct LoginView: View {
             HStack(spacing: 12) {
                 if viewModel.isLoading {
                     ProgressView()
-                        .tint(.white)
+                        .tint(BLETheme.onAccent)
                 }
 
                 Text("login_sign_in")
                     .fontWeight(.semibold)
             }
-            .frame(maxWidth: .infinity, minHeight: 28)
         }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
+        .buttonStyle(BLEPrimaryButtonStyle())
         .disabled(!viewModel.canSignIn)
     }
 
@@ -182,10 +179,6 @@ struct LoginView: View {
     }
 
     private func onForgotPassword() {
-        // Integrata internamente come nella versione Android
-    }
-
-    private func onLoginSuccess() {
         // Integrata internamente come nella versione Android
     }
 }

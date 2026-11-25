@@ -15,10 +15,14 @@ import ch.hslu.blebooking.mobile.ui.screens.login.LoginScreen
 enum class AppScreens { LOGIN, HOME }
 
 @Composable
-fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
+fun AppNavHost(
+    navController: NavHostController,
+    startDestination: String = AppScreens.LOGIN.name,
+    modifier: Modifier = Modifier
+) {
     NavHost(
         navController = navController,
-        startDestination = AppScreens.LOGIN.name,
+        startDestination = startDestination,
         modifier = modifier,
     ) {
         composable(

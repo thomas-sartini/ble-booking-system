@@ -31,6 +31,7 @@ class AuthServiceTest {
     fun testLoginSuccess() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val storage = mock<TokenStorage>()
         every { storage.getRefreshToken() } returns "refresh-token"
         every { storage.storeTokens("access-token", "refresh-token") } returns Unit
@@ -62,6 +63,7 @@ class AuthServiceTest {
     fun testLoginWithInvalidMail() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val storage = mock<TokenStorage>()
         every { storage.getRefreshToken() } returns "refresh-token"
         every { storage.storeTokens("access-token", "refresh-token") } returns Unit
@@ -100,6 +102,7 @@ class AuthServiceTest {
     fun testLoginWithEmptyMail() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val storage = mock<TokenStorage>()
         every { storage.getRefreshToken() } returns "refresh-token"
         every { storage.storeTokens("access-token", "refresh-token") } returns Unit
@@ -138,6 +141,7 @@ class AuthServiceTest {
     fun testLoginThrowsOnApiClientError() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val storage = mock<TokenStorage>()
         every { storage.getRefreshToken() } returns "refresh-token"
         every { storage.storeTokens("access-token", "refresh-token") } returns Unit
@@ -172,6 +176,7 @@ class AuthServiceTest {
     fun testLogoutSuccess() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val storage = mock<TokenStorage>()
         every { storage.getRefreshToken() } returns "refresh-token"
         every { storage.storeTokens("access-token", "refresh-token") } returns Unit
@@ -201,6 +206,7 @@ class AuthServiceTest {
     fun testLogoutThrowsOnApiClientError() = runTest {
         // Arrange
         val apiClient = mock<ApiClient>()
+        every { apiClient.clearAuthCache() } returns Unit
         val storage = mock<TokenStorage>()
         every { storage.getRefreshToken() } returns "refresh-token"
         every { storage.storeTokens("access-token", "refresh-token") } returns Unit
