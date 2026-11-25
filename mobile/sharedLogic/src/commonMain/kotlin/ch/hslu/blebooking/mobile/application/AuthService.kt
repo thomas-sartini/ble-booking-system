@@ -37,6 +37,7 @@ internal class AuthService(
                     loginResponse.accessToken,
                     loginResponse.refreshToken
                 )
+                apiClient.clearAuthCache()
             }
 
             is ApiResult.Error -> {
@@ -49,7 +50,7 @@ internal class AuthService(
     suspend fun logout() {
         val rt = tokenStorage.getRefreshToken()
         if(rt.isNullOrBlank()){
-            tokenStorage.clearTokens()
+            clearTokens()
             return
         }
         val request = LogoutRequestDto(
@@ -57,11 +58,19 @@ internal class AuthService(
         )
         when (val result = apiClient.logout(request)) {
             is ApiResult.Success -> {
-                tokenStorage.clearTokens()
+                clearTokens()
             }
             is ApiResult.Error -> {
                 throw result.toMobileCoreException()
             }
+        }
+    }
+
+    internal fun clearTokens() {
+        try {
+            tokenStorage.clearTokens()
+        } finally {
+            apiClient.clearAuthCache()
         }
     }
 
@@ -76,7 +85,7 @@ internal class AuthService(
     internal suspend fun refreshAccessToken() {
         val rt = tokenStorage.getRefreshToken()
         if(rt.isNullOrBlank()){
-            tokenStorage.clearTokens()
+            clearTokens()
             return
         }
         val request = RefreshTokenRequestDto(
@@ -84,11 +93,12 @@ internal class AuthService(
         )
         when (val result = apiClient.refresh(request)) {
             is ApiResult.Success -> {
-                tokenStorage.clearTokens()
+                clearTokens()
                 tokenStorage.storeTokens(
                     accessToken = result.data.accessToken,
                     refreshToken = result.data.refreshToken
                 )
+                apiClient.clearAuthCache()
             }
             is ApiResult.Error -> {
                 throw result.toMobileCoreException()

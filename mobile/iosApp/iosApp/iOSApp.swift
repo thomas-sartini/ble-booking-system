@@ -7,17 +7,13 @@ struct iOSApp: App {
     private let container: AppContainer
 
     init() {
-        let storage = NativeSecureStorageAdapter(
-            delegate: IosSecureStorage.shared
-        )
-
+        let secureStorage = IosSecureStorage.shared
         let api = MobileCoreFactory.shared.create(
-            secureStorage: storage,
+            secureStorage: NativeSecureStorageAdapter(delegate: secureStorage),
             httpClientEngine: nil
         )
 
         container = AppContainer(mobileCoreApi: api)
-
     }
     var body: some Scene {
         WindowGroup {

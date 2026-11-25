@@ -6,11 +6,11 @@ struct Message: View {
     let type: MessageType
     var description: String? = nil
 
-    private var accent: Color {
+    private var colors: BLETheme.StatusColors {
         switch type {
-        case .success: .green
-        case .error: .red
-        case .warning: .orange
+        case .success: BLETheme.success
+        case .error: BLETheme.error
+        case .warning: BLETheme.warning
         }
     }
 
@@ -26,27 +26,26 @@ struct Message: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: symbol)
                 .font(.body.weight(.semibold))
-                .foregroundStyle(accent)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(verbatim: text)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
 
                 if let description {
                     Text(verbatim: description)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(16)
-        .background(
-            accent.opacity(0.12),
-            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
-        )
+        .foregroundStyle(colors.text)
+        .padding(14)
+        .background(colors.background, in: RoundedRectangle(cornerRadius: 8))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(colors.accent.opacity(type == .error ? 0.6 : 0.35))
+        }
         .accessibilityElement(children: .combine)
     }
 }

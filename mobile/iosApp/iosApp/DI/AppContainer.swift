@@ -8,11 +8,7 @@ final class AppContainer {
         self.mobileCoreApi = mobileCoreApi
     }
 
-    func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(mobileCoreApi: mobileCoreApi)
-    }
-
-    func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(mobileCoreApi: mobileCoreApi)
+    func makeAppViewModel() -> AppViewModel {
+        AppViewModel(mobileCoreApi: mobileCoreApi)
     }
 }

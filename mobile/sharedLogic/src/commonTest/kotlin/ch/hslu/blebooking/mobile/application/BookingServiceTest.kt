@@ -33,7 +33,7 @@ class BookingServiceTest {
         // Arrange (DTO fixtures remain provisional until this operation is implemented.)
         val apiClient = mock<ApiClient>()
         everySuspend {
-            apiClient.getActiveBookings(any())
+            apiClient.getActiveBookings()
         } returns ApiResult.Success(HttpStatusCode.OK, emptyList())
 
         val service = BookingService(apiClient)
@@ -46,7 +46,7 @@ class BookingServiceTest {
 
         // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            apiClient.getActiveBookings(any())
+            apiClient.getActiveBookings()
         }
     }
 
@@ -81,7 +81,7 @@ class BookingServiceTest {
         )
 
         everySuspend {
-            apiClient.getActiveBookings(any())
+            apiClient.getActiveBookings()
         } returns ApiResult.Success(HttpStatusCode.OK, bookings.map { BookingDto(it.id.toInt()) })
 
 
@@ -95,7 +95,7 @@ class BookingServiceTest {
 
         // Verify that the apiClient method was called
         verifySuspend(VerifyMode.exactly(1)) {
-            apiClient.getActiveBookings(any())
+            apiClient.getActiveBookings()
         }
     }
 
@@ -111,7 +111,7 @@ class BookingServiceTest {
         )
 
         everySuspend {
-            apiClient.getActiveBookings(any())
+            apiClient.getActiveBookings()
         } throws expectedException
 
         val service = BookingService(apiClient)
@@ -123,7 +123,7 @@ class BookingServiceTest {
         assertSame(expectedException, actualException)
 
         verifySuspend(VerifyMode.exactly(1)) {
-            apiClient.getActiveBookings(any())
+            apiClient.getActiveBookings()
         }
     }
 }

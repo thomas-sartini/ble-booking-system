@@ -14,12 +14,20 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class MobileCoreModule {
+
     @Provides
     @Singleton
-    fun provideDatabase(
+    fun provideSecureStorage(
         @ApplicationContext context: Context
-    ): MobileCoreApi{
-        val storage = AndroidSecureStorage(context)
+    ): AndroidSecureStorage {
+        return AndroidSecureStorage(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMobileCoreApi(
+        storage: AndroidSecureStorage
+    ): MobileCoreApi {
         return MobileCoreFactory.create(storage)
     }
 }

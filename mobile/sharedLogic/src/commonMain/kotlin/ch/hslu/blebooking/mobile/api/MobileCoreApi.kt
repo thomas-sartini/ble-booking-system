@@ -1,10 +1,11 @@
 
 package ch.hslu.blebooking.mobile.api
 
+import ch.hslu.blebooking.mobile.model.AccessConfirmation
 import ch.hslu.blebooking.mobile.model.Booking
 import ch.hslu.blebooking.mobile.model.ResourceAccessRequest
 import ch.hslu.blebooking.mobile.model.ResourceAccessResponse
-import ch.hslu.blebooking.mobile.model.AccessConfirmation
+import ch.hslu.blebooking.mobile.model.UserProfile
 import ch.hslu.blebooking.mobile.model.error.MobileCoreException
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -25,6 +26,11 @@ import kotlin.coroutines.cancellation.CancellationException
  * communication failures.
  */
 interface MobileCoreApi {
+
+    /** Restores a session without exposing credentials. Temporary failures preserve tokens. */
+    @Throws(CancellationException::class)
+    suspend fun restoreSession(): ch.hslu.blebooking.mobile.model.SessionRestoreResult
+
 
     /**
      * Authenticates a user using the provided credentials.
@@ -100,4 +106,13 @@ interface MobileCoreApi {
     suspend fun checkOut(
         resourceId: String
     )
+
+    /**
+     * Retrieves the profile of the currently authenticated user.
+     *
+     * @return The [UserProfile] of the current user.
+     * @throws MobileCoreException If the request fails or session is invalid.
+     */
+    @Throws(MobileCoreException::class, CancellationException::class)
+    suspend fun getUserProfile(): UserProfile
 }
