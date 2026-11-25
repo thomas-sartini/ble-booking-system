@@ -18,22 +18,18 @@ internal interface ApiClient {
         request: LogoutRequestDto
     ): ApiResult<Unit>
 
-    suspend fun getActiveBookings(
-        token: String
-    ): ApiResult<List<BookingDto>>
+    fun clearAuthCache()
+    suspend fun getActiveBookings(): ApiResult<List<BookingDto>>
 
     suspend fun requestAccess(
-        token: String,
         request: ResourceAccessRequestDto
     ): ApiResult<ResourceAccessResponseDto>
 
     suspend fun confirmAccess(
-        token: String,
         request: AccessConfirmationRequestDto
     ): ApiResult<Unit>
 
     suspend fun checkOut(
-        token: String,
         request: CheckOutRequestDto
     ): ApiResult<Unit>
 }

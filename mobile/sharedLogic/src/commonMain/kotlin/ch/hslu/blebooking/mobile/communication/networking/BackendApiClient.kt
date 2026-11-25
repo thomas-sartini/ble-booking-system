@@ -16,6 +16,9 @@ import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.auth.authProvider
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -66,31 +69,31 @@ internal class BackendApiClient(
         }
     }
 
-    override suspend fun getActiveBookings(token: String): ApiResult<List<BookingDto>> {
+    override fun clearAuthCache() {
+        httpClient.authProvider<BearerAuthProvider>()?.clearToken()
+    }
+
+    override suspend fun getActiveBookings(): ApiResult<List<BookingDto>> {
         TODO("Not yet implemented")
     }
 
     override suspend fun requestAccess(
-        token: String,
         request: ResourceAccessRequestDto
     ): ApiResult<ResourceAccessResponseDto> {
         TODO("Not yet implemented")
     }
 
     override suspend fun confirmAccess(
-        token: String,
         request: AccessConfirmationRequestDto
     ): ApiResult<Unit> {
         TODO("Not yet implemented")
     }
 
     override suspend fun checkOut(
-        token: String,
         request: CheckOutRequestDto
     ): ApiResult<Unit> {
         TODO("Not yet implemented")
     }
-
 
 
     private suspend inline fun <reified T> executeRequest(
