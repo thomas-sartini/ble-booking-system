@@ -7,5 +7,7 @@ data class Booking(
     val resourceId: String,
     val startTime: Instant,
     val endTime: Instant,
-    val status: BookingStatus
+    val status: BookingStatus,
+    val resourceName: String? = null,
+    val resourcePosition: String? = null
 )

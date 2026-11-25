@@ -74,8 +74,10 @@ internal class BackendApiClient(
         httpClient.authProvider<BearerAuthProvider>()?.clearToken()
     }
 
-    override suspend fun getActiveBookings(): ApiResult<List<BookingDto>> {
-        TODO("Not yet implemented")
+    override suspend fun getActiveBookings(): ApiResult<List<BookingDto>> = executeRequest {
+        httpClient.get("bookings") {
+            url.parameters.append("scope", "upcoming")
+        }
     }
 
     override suspend fun requestAccess(

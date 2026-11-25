@@ -61,7 +61,8 @@ interface MobileCoreApi {
     suspend fun logout()
 
     /**
-     * Retrieves the active bookings of the current user.
+     * Retrieves the current user's upcoming and ongoing BOOKED or CHECKED_IN bookings.
+     * The backend filters ownership and end time and orders results by start time.
      *
      * @return A list of active [Booking] objects,
      * or an empty list if no active bookings exist.
