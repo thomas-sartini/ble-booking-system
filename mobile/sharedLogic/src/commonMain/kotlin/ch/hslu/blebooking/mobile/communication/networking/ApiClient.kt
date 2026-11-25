@@ -18,6 +18,7 @@ internal interface ApiClient {
         request: LogoutRequestDto
     ): ApiResult<Unit>
 
+    fun clearAuthCache()
     suspend fun getActiveBookings(): ApiResult<List<BookingDto>>
 
     suspend fun requestAccess(

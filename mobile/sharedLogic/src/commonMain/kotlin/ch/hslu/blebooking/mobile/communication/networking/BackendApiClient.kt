@@ -10,13 +10,15 @@ import ch.hslu.blebooking.mobile.communication.dto.request.RefreshTokenRequestDt
 import ch.hslu.blebooking.mobile.communication.dto.response.RefreshTokenResponseDto
 import ch.hslu.blebooking.mobile.communication.dto.request.ResourceAccessRequestDto
 import ch.hslu.blebooking.mobile.communication.dto.response.ResourceAccessResponseDto
-import ch.hslu.blebooking.mobile.communication.dto.response.UserProfileResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.request.get
+import io.ktor.client.plugins.auth.authProvider
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -66,6 +68,10 @@ internal class BackendApiClient(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
+    }
+
+    override fun clearAuthCache() {
+        httpClient.authProvider<BearerAuthProvider>()?.clearToken()
     }
 
     override suspend fun getActiveBookings(): ApiResult<List<BookingDto>> {
