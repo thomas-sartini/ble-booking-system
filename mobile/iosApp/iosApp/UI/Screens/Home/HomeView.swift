@@ -1,6 +1,7 @@
 import Foundation
 import SharedLogic
 import SwiftUI
+import UIKit
 
 @MainActor
 struct HomeView: View {
@@ -8,6 +9,10 @@ struct HomeView: View {
     var messageData: MessageData? = nil
 
     @State private var bookingsReload = 0
+    @State private var discovery = TerminalDiscoveryManager(scanner: BleScanner())
+    @State private var showsDiscovery = false
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.openURL) private var openURL
 
     private var bookingsViewModel: BookingsViewModel { viewModel.bookingsViewModel }
 
@@ -68,6 +73,9 @@ struct HomeView: View {
             .background(BLETheme.background.ignoresSafeArea())
             .navigationTitle(Text("login_brand"))
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(isPresented: $showsDiscovery) {
+                ScanningView(discovery: discovery)
+            }
             .toolbar {
                 AppToolbar(
                     enabled: !viewModel.isLoading && !viewModel.isLoadingProfile && !bookingsViewModel.isLoading,
@@ -75,6 +83,9 @@ struct HomeView: View {
                 )
             }
             .task { await viewModel.loadUserProfile() }
+        }
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active { discovery.prepare() }
         }
         .task(id: bookingsReload) { await bookingsViewModel.loadBookings() }
         .onDisappear { viewModel.cancelLogout() }
@@ -129,20 +140,54 @@ struct HomeView: View {
 
     private var terminalControls: some View {
         VStack(spacing: 10) {
-            Label("home_bluetooth_demo", systemImage: "antenna.radiowaves.left.and.right")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(BLETheme.secondaryText)
-
-            Button(action: {}) {
-                Label("home_connect_terminal", systemImage: "antenna.radiowaves.left.and.right")
-                    .font(.headline)
+            switch discovery.availability {
+            case .ready:
+                Label("bluetooth_ready", systemImage: "antenna.radiowaves.left.and.right")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(BLETheme.accent)
+                Button {
+                    showsDiscovery = true
+                } label: {
+                    Label("home_connect_terminal", systemImage: "magnifyingglass")
+                }
+                .buttonStyle(BLEPrimaryButtonStyle())
+                .disabled(viewModel.isLoading)
+            case .permissionRequired:
+                Button {
+                    discovery.prepare(requestPermission: true)
+                } label: {
+                    Label("bluetooth_allow", systemImage: "antenna.radiowaves.left.and.right")
+                }
+                .buttonStyle(BLEPrimaryButtonStyle())
+                .disabled(viewModel.isLoading)
+            case .permissionDenied:
+                bluetoothHint("bluetooth_permission_denied")
+                Button("bluetooth_open_settings") {
+                    if let settings = URL(string: UIApplication.openSettingsURLString) {
+                        openURL(settings)
+                    }
+                }
+                .buttonStyle(BLEPrimaryButtonStyle())
+            case .initializing:
+                ProgressView("bluetooth_initializing")
+                    .font(.subheadline)
+            case .poweredOff:
+                bluetoothHint("bluetooth_powered_off")
+            case .unsupported:
+                bluetoothHint("bluetooth_unsupported")
             }
-            .buttonStyle(BLEPrimaryButtonStyle())
-            .disabled(true)
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, 24)
         .padding(.vertical, 12)
         .background(BLETheme.background)
+    }
+
+    private func bluetoothHint(_ key: LocalizedStringKey) -> some View {
+        Text(key)
+            .font(.subheadline)
+            .multilineTextAlignment(.center)
+            .foregroundStyle(BLETheme.secondaryText)
     }
 }
 
